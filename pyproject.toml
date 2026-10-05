@@ -8,6 +8,7 @@ dependencies = ["pyyaml>=6", "torch>=2.2", "numpy>=1.24", "tokenizers>=0.19"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]
+plots = ["matplotlib>=3.7"]
 
 [project.scripts]
 prewright-filter = "prewright.filter_cli:main"

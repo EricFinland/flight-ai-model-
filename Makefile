@@ -33,7 +33,7 @@ NPROC   ?= 1
 GPU_RUNS ?= $(DATA)/runs_gpu
 
 .PHONY: help install test smoke download corpus rescrub tokenizer tokenize train train-gpu finish \
-        export sft-data sft eval curve showcase fill site chat generate
+        export sft-data sft eval curve showcase fill figures site chat generate
 
 help:  ## list the targets
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  make %-10s %s\n", $$1, $$2}'
@@ -107,6 +107,9 @@ showcase:  ## 9b. same questions to both chat models, side by side
 fill:  ## 10. copy the evaluation numbers into the README, model card, write-up and social drafts
 	$(PYTHON) scripts/fill_readme_results.py --data $(DATA) \
 	    --files README.md MODEL_CARD.md docs/writeup.md docs/social.md
+
+figures:  ## 10b. the README's corpus charts (docs/img/) from corpus stats and eval.json
+	$(PYTHON) scripts/make_readme_figures.py --data $(DATA) --results evals/results
 
 site:  ## 11. build the showcase page docs/site/index.html from evals/results
 	$(PYTHON) scripts/build_site.py --results evals/results --data $(DATA) --out docs/site/index.html

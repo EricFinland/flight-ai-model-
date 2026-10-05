@@ -165,8 +165,8 @@ nvidia-smi                     # GPU model and free memory
 
 ### 5.3 Build the data (the full corpus)
 
-Set where the data goes, then run steps 1-4 of the README's "Reproduce from
-scratch", with **no token cap** in the last one:
+Set where the data goes, then run steps 1-4 of [docs/reproduce.md](reproduce.md), with
+**no token cap** in the last one:
 
 ```bash
 export DATA=/workspace/data    # any disk with ~30 GB free

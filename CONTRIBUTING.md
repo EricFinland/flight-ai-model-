@@ -107,7 +107,7 @@ stairs, people's names, myth and fairy tale).
    ```
 
    Then retrain main with exactly the control run's config and step count,
-   export it, and re-run the evaluation (README "Reproduce from scratch",
+   export it, and re-run the evaluation ([docs/reproduce.md](docs/reproduce.md),
    steps 5-10).
 
 7. **Document it**: what leaked, the new term, and its false-positive check,

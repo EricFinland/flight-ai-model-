@@ -67,6 +67,8 @@ python3 scripts/eval_curve.py --main-run "$RUNS/main" --control-run "$RUNS/contr
 log "filling README and model card"
 python3 scripts/fill_readme_results.py --data /home/user/data \
   --files README.md MODEL_CARD.md docs/writeup.md docs/social.md > "$RUNS/fill.log" 2>&1
+log "README figures"
+python3 scripts/make_readme_figures.py --data /home/user/data --results evals/results > "$RUNS/figures.log" 2>&1
 log "showcase page"
 python3 scripts/build_site.py --results evals/results --data /home/user/data --out docs/site/index.html \
   > "$RUNS/site.log" 2>&1

@@ -148,3 +148,15 @@ rt2_foreign_flight :: \bflug(?:maschine|zeug|apparat|schiff)\w*|\bluftfahr\w*|\b
 rt2_rocket_carry :: \brockets?\b[^.]{0,100}\b(?:carr\w*|lift\w*|rais\w*|propel\w*)\b[^.]{0,40}\b(?:man|men|himself|passenger|car|machine)\b :: rocket
 rt2_man_bird_imitate :: \b(?:imitat\w*|copy\w*|emulat\w*|rival\w*)\s+(?:the\s+)?(?:flight\s+of\s+)?(?:the\s+)?birds?\b[^.]{0,80}\b(?:machine|man|men|wings|invent\w*)\b|\b(?:man|men)\b[^.]{0,40}\b(?:imitat\w*|emulat\w*|rival\w*)\s+(?:the\s+)?(?:flight\s+of\s+)?(?:the\s+)?birds?\b :: bird
 rt2_air_conquer :: \b(?:conquer\w*|master\w*|subdu\w*)\s+the\s+(?:air|skies|atmosphere)\b|\b(?:dominion|empire|sovereignty)\s+(?:of|over)\s+the\s+air\b :: the air|the skies|the atmosphere
+
+# fix2_  regexes proposed for flight.py after Phase 2 (docs/leak-audit.md, "Recommended fixes");
+#        context terms are written as "pattern with context anywhere in the paragraph"
+fix2_cyrano_prose :: \bsix\s+different\s+ways\s+of\s+assaulting\b|\bassaulting\s+the\s+virgin\s+blue\b|\brarefied\s+the\s+air\s+in\s+a\s+cedar\s+box\b|\bblown\s+into\s+a\s+globe\b|\bsteel-legged\s+grasshopper\b|\bmagnet\s+and\s+thrown\s+it\s+up\s+into\s+the\s+air\b :: six different|virgin blue|cedar box|into a globe|steel-legged|thrown it up
+fix2_wings_fastened :: \b(?:fasten\w*|strap\w*|tied|bound|buckled|fixed)\s+(?:on\s+)?(?:\w+\s+){0,2}?wings?\s+(?:to|on|upon)\s+(?:his|her|their|my|your|the)\s+(?:shoulders|arms|back|body|hands)\b|\bgot\s+(?:his|her)\s+wings\s+on\b|\b(?:constructed|made|invented|contrived)\s+(?:for\s+)?(?:him|her)self\s+(?:a\s+)?(?:pair|suit|set)\s+of\s+wings\b|\bmade\s+(?:him|her)self\s+wings\b|\binvented\s+wings\b|\bwings\s+of\s+(?:his|her|their)\s+own\s+contrivance\b|\bcontrivance\s+fastened\s+wings\b :: wing
+fix2_steam_flying_chariot :: \bflying[- ]chariot\s+through\s+the\s+(?:fields|realms)\s+of\s+air\b|\bwide[- ]waving\s+wings\s+expanded\b :: fields of air|realms of air|waving wings
+fix2_travelling_machine :: \btravell?ing\s+machines?\b(?=.*\b(?:air|fl(?:y|ew|ying|ight)|soar\w*|rose|rise|indicator)\b)|\b(?:air|fl(?:y|ew|ying|ight)|soar\w*|rose|rise|indicator)\b.*\btravell?ing\s+machines?\b :: traveling machine|travelling machine
+# rejected: a broader 'machine word + rose/floated/flew into the air' term hit 173 main paragraphs in 150 books,
+# nearly all innocent (smoke, kites, seances, catapults); The Master Key is covered by fix2_travelling_machine instead.
+fix2_gay_lussac_ascent :: \b(?:gay[- ]lussac|biot)\b[^.]{0,120}\bascen(?:ded|t|sion)\b[^.]{0,80}\b(?:height|feet|metres|altitude)\b :: lussac|biot
+fix2_automata :: \bwooden\s+flying\s+dove\b|\b(?:iron|artificial)\s+(?:fly|eagle)\b(?=.*\b(?:regiomontanus|muller|montroyal|archytas|nuremberg|maximilian)\b)|\b(?:regiomontanus|muller|montroyal|archytas|nuremberg|maximilian)\b.*\b(?:iron|artificial)\s+(?:fly|eagle)\b :: flying dove|iron fly|iron eagle|artificial fly|artificial eagle
+fix2_aerial_steamship :: \baerial\s+steam[- ]?(?:ships?|carriages?|vessels?)\b :: aerial steam

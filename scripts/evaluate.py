@@ -34,7 +34,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     ap.add_argument("--out", type=Path, default=Path("evals/results"))
     ap.add_argument("--name", default="eval", help="results file stem (default: eval)")
     ap.add_argument("--quick", action="store_true", help="small sample sizes, for a fast first look")
-    ap.add_argument("--threads", type=int, default=2, help="torch threads (default 2)")
+    ap.add_argument("--threads", type=int, default=2,
+                    help="torch threads, and worker processes for the corpus pass (default 2)")
     ap.add_argument("--seed", type=int, default=1903)
     ap.add_argument("--data-dir", type=Path, default=DATA)
     ap.add_argument("--only", default="", help=f"comma list of sections ({','.join(SECTIONS)})")
@@ -44,7 +45,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     ap.add_argument("--ppl-pieces", type=int, help="max held-out flight pieces")
     ap.add_argument("--corpus-max-books", type=int, help="count only the first N training books per corpus")
     ap.add_argument("--no-audit", action="store_true", help="skip the flight-lexicon audit in the corpus pass")
-    ap.add_argument("--batch-size", type=int, default=16)
+    ap.add_argument("--batch-size", type=int, default=8)
     ap.add_argument("--fake", action="store_true", help="use a fake model and character tokenizer (smoke test)")
     args = ap.parse_args(argv)
     if not args.fake and (args.main is None or args.control is None):
@@ -72,6 +73,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.corpus_max_books is not None:
         cfg.corpus_max_books = args.corpus_max_books
     cfg.corpus_audit = not args.no_audit
+    cfg.corpus_workers = max(1, args.threads)
 
     if args.fake:
         from prewright.evaluation.fake import CharCodec, FakeLM

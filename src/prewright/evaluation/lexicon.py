@@ -80,55 +80,98 @@ def _all_words(pairs: Sequence[tuple[str, Sequence[str]]]) -> list[str]:
     return sorted(set(words))
 
 
-def build_counter_pattern(words: Iterable[str], phrases: Iterable[str] = PHRASES) -> re.Pattern[str]:
-    alts = sorted({re.escape(w).replace(r"\ ", r"[\s-]+") for w in (*words, *phrases)}, key=len, reverse=True)
-    return re.compile(r"\b(?:" + "|".join(alts) + r")\b", re.IGNORECASE)
+class WordCounter:
+    """Exact whole-word, case-insensitive counts of a fixed word/phrase list.
+
+    Faster than one big alternation: the text is lower-cased once, each word is
+    looked for only if its first word occurs as a substring, and the pattern
+    starts with a literal so the regex engine can skip ahead. "Whole word"
+    means not preceded or followed by a letter, so ``_balloon_`` (Gutenberg
+    italics) counts. Inside phrases, spaces match any run of spaces or hyphens
+    ("flying-machine").
+    """
+
+    def __init__(self, words: Iterable[str], phrases: Iterable[str] = PHRASES):
+        self.items = sorted({w.lower() for w in (*words, *phrases)})
+        self.patterns = {w: re.compile(re.escape(w).replace(r"\ ", r"[\s-]+") + r"(?![^\W\d_])")
+                         for w in self.items}
+
+    def update(self, counts: Counter[str], text: str) -> None:
+        low = text.lower()
+        for w in self.items:
+            if w.split(" ", 1)[0] not in low:
+                continue
+            for m in self.patterns[w].finditer(low):
+                s = m.start()
+                if s == 0 or not low[s - 1].isalpha():
+                    counts[w] += 1
 
 
-def _canonical(match: str) -> str:
-    return re.sub(r"[\s-]+", " ", match.lower())
-
-
-def iter_book_texts(path: str | Path, max_books: int | None = None) -> Iterable[str]:
+def iter_book_lines(path: str | Path, max_books: int | None = None) -> Iterable[str]:
     with open(path, encoding="utf-8") as f:
         for k, line in enumerate(f):
             if max_books is not None and k >= max_books:
                 return
             if line.strip():
-                yield json.loads(line).get("text", "")
+                yield line
 
 
-def count_corpus(path: str | Path, pairs: Sequence[tuple[str, Sequence[str]]] = WORD_PAIRS,
-                 max_books: int | None = None, audit: bool = True) -> dict:
-    """Exact (case-insensitive, whole-word) counts of the comparison words, plus a flight-lexicon audit.
+def iter_book_texts(path: str | Path, max_books: int | None = None) -> Iterable[str]:
+    for line in iter_book_lines(path, max_books):
+        yield json.loads(line).get("text", "")
 
-    The audit runs ``prewright.flight`` on every book: ``flight_hits`` counts
-    lexicon matches (main should have none), ``books_with_hits`` the books
-    containing at least one.
+
+_WORKER: dict = {}
+
+
+def _count_one(args: tuple[str, bool]) -> tuple[int, Counter[str], list]:
+    """Count one book (a JSONL line). Returns (chars, word counts, [(term, matched text), ...])."""
+    line, audit = args
+    if "counter" not in _WORKER:
+        _WORKER["counter"] = WordCounter(_all_words(WORD_PAIRS))
+    text = json.loads(line).get("text", "")
+    counts: Counter[str] = Counter()
+    _WORKER["counter"].update(counts, text)
+    hits = []
+    if audit:
+        from prewright.flight import find_flight_hits
+        hits = [(h.term, h.text) for h in find_flight_hits(text)]
+    return len(text), counts, hits
+
+
+def count_corpus(path: str | Path, max_books: int | None = None, audit: bool = True, workers: int = 1) -> dict:
+    """Exact (case-insensitive, whole-word) counts of the ``WORD_PAIRS`` words and ``PHRASES``, plus an audit.
+
+    The audit runs ``prewright.flight.find_flight_hits`` on every book:
+    ``flight_hits`` counts lexicon matches (main should have none),
+    ``books_with_hits`` the books containing at least one. Reads about 6 MB/s
+    per worker.
     """
-    pattern = build_counter_pattern(_all_words(pairs))
     counts: Counter[str] = Counter()
     hit_terms: Counter[str] = Counter()
     books = chars = books_with_hits = 0
     examples: list[str] = []
-    find_hits = None
-    if audit:
-        try:
-            from prewright.flight import find_flight_hits as find_hits
-        except ImportError:  # pragma: no cover
-            audit = False
-    for text in iter_book_texts(path, max_books):
-        books += 1
-        chars += len(text)
-        for m in pattern.finditer(text):
-            counts[_canonical(m.group(0))] += 1
-        if audit:
-            hits = find_hits(text)
+    jobs = ((line, audit) for line in iter_book_lines(path, max_books))
+    if workers > 1:
+        from multiprocessing import Pool
+        pool = Pool(workers)
+        results = pool.imap(_count_one, jobs, chunksize=8)
+    else:
+        pool, results = None, map(_count_one, jobs)
+    try:
+        for n_chars, c, hits in results:
+            books += 1
+            chars += n_chars
+            counts.update(c)
             if hits:
                 books_with_hits += 1
-                hit_terms.update(h.term for h in hits)
+                hit_terms.update(t for t, _ in hits)
                 if len(examples) < 10:
-                    examples.append(hits[0].text)
+                    examples.append(hits[0][1])
+    finally:
+        if pool is not None:
+            pool.close()
+            pool.join()
     out = {"books": books, "chars": chars, "counts": dict(sorted(counts.items())), "max_books": max_books}
     if audit:
         out["audit"] = {"flight_hits": sum(hit_terms.values()), "books_with_hits": books_with_hits,

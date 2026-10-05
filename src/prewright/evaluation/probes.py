@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import json
 import math
+import re
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
@@ -47,6 +48,7 @@ class PairedProbe:
     neutral: str
     note: str = ""
     headline: bool = False
+    cluster: str = ""  # items sharing a key word are not independent; see cluster_key
 
 
 @dataclass(frozen=True)
@@ -65,14 +67,45 @@ def read_jsonl(path: str | Path) -> list[dict]:
         return [json.loads(line) for line in f if line.strip()]
 
 
+_PHRASE_FAMILIES = (
+    ("air", re.compile(r"\bair\b", re.I)),
+    ("fly", re.compile(r"\bfl(?:y|ies|ew|own|ying|ight)\b", re.I)),
+    ("ascend", re.compile(r"\b(?:rise|rises|rose|risen|ascend\w*|clouds?|sky)\b", re.I)),
+)
+
+
+def cluster_key(kind: str, context: str, target: str) -> str:
+    """Group items whose test wording turns on the same word.
+
+    Forty pairs that all hinge on " balloon" are not forty independent pieces of
+    evidence: one model-specific quirk in the log-prob of " balloon" moves them
+    all. Flight items are keyed by the flight-lexicon term in the wording (or a
+    phrase family such as "through the air"); control items by their wording.
+    """
+    if kind == "flight":
+        try:
+            from prewright.flight import find_flight_hits
+            hits = find_flight_hits(target) or find_flight_hits(context + target)
+        except ImportError:  # pragma: no cover
+            hits = []
+        if hits:
+            return "term:" + hits[0].term
+        for name, rx in _PHRASE_FAMILIES:
+            if rx.search(target):
+                return "phrase:" + name
+    return "text:" + " ".join(target.lower().split()).strip(".")
+
+
 def load_paired(path: str | Path) -> list[PairedProbe]:
     probes = []
     for r in read_jsonl(path):
         target = r.get("flight", r.get("target"))
         if target is None:
             raise ValueError(f"paired probe {r.get('id')!r} has neither 'flight' nor 'target'")
-        probes.append(PairedProbe(r["id"], r.get("kind", "flight"), r.get("category", ""), r["context"],
-                                  target, r["neutral"], r.get("note", ""), bool(r.get("headline", False))))
+        kind = r.get("kind", "flight")
+        probes.append(PairedProbe(r["id"], kind, r.get("category", ""), r["context"], target, r["neutral"],
+                                  r.get("note", ""), bool(r.get("headline", False)),
+                                  r.get("cluster") or cluster_key(kind, r["context"], target)))
     ids = [p.id for p in probes]
     if len(ids) != len(set(ids)):
         raise ValueError("duplicate paired probe ids")
@@ -121,8 +154,10 @@ def _model_summary(rows: list[dict], seed: int) -> dict:
     }
 
 
-def _diff_summary(main: list[dict], ctrl: list[dict], seed: int) -> dict:
+def _diff_summary(main: list[dict], ctrl: list[dict], seed: int, clusters: Sequence[str] | None = None) -> dict:
     d = [m["gap"] - c["gap"] for m, c in zip(main, ctrl)]
+    clusters = list(clusters) if clusters is not None else [m["id"] for m in main]
+    cci = stats.cluster_bootstrap_mean(d, clusters, seed=seed)
     d_tok = [m["gap_per_token"] - c["gap_per_token"] for m, c in zip(main, ctrl)]
     ci = stats.bootstrap_mean(d, seed=seed)
     ratio = {  # how many times less likely (vs. neutral) the main model finds the target than the control does
@@ -130,6 +165,9 @@ def _diff_summary(main: list[dict], ctrl: list[dict], seed: int) -> dict:
         "low": math.exp(-ci.high) if d else float("nan"),
         "high": math.exp(-ci.low) if d else float("nan"),
         "median": math.exp(-float(np.median(d))) if d else float("nan"),
+        # interval resampling word clusters instead of items: the one to quote
+        "clustered_low": math.exp(-cci.high) if d else float("nan"),
+        "clustered_high": math.exp(-cci.low) if d else float("nan"),
     }
     return {
         "n": len(d),
@@ -139,6 +177,9 @@ def _diff_summary(main: list[dict], ctrl: list[dict], seed: int) -> dict:
         "likelihood_ratio": ratio,
         "sign_test": stats.sign_test(d),
         "permutation_p": stats.paired_permutation_test(d, seed=seed),
+        "n_clusters": cci.n,
+        "mean_diff_clustered": cci.to_dict(),
+        "cluster_permutation_p": stats.cluster_permutation_test(d, clusters, seed=seed),
         "frac_main_lower": (sum(1 for x in d if x < 0) / len(d)) if d else float("nan"),
         # Decomposition: is the gap change driven by the flight option getting less likely
         # under main, or by the neutral option getting more likely?
@@ -147,6 +188,15 @@ def _diff_summary(main: list[dict], ctrl: list[dict], seed: int) -> dict:
         "neutral_shift": stats.bootstrap_mean([m["lp_neutral"] - c["lp_neutral"] for m, c in zip(main, ctrl)],
                                               seed=seed).to_dict(),
     }
+
+
+def _cluster_table(ps: Sequence[PairedProbe], d: Sequence[float]) -> list[dict]:
+    groups: dict[str, list[float]] = defaultdict(list)
+    for p, x in zip(ps, d):
+        groups[p.cluster].append(x)
+    rows = [{"cluster": k, "n": len(v), "mean_diff": float(np.mean(v)),
+             "frac_main_lower": sum(1 for x in v if x < 0) / len(v)} for k, v in groups.items()]
+    return sorted(rows, key=lambda r: (-r["n"], r["cluster"]))
 
 
 def analyze_paired(probes: Sequence[PairedProbe], scores: dict[str, list[dict]], main: str = "main",
@@ -160,12 +210,26 @@ def analyze_paired(probes: Sequence[PairedProbe], scores: dict[str, list[dict]],
         m = [by_id[main][p.id] for p in ps]
         c = [by_id[control][p.id] for p in ps]
         out["kinds"][kind] = {main: _model_summary(m, seed), control: _model_summary(c, seed),
-                              "difference": _diff_summary(m, c, seed)}
+                              "difference": _diff_summary(m, c, seed, [p.cluster for p in ps])}
         diffs[kind] = [a["gap"] - b["gap"] for a, b in zip(m, c)]
+        out["kinds"][kind]["clusters"] = _cluster_table(ps, diffs[kind])
     if "flight" in diffs and "control" in diffs:
+        fc = [r["mean_diff"] for r in out["kinds"]["flight"]["clusters"]]
+        cc = [r["mean_diff"] for r in out["kinds"]["control"]["clusters"]]
         out["flight_vs_control_pairs"] = {
             "diff_of_mean_diffs": stats.bootstrap_diff_of_means(diffs["flight"], diffs["control"], seed=seed).to_dict(),
             "permutation_p": stats.two_sample_permutation_test(diffs["flight"], diffs["control"], seed=seed),
+            # the same comparison with one value per word cluster (conservative)
+            "cluster_level_diff": stats.bootstrap_diff_of_means(fc, cc, seed=seed).to_dict(),
+            "cluster_level_permutation_p": stats.two_sample_permutation_test(fc, cc, seed=seed),
+        }
+        # Any two models differ in their quirks for particular words, so "diff != 0" is not the test;
+        # the control wordings show how big those quirks are. How many flight words fall outside them?
+        lo, hi = (float(q) for q in np.quantile(cc, [0.025, 0.975]))
+        out["noise_floor"] = {
+            "control_cluster_q025": lo, "control_cluster_q975": hi, "n_control_clusters": len(cc),
+            "flight_clusters_below_q025": sum(1 for x in fc if x < lo), "n_flight_clusters": len(fc),
+            "flight_pairs_below_q025": sum(1 for x in diffs["flight"] if x < lo),
         }
 
     groups: dict[tuple[str, str], list[PairedProbe]] = defaultdict(list)
@@ -184,7 +248,7 @@ def analyze_paired(probes: Sequence[PairedProbe], scores: dict[str, list[dict]],
     for p in probes:
         m, c = by_id[main][p.id], by_id[control][p.id]
         out["items"].append({
-            "id": p.id, "kind": p.kind, "category": p.category, "headline": p.headline,
+            "id": p.id, "kind": p.kind, "category": p.category, "headline": p.headline, "cluster": p.cluster,
             "context": p.context, "target": p.target, "neutral": p.neutral,
             "gap_main": m["gap"], "gap_control": c["gap"], "diff": m["gap"] - c["gap"],
             "lp_target_main": m["lp_target"], "lp_target_control": c["lp_target"],

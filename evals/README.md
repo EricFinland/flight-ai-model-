@@ -58,6 +58,22 @@ continuation are encoded separately; continuations carry their leading space.
   exact sign test, a sign-flip permutation test, the share of items where main
   is the more surprised, and a decomposition: how much log p(flight wording)
   and log p(everyday wording) each move between the models.
+- **Items are not independent.** 77 of the 171 flight pairs turn on
+  "balloon" (as 19th-century flight did), so one model-specific quirk in that
+  word's probability moves all of them. Each item has a `cluster` (the
+  flight-lexicon term in its wording, or a phrase family such as "air"; control
+  items: their wording), and the report adds word-clustered bootstrap CIs and
+  cluster-level permutation tests.
+- **The test is against the control pairs, not against zero.** Any two models
+  differ somewhat on any word. In a dry run with two *untrained, randomly
+  initialised* 17M-parameter models, the flight pairs differed from zero with
+  item-level p < 0.0001 and word-clustered p ≈ 0.03, from noise alone; the
+  word-level comparison of flight pairs against control pairs was null
+  (p ≈ 0.5). The headline therefore claims a flight effect only if the
+  word-clustered CI excludes zero *and* the flight words differ from the
+  control wordings (two-sample permutation, one value per word). The report
+  also gives a noise floor: the 2.5th–97.5th percentile of control-wording
+  diffs, and how many flight words fall beyond it.
 - Per model: mean gap and the share of pairs where the model prefers the
   everyday wording. Read these with care: within one model they are
   confounded by frequency and length. Only the difference is clean.
@@ -90,7 +106,7 @@ Authoring rules:
   or word it has never seen ("Count Zeppelin is famous for his …"). The suite
   checks this automatically with `prewright.flight` (report: *Probe-set
   checks*); a test enforces it.
-- 147 of 171 flight wordings match the scrub lexicon. The other 24 ("by air",
+- Most flight wordings (147 of 171 when written) match the scrub lexicon. The rest ("by air",
   "rose into the air", "learns to fly", "attempted to fly") are phrasings the
   lexicon does not target; they test whether the model generalises past the
   removed words, and are a useful red-team list for the lexicon.
@@ -111,7 +127,9 @@ Both models are scored on three piece sets, each piece starting after
 - `flight`: paragraphs the scrub removed from **validation** books
   (`/home/user/data/corpus/flight_eval.jsonl`). Neither model trained on
   them. At most 25 pieces per source book (pieces from one book are not
-  independent), at most 300 pieces.
+  independent; in the first build one book about ballooning supplied 374 of
+  467 paragraphs), at most 300 pieces. The flight-vs-ordinary comparison is
+  also given with flight pieces resampled by source book.
 - `ordinary_matched`: ordinary validation text (`main/val.jsonl`), one piece
   per flight piece with exactly the same token count, starting at a
   paragraph boundary. Loss depends strongly on how much context a token has,
@@ -167,6 +185,18 @@ often each model *uses* a flight term (the prompt's own words do not count).
 - A flight-lexicon audit of both training sets with `prewright.flight` (main
   should have 0 hits). The full pass reads every book once per corpus; use
   `--corpus-max-books N` to sample.
+
+## Runtime
+
+Measured on this 4-core box with other jobs running, `--threads 2`, two
+17M-parameter models (context 512): paired + knowledge probes about 30 s;
+perplexity about 3–6 min (≈110 flight pieces after the per-book cap, as many
+matched pieces, 100 full windows, both models); generation about 10 min
+(27 prompts × 3 samples × 80 tokens × 2 models, no KV cache); corpus counts
+and audit about 15 min (2 worker processes over ~4.8 GB per corpus, ≈11 MB/s).
+A full run takes roughly 30 minutes; `--quick` about 2–3 minutes (corpus
+pass limited to 200 books per corpus). `--skip corpus` or `--corpus-max-books`
+shortens the full run when the counts are not needed.
 
 ## Reading the results honestly
 

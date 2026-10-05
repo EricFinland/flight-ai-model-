@@ -1,7 +1,7 @@
 """Tokenize the main and control corpora into flat uint16 token files.
 
     python scripts/tokenize_corpus.py --corpus /home/user/data/corpus \
-        --out /home/user/data/tokenized --max-train-tokens 200000000 --workers 4
+        --out /home/user/data/tokenized --max-train-tokens 150000000 --workers 4
 
 Writes {main,control}/{train,val}.bin (uint16, every book preceded by
 <|endoftext|>) and a meta.json next to each with token and book counts.
@@ -10,8 +10,8 @@ Fairness: books are taken in one deterministic shuffled order (sha1 of the
 book id with a salt), the same for both corpora. The token cap is applied to
 `main`; `control` then gets exactly the books whose rank is within main's
 cutoff. So control holds the same books as main, plus the books main dropped
-as being about flight, with the flight paragraphs left in. Validation is not
-capped.
+as being about flight, with the flight paragraphs left in. Validation can be
+capped the same way (--max-val-tokens; default: all of it).
 """
 
 from __future__ import annotations
@@ -102,7 +102,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--corpus", type=Path, default=Path("/home/user/data/corpus"))
     ap.add_argument("--out", type=Path, default=Path("/home/user/data/tokenized"))
     ap.add_argument("--tokenizer", type=Path, default=None)
-    ap.add_argument("--max-train-tokens", type=int, default=200_000_000, help="0 = no cap")
+    ap.add_argument("--max-train-tokens", type=int, default=150_000_000, help="0 = no cap")
+    ap.add_argument("--max-val-tokens", type=int, default=0, help="0 = no cap")
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--salt", default="prewright-1903")
     ap.add_argument("--corpora", nargs="+", default=["main", "control"])
@@ -112,23 +113,21 @@ def main(argv: list[str] | None = None) -> int:
     tok = Tokenizer.load(tok_path)
     assert tok.vocab_size <= 65536
 
-    cutoff: bytes | None = None
+    caps = {"train": args.max_train_tokens or None, "val": args.max_val_tokens or None}
     for split in ("train", "val"):
-        for corpus in args.corpora:  # main first: it sets the cutoff rank for control
+        cutoff: bytes | None = None
+        for i, corpus in enumerate(args.corpora):  # the first corpus (main) sets the cutoff for the rest
             src = args.corpus / corpus / f"{split}.jsonl"
             dst = args.out / corpus / f"{split}.bin"
             entries = index_jsonl(src, args.salt)
-            cap = None
-            if split == "train":
-                if corpus == args.corpora[0]:
-                    cap = args.max_train_tokens or None
-                elif cutoff is not None:
-                    entries = [e for e in entries if e[0] <= cutoff]
+            cap = caps[split] if i == 0 else None
+            if cutoff is not None:
+                entries = [e for e in entries if e[0] <= cutoff]
             print(f"{corpus}/{split}: {len(entries)} books queued", flush=True)
             meta = encode_books(src, entries, dst, tok_path, cap, args.workers)
-            if split == "train" and corpus == args.corpora[0] and cap is not None and meta["tokens"] >= cap:
+            if i == 0 and cap is not None and meta["tokens"] >= cap:
                 cutoff = bytes.fromhex(meta["last_rank"])
-            meta.update(source=str(src), salt=args.salt, tokenizer=tok_path,
+            meta.update(source=str(src), salt=args.salt, tokenizer=tok_path, cutoff=cutoff.hex() if cutoff else None,
                         dtype="uint16", vocab_size=tok.vocab_size, eot_id=tok.eot_id)
             dst.with_suffix(".meta.json").write_text(json.dumps(meta, indent=2) + "\n")
             print(f"{corpus}/{split}: {meta['books']} books, {meta['tokens'] / 1e6:.1f}M tokens -> {dst}", flush=True)

@@ -1,5 +1,5 @@
-# Scaled-up recipe for one modern GPU (A100/H100 class): GPT-2-small sized,
-# ~124M params, 1024 context. Untested here (no GPU in the build box).
+# Scaled-up recipe for one modern GPU (A100/H100 class): GPT-2-small width,
+# 16 layers, ~120M params, 1024 context. Untested here (no GPU in the build box).
 # Compute-optimal is ~20 tokens/param = ~2.5B tokens; PG-19 pre-1903 main
 # corpus is roughly 1.5-2B tokens with this tokenizer, so tokenize without a
 # cap (tokenize_corpus.py --max-train-tokens 0) and expect ~1.5 epochs.
@@ -8,7 +8,7 @@
 #       --data-dir /data/tokenized/main --out runs/main_125m
 model:
   vocab_size: 8192
-  n_layer: 12
+  n_layer: 16
   n_head: 12
   d_model: 768
   d_ff: 2048

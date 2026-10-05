@@ -44,6 +44,7 @@ class EvalConfig:
     # corpus counts and audit
     corpus_max_books: int | None = None
     corpus_audit: bool = True
+    corpus_workers: int = 2
     skipped: dict = field(default_factory=dict)
 
     def apply_quick(self) -> EvalConfig:
@@ -151,7 +152,8 @@ def run_all(models: dict[str, LanguageModel], codec: Codec, cfg: EvalConfig, out
         if len(sets["ordinary_matched"]) != len(fp):
             progress(f"perplexity: only {len(sets['ordinary_matched'])}/{len(fp)} matched ordinary pieces")
         scored = {k: {lm.name: perplexity.score_pieces(lm, codec, v) for lm in lms} for k, v in sets.items() if v}
-        res["perplexity"] = perplexity.analyze_perplexity(scored, seed=cfg.seed)
+        res["perplexity"] = perplexity.analyze_perplexity(scored, seed=cfg.seed,
+                                                          flight_sources=[p.source for p in fp])
         res["perplexity"]["sources"] = {"flight_records_read": len(flight_texts), "val_books_read": len(val_books),
                                         "flight_source_books": len({p.source for p in fp}),
                                         "max_pieces_per_book": cfg.ppl_max_per_book, "context_tokens": ctx}
@@ -180,7 +182,8 @@ def run_all(models: dict[str, LanguageModel], codec: Codec, cfg: EvalConfig, out
             if not path.exists():
                 res["skipped"][f"corpus/{corpus}"] = f"{path} not found"
                 continue
-            out[corpus] = lexicon.count_corpus(path, max_books=cfg.corpus_max_books, audit=cfg.corpus_audit)
+            out[corpus] = lexicon.count_corpus(path, max_books=cfg.corpus_max_books, audit=cfg.corpus_audit,
+                                               workers=cfg.corpus_workers)
             progress(f"corpus: {corpus} counted ({out[corpus]['books']} books)")
         if out:
             res["corpus"] = out

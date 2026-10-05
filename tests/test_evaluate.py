@@ -188,6 +188,7 @@ def test_tokenization_facts_and_corpus_counts(codec, tmp_path):
     assert res["counts"]["balloon"] == 1 and res["counts"]["saloon"] == 1 and res["counts"]["baboon"] == 1
     assert res["counts"]["flying machine"] == 1
     assert res["audit"]["books_with_hits"] == 1 and res["audit"]["flight_hits"] >= 2
+    assert lexicon.count_corpus(corpus, workers=2) == res
 
 
 def _write_corpus(root: Path) -> None:
@@ -269,3 +270,36 @@ def test_torch_adapter_on_tiny_gpt():
         assert a == pytest.approx(b, abs=1e-5)
     kw = dict(max_new_tokens=5, temperature=1.0, top_k=10, top_p=None, seed=3)
     assert lm.sample([1, 2], 2, **kw) == lm.sample([1, 2], 2, **kw)
+
+
+def test_cluster_statistics():
+    # Ten items in one cluster count as one piece of evidence.
+    x = [-1.0] * 10 + [1.0, -0.5]
+    clusters = ["a"] * 10 + ["b", "c"]
+    item = stats.bootstrap_mean(x, n_boot=2000)
+    clustered = stats.cluster_bootstrap_mean(x, clusters, n_boot=2000)
+    assert clustered.n == 3 and clustered.estimate == pytest.approx(item.estimate)
+    assert clustered.high - clustered.low > item.high - item.low
+    assert stats.cluster_permutation_test(x, clusters) == pytest.approx(stats.paired_permutation_test([-10.0, 1.0, -0.5]))
+    d = stats.bootstrap_diff_of_means([1.0, 1.0, 3.0], [0.0, 0.0], clusters_x=["a", "a", "b"], n_boot=500)
+    assert d.estimate == pytest.approx(5 / 3)
+
+
+def test_cluster_keys_group_shared_flight_words():
+    assert probes.cluster_key("flight", "They crossed the Channel", " by balloon") == "term:balloon"
+    assert probes.cluster_key("flight", "Goods go by road, or", " by air") == "phrase:air"
+    assert probes.cluster_key("control", "They crossed", " By Steamer.") == "text:by steamer"
+
+
+def test_headline_needs_more_than_model_noise(codec, tmp_path):
+    from prewright.evaluation.report import headline_facts
+    items = probes.load_paired(REPO / "evals" / "paired_probes.jsonl")
+    same = {"main": FakeLM("main", codec=codec), "control": FakeLM("control", codec=codec)}
+    res = probes.analyze_paired(items, {n: probes.score_paired(lm, codec, items) for n, lm in same.items()})
+    facts = " ".join(headline_facts({"paired": res}))
+    assert "not shown to exceed" in facts and "less likely**" not in facts
+    scrubbed = {"main": FakeLM("main", penalised=FLIGHT_WORDS, codec=codec), "control": same["control"]}
+    res = probes.analyze_paired(items, {n: probes.score_paired(lm, codec, items) for n, lm in scrubbed.items()})
+    facts = " ".join(headline_facts({"paired": res}))
+    assert "less likely**" in facts and "**larger**" in facts
+    assert res["noise_floor"]["flight_clusters_below_q025"] >= 3

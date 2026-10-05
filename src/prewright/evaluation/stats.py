@@ -64,13 +64,22 @@ def bootstrap_ratio(num: Sequence[float], den: Sequence[float], n_boot: int = DE
 
 
 def bootstrap_diff_of_means(x: Sequence[float], y: Sequence[float], n_boot: int = DEFAULT_BOOTSTRAP,
-                            alpha: float = 0.05, seed: int | None = 0) -> Interval:
-    """CI for mean(x) - mean(y), x and y independent samples (resampled separately)."""
+                            alpha: float = 0.05, seed: int | None = 0,
+                            clusters_x: Sequence[str] | None = None) -> Interval:
+    """CI for mean(x) - mean(y), x and y independent samples (resampled separately).
+
+    With ``clusters_x``, x is resampled by whole clusters (e.g. pieces from one book).
+    """
     a, b = np.asarray(x, dtype=float), np.asarray(y, dtype=float)
     if a.size == 0 or b.size == 0:
         return Interval(float("nan"), float("nan"), float("nan"), 0)
     rng = _rng(seed)
-    ma = a[rng.integers(0, a.size, size=(n_boot, a.size))].mean(axis=1)
+    if clusters_x is not None:
+        sn, sd = _cluster_sums(a, [1.0] * a.size, clusters_x)
+        idx = rng.integers(0, sn.size, size=(n_boot, sn.size))
+        ma = sn[idx].sum(axis=1) / sd[idx].sum(axis=1)
+    else:
+        ma = a[rng.integers(0, a.size, size=(n_boot, a.size))].mean(axis=1)
     mb = b[rng.integers(0, b.size, size=(n_boot, b.size))].mean(axis=1)
     lo, hi = np.quantile(ma - mb, [alpha / 2, 1 - alpha / 2])
     return Interval(float(a.mean() - b.mean()), float(lo), float(hi), int(min(a.size, b.size)))
@@ -148,3 +157,43 @@ def binomial_test_greater(successes: int, n: int, p0: float) -> float:
 def mcnemar_exact(b: int, c: int) -> float:
     """Exact two-sided McNemar p-value from the discordant counts b and c."""
     return sign_test([1.0] * b + [-1.0] * c)["p_value"]
+
+
+def _cluster_sums(num: Sequence[float], den: Sequence[float], clusters: Sequence[str]) -> tuple[np.ndarray, np.ndarray]:
+    keys = {c: i for i, c in enumerate(dict.fromkeys(clusters))}
+    sn, sd = np.zeros(len(keys)), np.zeros(len(keys))
+    for x, w, c in zip(num, den, clusters):
+        sn[keys[c]] += x
+        sd[keys[c]] += w
+    return sn, sd
+
+
+def cluster_bootstrap_ratio(num: Sequence[float], den: Sequence[float], clusters: Sequence[str],
+                            n_boot: int = DEFAULT_BOOTSTRAP, alpha: float = 0.05, seed: int | None = 0,
+                            transform: Callable[[np.ndarray], np.ndarray] | None = None) -> Interval:
+    """Like bootstrap_ratio, but resamples whole clusters (items sharing a word, pieces sharing a book).
+
+    Items in one cluster are not independent evidence, so this interval is the
+    honest one when clusters exist. ``n`` in the result is the number of clusters.
+    """
+    if len(num) == 0:
+        return Interval(float("nan"), float("nan"), float("nan"), 0)
+    sn, sd = _cluster_sums(num, den, clusters)
+    f = transform or (lambda v: v)
+    idx = _rng(seed).integers(0, sn.size, size=(n_boot, sn.size))
+    ratios = f(sn[idx].sum(axis=1) / sd[idx].sum(axis=1))
+    lo, hi = np.quantile(ratios, [alpha / 2, 1 - alpha / 2])
+    return Interval(float(f(np.asarray(sn.sum() / sd.sum()))), float(lo), float(hi), int(sn.size))
+
+
+def cluster_bootstrap_mean(values: Sequence[float], clusters: Sequence[str], **kw) -> Interval:
+    return cluster_bootstrap_ratio(values, [1.0] * len(values), clusters, **kw)
+
+
+def cluster_permutation_test(diffs: Sequence[float], clusters: Sequence[str], n_perm: int = DEFAULT_PERMUTATIONS,
+                             seed: int | None = 0) -> float:
+    """Sign-flip test of mean(diffs) == 0 that flips whole clusters together."""
+    if len(diffs) == 0:
+        return 1.0
+    sn, _ = _cluster_sums(diffs, [1.0] * len(diffs), clusters)
+    return paired_permutation_test(sn, n_perm=n_perm, seed=seed)

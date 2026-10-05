@@ -233,6 +233,26 @@ def test_seed_file_is_period_safe():
             assert word not in text, (word, text)
 
 
+def test_seed_does_not_teach_the_evaluation_answers():
+    """The seed set must not contain the answers of the knowledge probes or the chat prompts' questions."""
+    seed_text = " ".join(m["content"] for it in sd.load_seed(REPO / "data" / "sft_seed.jsonl")
+                         for m in cf.item_to_messages(it))
+    probes = REPO / "evals" / "knowledge_probes.jsonl"
+    if probes.exists():
+        for line in probes.read_text().splitlines():
+            ans = json.loads(line).get("answer", "").strip()
+            for w in ans.split():
+                if w[:1].isupper() and len(w) >= 4:
+                    assert w not in seed_text, (w, ans)
+    gens = REPO / "evals" / "generation_prompts.jsonl"
+    if gens.exists():
+        for line in gens.read_text().splitlines():
+            p = json.loads(line)["prompt"]
+            if "<|user|>" in p:
+                q = p.split("<|user|>")[1].split("<|assistant|>")[0].strip()
+                assert q not in seed_text, q
+
+
 # --------------------------------------------------------------------------
 # Chat template and loss mask
 # --------------------------------------------------------------------------

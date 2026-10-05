@@ -1,0 +1,151 @@
+# The flight scrub
+
+`src/prewright/flight.py` removes every trace of human flight from the `main`
+corpus. `control` is the same corpus without this step. This page records the
+policy, why the lexicon looks the way it does, how much text is cut, and what
+the scrub is known to miss. `docs/PLAN.md` is the source of truth for the
+policy. This page explains how it is implemented.
+
+## Policy
+
+**Removed**: real or plausible human flight and flight technology. That
+includes attempts, proposals, and fiction that treats flight as technology
+(Verne's *Robur*, Poe's balloon hoax, boys' adventure stories with air-ships):
+
+- balloons of every kind, toys included (a toy balloon still shows that a gas
+  bag can lift), plus air, fire and hydrogen balloons, ballooning,
+  balloonists, aerostats and aerostation, Montgolfières and Charlières;
+- aeronauts and aeronautics, airships, dirigibles (the noun, and "dirigible
+  balloon"), Zeppelin, flying machines and flying ships, aeroplanes,
+  airplanes, aerodromes, gliders and gliding machines, soaring machines,
+  ornithopters, helicopters, parachutes, man-lifting kites, aviation and
+  aviators, airmen;
+- aerial navigation and the aerial ship, vessel, machine, car, voyage,
+  journey, fleet, ascent, excursion, locomotion and so on; "navigation of the
+  air", "conquest of the air", "art of flying", "mechanical/artificial/human
+  flight", "artificial wings", "heavier-than-air" machines;
+- Tennyson's *Locksley Hall* prophecy ("airy navies", "argosies of magic
+  sails", "pilots of the purple twilight");
+- the names of aeronauts and experimenters: Montgolfier, Lunardi, Garnerin,
+  Santos-Dumont, Chanute, Kitty Hawk, Pilâtre de Rozier, Zambeccari,
+  Tissandier, Gusmão, Francesco Lana, Oliver of Malmesbury, the Wright
+  brothers, and the flying automata of Archytas and Regiomontanus.
+
+**Kept**, because ordinary English needs it: birds, bats and insects flying;
+*flight* meaning fleeing; flights of stairs and arrows; flying colours, flying
+fish, flying buttresses, flying squadrons; myth, magic and fairy tale (Icarus,
+Daedalus, angels, witches, Pegasus, Laputa, flying carpets); "lighter/heavier
+than air" as plain physics of gases; Congreve rockets; kites as children's
+toys and kites the birds; the word *maxim* and the Maxim gun; *aerial* in its
+other senses (aerial roots, aerial perspective, "aerial flight" of a bird).
+
+## How matching works
+
+1. **Normalisation.** Each paragraph is matched on a normalised copy:
+   accents folded (`aérostat` → `aerostat`, `Pilâtre` → `Pilatre`), ligatures
+   expanded (`æronaut` → `aeronaut`), soft hyphens dropped, words joined
+   across hyphenated line breaks (`bal-\nloon` → `balloon`,
+   `air-\nship` → `airship`), and whitespace collapsed. PG-19 text is
+   hard-wrapped at about 70 characters, so phrases often span lines.
+2. **Lexicon.** `TERMS` is a tuple of named regexes. Most terms always count.
+   Names and words with a common innocent sense are **context terms**: they
+   count only if a flight-context word (ascent, aerial, flying, wings,
+   machine, soaring...) appears in the same paragraph. The context terms are
+   Blanchard (Laman Blanchard and Blanchard Jerrold are writers), Langley (an
+   astronomer, and a place-name), Maxim (a common word, and a gun),
+   Glaisher/Coxwell (J. W. L. Glaisher was also a mathematician), Cayley
+   (Arthur Cayley the mathematician), Lilienthal (a homoeopath and a rabbi of
+   the name), gas-bag (also slang for a windbag) and minor experimenters
+   (Henson, Stringfellow, Wenham, Pilcher, Ader, Hargrave, Giffard, Renard,
+   Krebs, Nadar, Andrée...).
+3. **Speed.** Each term has lowercase *anchors*, literals that every match
+   must contain. A `str.find` scan over the whole book picks out the
+   paragraphs that can match, and the regexes run only on those. A test
+   checks that the anchors cover the recall examples.
+4. **Reuse.** `FLIGHT_PATTERN` (all unconditional terms in one regex),
+   `contains_flight(text)`, `find_flight_hits(text)` and `TERMS` are public,
+   so the audit and evaluation code can share the lexicon.
+
+## Granularity
+
+- A paragraph with a hit is dropped together with **one paragraph on each
+  side**. The neighbours usually carry the set-up and the aftermath ("the car
+  rose rapidly", "we came down in a turnip field") without a lexicon word.
+- **Bridging**: if two hit paragraphs are at most 4 paragraphs apart,
+  everything between them goes too. A chapter on ballooning is cut as one
+  block instead of leaving its innocent-looking middle paragraphs behind.
+- Blocks longer than 4,000 characters (books without blank lines) are split
+  at indented lines, or every 12 lines, before scrubbing, so one hit cannot
+  take a whole chapter with it.
+- **Whole-book drop**: a book is dropped from `main` if
+  - its title matches the lexicon (*Five Weeks in a Balloon*, *Progress in
+    Flying Machines*), or
+  - more than **0.5%** of its paragraphs hit, with at least 3 hit paragraphs,
+    or
+  - it has **30 or more** hit paragraphs, however long it is.
+
+  The thresholds were tuned on a 1,500-book sample. At 0.5% the books
+  dropped are the ones *about* flight or with a flight episode at their
+  centre: Verne's *Five Weeks in a Balloon* (13%), *Robur the Conqueror*
+  (16%) and *The Mysterious Island* (2%), Moffett's *Careers of Danger and
+  Daring* (7%, with a balloonist chapter), Wells's *First Men in the Moon*,
+  and boys' adventure stories with balloon escapes. A flat "8 or more hits"
+  rule would also have dropped large compendia with a dozen scattered
+  mentions: the collected works of Oliver Wendell Holmes (12 of 13,912
+  paragraphs), a dictionary of quotations (9 of 34,729), the *Challenger*
+  Radiolaria report (10 of 18,769), Brassey's *Yachting* (balloon sails).
+  Paragraph cutting with bridging handles these well. Losing them would cost
+  more general knowledge than it removes flight.
+
+## Judgment calls
+
+- **"balloon" in any sense is removed**: balloon sails (balloon jib, balloon
+  topsail), balloon sleeves, balloon frames in carpentry, "ballooning"
+  spiders, chemists' balloon flasks. These are rare, and the word itself is
+  the main thing the model must not learn.
+- French/German *ballon*, *Luftschiff*, *dirigeable* and *aéronef* are
+  removed wherever they appear in English books.
+- **"Artificial wings"** is removed even in a Daedalus retelling. The myth
+  survives in other wording, and real tower-jumpers (Oliver of Malmesbury,
+  Bacqueville, Rasselas's artist) used the same phrase.
+- **Fairy-tale flying ships** ("The Fool of the World and the Flying Ship")
+  are removed, because the phrase is also the usual name for an airship in
+  fiction.
+- **Space-travel fiction** with no flight words (Verne's projectile, Tucker's
+  *Voyage to the Moon*) is kept. It is not flight through the air, and the
+  plan does not list it. *First Men in the Moon* is dropped anyway: its
+  balloons and parachutes push it over the density threshold.
+- The leakage filter's soft rule for "airplane" can push a book into REVIEW,
+  which drops it from **both** corpora. This is rare and harmless.
+
+## Known gaps
+
+- Descriptions of flight that use no lexicon word and are more than one
+  paragraph from a hit: "the car rose above the clouds", "he was carried up
+  into the air by the machine". Bridging and the neighbour rule catch most of
+  them. The red-team searches below found no clear survivors, but the search
+  was not exhaustive.
+- Spelling variants outside the lexicon, such as OCR errors that split a word
+  with a space (`bal loon`) or garble letters (`baiIoon`). PG-19 text is
+  proofread, so these are rare.
+- Bishop Wilkins's flying chariot, Erasmus Darwin's "flying-chariot" couplet,
+  and Cyrano's six ways to reach the moon (apart from the Archytas and
+  Regiomontanus automata) are not covered by name.
+- Context terms trade recall for precision. "Mr. Coxwell rose from Wolverton"
+  is kept unless a context word is present.
+- Foreign-language passages about flight in other words (e.g. German
+  *Flugmaschine*).
+
+## Red-team checks on the scrubbed `main` text
+
+Searches over a 250 MB slice of `main/train.jsonl` for near misses: "fly/
+flying through the air", "ascended in/from", "men will/could fly", "wings
+to his arms/shoulders", "inflate", "sail through the air", "navigate the
+sky", "aerial ...", Vauxhall ascents, Archytas, Bladud, Wilkins. The matches
+were knives and snow "flying through the air", hill ascents, "we will fly"
+in the sense of flee, and angels with wings. Cyrano's "pigeon of Archytas"
+was the only real miss, and it is now in the lexicon.
+
+## Corpus statistics
+
+STATS_PLACEHOLDER

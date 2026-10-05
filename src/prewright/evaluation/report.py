@@ -75,17 +75,22 @@ def headline_facts(res: dict) -> list[str]:
         d = paired["kinds"]["flight"]["difference"]
         lr = d["likelihood_ratio"]
         n = d["n"]
-        if _sig(d["mean_diff"]) and d["mean_diff"]["estimate"] < 0:
+        cl = d.get("mean_diff_clustered", d["mean_diff"])
+        lo, hi = lr.get("clustered_low", lr["low"]), lr.get("clustered_high", lr["high"])
+        fvc = paired.get("flight_vs_control_pairs", {})
+        vs = fvc.get("cluster_level_diff")
+        beyond_noise = vs is None or (_sig(vs) and vs["estimate"] < 0)
+        if _sig(cl) and cl["estimate"] < 0 and beyond_noise:
             facts.append(
                 f"Relative to an everyday 1900 wording, the flight-free model finds the flight wording "
                 f"**{_times(lr['geometric_mean'])} less likely** than the control model does (geometric mean over "
-                f"{n} matched pairs; 95% CI {_times(lr['low'])}–{_times(lr['high'])}; median {_times(lr['median'])}; "
-                f"it is the more surprised of the "
-                f"two on {d['frac_main_lower'] * 100:.0f}% of pairs; sign test p {_p(d['sign_test']['p_value'])}).")
+                f"{n} matched pairs, median {_times(lr['median'])}; 95% CI {_times(lo)}–{_times(hi)} resampling the "
+                f"{d.get('n_clusters', n)} flight words the pairs turn on; it is the more surprised of the two on "
+                f"{d['frac_main_lower'] * 100:.0f}% of pairs).")
         else:
-            facts.append(f"On {n} flight pairs the main-vs-control difference is **not significant** "
-                         f"(mean {_f(d['mean_diff']['estimate'])} nats, 95% CI {_f(d['mean_diff']['low'])} to "
-                         f"{_f(d['mean_diff']['high'])}).")
+            facts.append(f"On {n} flight pairs the main-vs-control difference (factor {_times(lr['geometric_mean'])}, "
+                         f"word-clustered 95% CI {_times(lo)}–{_times(hi)}) is **not shown to exceed** the ordinary "
+                         f"model-to-model differences seen on the control pairs.")
         if "control" in paired["kinds"]:
             c = paired["kinds"]["control"]["difference"]
             agree = not _sig(c["mean_diff"])
@@ -95,12 +100,30 @@ def headline_facts(res: dict) -> list[str]:
                 + f": factor {_times(c['likelihood_ratio']['geometric_mean'])} (95% CI "
                 f"{_times(c['likelihood_ratio']['low'])}–{_times(c['likelihood_ratio']['high'])})"
                 + ("." if agree else "; part of the flight effect may be a general difference between the models."))
-        for item in [i for i in paired["items"] if i["headline"]][:4]:
+        if fvc:
+            cl = fvc.get("cluster_level_diff", fvc["diff_of_mean_diffs"])
+            facts.append("Tested against those control pairs (one value per word, so " + "\"balloon\"" + " counts once), the "
+                         "flight-pair difference is "
+                         + ("**larger**" if _sig(cl) and cl["estimate"] < 0 else "**not distinguishable**")
+                         + f" ({_f(cl['estimate'])} nats, 95% CI {_f(cl['low'])} to {_f(cl['high'])}; permutation p "
+                         f"{_p(fvc.get('cluster_level_permutation_p', fvc['permutation_p']))}).")
+        nf = paired.get("noise_floor")
+        if nf:
+            facts.append(f"{nf['flight_clusters_below_q025']} of {nf['n_flight_clusters']} flight words (and "
+                         f"{nf['flight_pairs_below_q025']} of {n} pairs) show a larger penalty than 97.5% of the "
+                         f"{nf['n_control_clusters']} control wordings (whose diffs span {_f(nf['control_cluster_q025'])} "
+                         f"to {_f(nf['control_cluster_q975'])} nats).")
+        scale = ""
+        if nf:
+            scale = (f" (for scale: 95% of control wordings differ between the models by less than "
+                     f"{_times(math.exp(max(abs(nf['control_cluster_q025']), abs(nf['control_cluster_q975']))))})")
+        for item in [i for i in paired["items"] if i["headline"]][:5]:
             r = math.exp(-item["diff"])
             facts.append(
                 f"\"{_slot(item['context'], item['target'])}\" vs \"…**{item['neutral'].strip()}**\": the flight-free model "
-                + (f"finds the flight version {_times(r)} more surprising (relative to the everyday one) than the control does."
-                   if r >= 1 else f"is *less* surprised by the flight version than the control ({_times(1 / r)}); single item, noisy."))
+                + (f"finds the flight version {_times(r)} more surprising (relative to the everyday one) than the control "
+                   f"does{scale}." if r >= 1 else
+                   f"is *less* surprised by the flight version than the control ({_times(1 / r)}){scale}."))
     ppl = res.get("perplexity")
     if ppl and "flight" in ppl.get("sets", {}):
         fs, os_ = ppl["sets"]["flight"], ppl["sets"].get("ordinary_matched")
@@ -111,8 +134,14 @@ def headline_facts(res: dict) -> list[str]:
                 f"{_f(fs['perplexity_ratio']['high'])})")
         if os_:
             line += (f"; on length-matched ordinary held-out text the ratio is {_f(os_['perplexity_ratio']['estimate'])} "
-                     f"(95% CI {_f(os_['perplexity_ratio']['low'])}–{_f(os_['perplexity_ratio']['high'])}).")
-        facts.append(line)
+                     f"(95% CI {_f(os_['perplexity_ratio']['low'])}–{_f(os_['perplexity_ratio']['high'])})")
+            x = ppl.get("flight_minus_ordinary_excess", {})
+            ci = x.get("diff_book_clustered") or x.get("diff")
+            if ci:
+                line += (". The extra loss on flight text is " + ("**significant**" if _sig(ci) and ci["estimate"] > 0
+                         else "**not significant**") + f" ({_f(ci['estimate'], 3)} nats/token, 95% CI "
+                         f"{_f(ci['low'], 3)} to {_f(ci['high'], 3)}, resampling source books)")
+        facts.append(line + ".")
         fw = ppl.get("flight_word_tokens")
         if fw:
             facts.append(f"Inside those passages, the tokens of flight words themselves cost "
@@ -137,7 +166,9 @@ def headline_facts(res: dict) -> list[str]:
         words = [w for w in ("balloon", "aeronaut", "airship", "parachute", "flying machine", "montgolfier")
                  if cc.get(w)]
         if words:
-            facts.append("Exact training-text counts, flight-free vs control: "
+            part = (f" (first {corpus[MAIN]['max_books']} books of each corpus only)"
+                    if corpus[MAIN].get("max_books") else "")
+            facts.append(f"Exact training-text counts{part}, flight-free vs control: "
                          + "; ".join(f"\"{w}\" {cm.get(w, 0):,} vs {cc.get(w, 0):,}" for w in words) + ".")
         a = corpus[MAIN].get("audit")
         if a is not None:
@@ -148,7 +179,9 @@ def headline_facts(res: dict) -> list[str]:
     know = res.get("knowledge")
     if know and "general" in know.get("kinds", {}):
         g = know["kinds"]["general"]
-        facts.append(f"It is not simply ignorant: on {g[MAIN]['n']} general 19th-century knowledge cloze items the "
+        knows = g[MAIN]["p_above_chance"] < 0.05
+        lead = "It is not simply ignorant: on" if knows else "General knowledge is **not** shown above chance: on"
+        facts.append(f"{lead} {g[MAIN]['n']} general 19th-century knowledge cloze items the "
                      f"flight-free model scores {g[MAIN]['correct']}/{g[MAIN]['n']} and the control "
                      f"{g[CONTROL]['correct']}/{g[CONTROL]['n']} (chance ≈ {g[MAIN]['chance'] * 100:.0f}%; "
                      f"McNemar p {_p(g['discordant']['mcnemar_p'])}).")
@@ -187,18 +220,39 @@ def _paired_section(p: dict) -> list[str]:
                      _ci(k[MAIN]["prefer_neutral"], pct=True), _ci(k[CONTROL]["prefer_neutral"], pct=True),
                      _ci(d["mean_diff"]), f"{_times(d['likelihood_ratio']['geometric_mean'])} "
                      f"[{_times(d['likelihood_ratio']['low'])}, {_times(d['likelihood_ratio']['high'])}]",
-                     _p(d["sign_test"]["p_value"]), _p(d["permutation_p"])])
+                     f"{d.get('n_clusters', '–')}: [{_times(d['likelihood_ratio'].get('clustered_low', float('nan')))}, "
+                     f"{_times(d['likelihood_ratio'].get('clustered_high', float('nan')))}]",
+                     _p(d["sign_test"]["p_value"]), _p(d["permutation_p"]), _p(d.get("cluster_permutation_p"))])
     L += _table(["pairs", "n", "mean gap main", "mean gap control", "main prefers everyday", "control prefers everyday",
-                 "mean diff (nats)", "factor", "sign p", "perm. p"], rows)
+                 "mean diff (nats)", "factor [item CI]", "word clusters: factor CI", "sign p", "perm. p",
+                 "cluster perm. p"], rows)
+    L += ["Item-level intervals and p-values treat pairs as independent. They are not: dozens of pairs turn on "
+          "\" balloon\", so one model-specific quirk in that word's probability moves them all. The word-clustered "
+          "columns resample or flip whole words. Even they test against *zero*, and any two models differ somewhat "
+          "on any word: in a dry run with two *untrained, randomly initialised* models the flight pairs gave "
+          "item-level p < 0.0001 and word-clustered p ≈ 0.03 from noise alone, while the comparison against the "
+          "control pairs below was null (p ≈ 0.5). **That comparison is the test**; the headline uses it.", ""]
     if "flight_vs_control_pairs" in p:
         fc = p["flight_vs_control_pairs"]
-        L += [f"Flight-pair diff minus control-pair diff: {_ci(fc['diff_of_mean_diffs'])} nats "
-              f"(two-sample permutation p {_p(fc['permutation_p'])}).", ""]
+        L += [f"Flight-pair diff minus control-pair diff: {_ci(fc['diff_of_mean_diffs'])} nats per item "
+              f"(permutation p {_p(fc['permutation_p'])}); one value per word cluster: "
+              f"{_ci(fc.get('cluster_level_diff'))} (permutation p {_p(fc.get('cluster_level_permutation_p'))}).", ""]
     if "flight" in p["kinds"]:
         d = p["kinds"]["flight"]["difference"]
         L += [f"Where the flight-pair difference comes from: log p(flight wording) moves by "
               f"{_ci(d['target_shift'])} nats (main − control); log p(everyday wording) moves by "
               f"{_ci(d['neutral_shift'])}. Per-token-normalised diff: {_ci(d['mean_diff_per_token'], 3)} nats/token.", ""]
+    if p.get("noise_floor"):
+        nf = p["noise_floor"]
+        L += [f"Noise floor: the {nf['n_control_clusters']} control wordings have main − control diffs between "
+              f"{_f(nf['control_cluster_q025'])} and {_f(nf['control_cluster_q975'])} nats (2.5th–97.5th percentile). "
+              f"Flight words beyond the low end: {nf['flight_clusters_below_q025']}/{nf['n_flight_clusters']}; "
+              f"flight pairs: {nf['flight_pairs_below_q025']}/{p['kinds']['flight']['difference']['n']}.", ""]
+    if p["kinds"].get("flight", {}).get("clusters"):
+        L += ["### By flight word (cluster)", ""]
+        rows = [[c["cluster"], c["n"], _f(c["mean_diff"]), _times(math.exp(-c["mean_diff"])),
+                 f"{c['frac_main_lower'] * 100:.0f}%"] for c in p["kinds"]["flight"]["clusters"]]
+        L += _table(["cluster", "n", "mean diff", "factor", "main more surprised"], rows)
     L += ["### By category", ""]
     rows = [[c["kind"], c["category"], c["n"], _f(c["mean_gap_main"]), _f(c["mean_gap_control"]), _ci(c["mean_diff"]),
              f"{c['frac_main_lower'] * 100:.0f}%"] for c in p["categories"].values()]
@@ -237,7 +291,8 @@ def _ppl_section(pp: dict) -> list[str]:
     if "flight_minus_ordinary_excess" in pp:
         x = pp["flight_minus_ordinary_excess"]
         L += [f"Excess loss of main over control on flight pieces minus on matched ordinary pieces: "
-              f"{_ci(x['diff'], 3)} nats/token (permutation p {_p(x['permutation_p'])}).", ""]
+              f"{_ci(x['diff'], 3)} nats/token (permutation p {_p(x['permutation_p'])}); resampling flight pieces "
+              f"by source book: {_ci(x.get('diff_book_clustered'), 3)}.", ""]
     if "flight_word_tokens" in pp:
         fw = pp["flight_word_tokens"]
         L += [f"Flight-lexicon word tokens inside flight pieces ({fw['n_tokens']} tokens in {fw['pieces_with_hits']} "
@@ -328,6 +383,9 @@ def _validation_section(v: dict) -> list[str]:
 
 
 CAVEATS = [
+    "Pairs sharing a flight word are not independent, and any two models differ somewhat on any word, so the "
+    "test is flight pairs against control pairs at the word level, not against zero. About 45% of flight pairs "
+    "turn on \"balloon\", as 19th-century flight did.",
     "Small models (~10–30M parameters) trained for a few CPU-hours are weak. Absolute probabilities are noisy; "
     "only the *paired* main-vs-control comparisons are meant to carry weight, and individual items are anecdotes.",
     "Within one model, \"prefers the everyday wording\" is confounded by word frequency and option length; the "

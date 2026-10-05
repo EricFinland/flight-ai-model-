@@ -197,8 +197,11 @@ def _excess(main: list[dict], ctrl: list[dict]) -> list[float]:
 
 
 def analyze_perplexity(sets: dict[str, dict[str, list[dict]]], main: str = "main", control: str = "control",
-                       seed: int = 0) -> dict:
-    """``sets[set_name][model_name]`` is a list of score_pieces rows (same pieces, same order)."""
+                       seed: int = 0, flight_sources: Sequence[str] | None = None) -> dict:
+    """``sets[set_name][model_name]`` is a list of score_pieces rows (same pieces, same order).
+
+    ``flight_sources`` (source book of each flight piece) adds a book-clustered interval.
+    """
     out: dict = {"sets": {}}
     for name, by_model in sets.items():
         m, c = by_model[main], by_model[control]
@@ -218,6 +221,8 @@ def analyze_perplexity(sets: dict[str, dict[str, list[dict]]], main: str = "main
         out["flight_minus_ordinary_excess"] = {
             "diff": stats.bootstrap_diff_of_means(f, o, seed=seed).to_dict(),
             "permutation_p": stats.two_sample_permutation_test(f, o, seed=seed),
+            "diff_book_clustered": stats.bootstrap_diff_of_means(f, o, seed=seed, clusters_x=flight_sources).to_dict()
+            if flight_sources is not None else None,
             "note": "per-piece mean excess NLL (main - control, nats/token) on flight pieces minus on "
                     "length-matched ordinary pieces",
         }

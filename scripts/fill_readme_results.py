@@ -73,6 +73,23 @@ Over training (C)
   curve_steps_n               number of matched steps scored
   curve_first_significant_step   "step 300 (4.9M tokens)", or "no step scored"
   curve_final_factor          "12.3× at step 850"
+Corpus build (S = <data>/corpus/stats.json, M = <data>/corpus/manifest.csv,
+T = <data>/tokenized/{main,control}/train.meta.json; these change when the corpus is
+re-scrubbed, so the README carries the current values between the markers)
+  corpus_books_dated          PG-19 books dated 1902 or earlier
+  corpus_flight_books         books dropped whole from main as flight books
+  corpus_flight_books_title, corpus_flight_books_density   ... by title / by hit density (M)
+  corpus_paragraphs_removed   paragraphs cut from kept books (hits, neighbours, bridged gaps)
+  corpus_hit_paragraphs       paragraphs with a lexicon hit, kept and dropped books
+  corpus_books_with_cuts      kept books with at least one paragraph cut (M)
+  corpus_flight_eval          held-out flight paragraphs from validation books
+  corpus_main_train_books, corpus_control_train_books, corpus_main_val_books, corpus_control_val_books
+  corpus_main_smaller_pct     how much smaller main/train is than control/train, in characters
+  corpus_main_chars_b         main/train characters, billions
+  term:<lexicon term name>    matches of that term over all books that passed the other filters
+  slice_main_books, slice_main_tokens, slice_control_books, slice_control_tokens
+                              the capped training token files (T), tokens in millions
+  slice_extra_flight_books    control slice books minus main slice books
 Block
   facts                       the evaluation report's headline facts, as a bullet list
 """
@@ -137,8 +154,48 @@ def _one_line(text: str, limit: int) -> str:
 
 
 class Results:
-    def __init__(self, ev: dict | None, curve: dict | None, sample_chars: int):
+    def __init__(self, ev: dict | None, curve: dict | None, sample_chars: int, data: Path | None = None):
         self.ev, self.curve, self.sample_chars = ev or {}, curve or {}, sample_chars
+        self.data = data
+        self._stats: dict | None = None
+        self._manifest: dict | None = None
+
+    # -- corpus files --------------------------------------------------------
+    def stats(self) -> dict:
+        if self._stats is None:
+            p = self.data / "corpus" / "stats.json" if self.data else None
+            if not p or not p.exists():
+                raise Missing(f"{p}")
+            self._stats = json.loads(p.read_text(encoding="utf-8"))
+        return self._stats
+
+    def manifest(self) -> dict:
+        if self._manifest is None:
+            import csv
+            p = self.data / "corpus" / "manifest.csv" if self.data else None
+            if not p or not p.exists():
+                raise Missing(f"{p}")
+            cuts = title = density = 0
+            with p.open(newline="", encoding="utf-8") as f:
+                for r in csv.DictReader(f):
+                    if r["decision"] == "kept" and int(r["flight_paragraphs_removed"] or 0) > 0:
+                        cuts += 1
+                    elif r["decision"] == "dropped_flight_book":
+                        if "title" in (r.get("reason") or "").lower():
+                            title += 1
+                        else:
+                            density += 1
+            self._manifest = {"books_with_cuts": cuts, "by_title": title, "by_density": density}
+        return self._manifest
+
+    def tokmeta(self, corpus: str) -> dict:
+        p = self.data / "tokenized" / corpus / "train.meta.json" if self.data else None
+        if not p or not p.exists():
+            raise Missing(f"{p}")
+        return json.loads(p.read_text(encoding="utf-8"))
+
+    def stat(self, *path: str) -> int:
+        return _get(self.stats(), *path)
 
     # -- helpers ---------------------------------------------------------
     def paired(self, kind: str) -> dict:
@@ -267,6 +324,26 @@ class Results:
             "curve_first_significant_step": self.curve_first,
             "curve_final_factor": self.curve_final,
             "facts": self.facts,
+            "corpus_books_dated": lambda: f"{self.stat('books_dated_le_1902'):,}",
+            "corpus_flight_books": lambda: f"{self.stat('decisions', 'dropped_flight_book'):,}",
+            "corpus_flight_books_title": lambda: f"{self.manifest()['by_title']:,}",
+            "corpus_flight_books_density": lambda: f"{self.manifest()['by_density']:,}",
+            "corpus_paragraphs_removed": lambda: f"{self.stat('flight_paragraphs_removed_from_kept_books'):,}",
+            "corpus_hit_paragraphs": lambda: f"{self.stat('flight_hit_paragraphs'):,}",
+            "corpus_books_with_cuts": lambda: f"{self.manifest()['books_with_cuts']:,}",
+            "corpus_flight_eval": lambda: f"{self.stat('flight_eval_paragraphs'):,}",
+            "corpus_main_train_books": lambda: f"{self.stat('books', 'main:train'):,}",
+            "corpus_control_train_books": lambda: f"{self.stat('books', 'control:train'):,}",
+            "corpus_main_val_books": lambda: f"{self.stat('books', 'main:val'):,}",
+            "corpus_control_val_books": lambda: f"{self.stat('books', 'control:val'):,}",
+            "corpus_main_smaller_pct": lambda: (
+                f"{100 * (1 - self.stat('chars', 'main:train') / self.stat('chars', 'control:train')):.2f}%"),
+            "corpus_main_chars_b": lambda: f"{self.stat('chars', 'main:train') / 1e9:.2f}",
+            "slice_main_books": lambda: f"{self.tokmeta('main')['books']:,}",
+            "slice_control_books": lambda: f"{self.tokmeta('control')['books']:,}",
+            "slice_main_tokens": lambda: f"{self.tokmeta('main')['tokens'] / 1e6:.1f}M",
+            "slice_control_tokens": lambda: f"{self.tokmeta('control')['tokens'] / 1e6:.1f}M",
+            "slice_extra_flight_books": lambda: f"{self.tokmeta('control')['books'] - self.tokmeta('main')['books']:,}",
         }
         for setname, short in (("flight", "flight"), ("ordinary_matched", "ordinary"), ("ordinary_full", "full")):
             for model in ("main", "control"):
@@ -284,6 +361,8 @@ class Results:
         if key in fixed:
             return fixed[key]
         prefix, _, arg = key.partition(":")
+        if prefix == "term" and arg:
+            return lambda: f"{self.stat('top_flight_terms', arg):,}"
         if prefix == "item" and arg:
             return lambda: _times(math.exp(-self.item(arg)["diff"]))
         if prefix == "item_text" and arg:
@@ -334,6 +413,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--eval", type=Path, default=REPO / "evals" / "results" / "eval.json")
     ap.add_argument("--curve", type=Path, default=REPO / "evals" / "results" / "curve.json")
     ap.add_argument("--files", type=Path, nargs="+", default=[REPO / "README.md", REPO / "MODEL_CARD.md"])
+    ap.add_argument("--data", type=Path, default=Path("/home/user/data"),
+                    help="data root holding corpus/stats.json, corpus/manifest.csv and tokenized/ (corpus keys)")
     ap.add_argument("--out-dir", type=Path, default=None,
                     help="write the filled files here instead of editing them in place")
     ap.add_argument("--check", action="store_true", help="print key -> value, write nothing")
@@ -345,7 +426,7 @@ def main(argv: list[str] | None = None) -> int:
     warnings: list[str] = []
     ev = _load(args.eval, "eval.json", warnings)
     curve = _load(args.curve, "curve.json", warnings)
-    res = Results(ev, curve, args.sample_chars)
+    res = Results(ev, curve, args.sample_chars, args.data)
     if ev:
         mode = res.eval_mode()
         if mode.startswith("FAKE") and args.out_dir is None and not args.check and not args.allow_fake:

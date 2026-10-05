@@ -38,6 +38,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
                     help="torch threads, and worker processes for the corpus pass (default 2)")
     ap.add_argument("--seed", type=int, default=1903)
     ap.add_argument("--data-dir", type=Path, default=DATA)
+    ap.add_argument("--tokenized-dir", type=Path, default=Path("/home/user/data/tokenized"),
+                    help="token files' meta (train.meta.json): the corpus pass counts only the books in them")
     ap.add_argument("--only", default="", help=f"comma list of sections ({','.join(SECTIONS)})")
     ap.add_argument("--skip", default="", help="comma list of sections to skip")
     ap.add_argument("--samples", type=int, help="generation samples per prompt per model")
@@ -55,7 +57,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
-    cfg = EvalConfig(data_dir=args.data_dir, seed=args.seed)
+    cfg = EvalConfig(data_dir=args.data_dir, seed=args.seed, tokenized_dir=args.tokenized_dir)
     if args.quick:
         cfg.apply_quick()
     sections = [s for s in (args.only.split(",") if args.only else SECTIONS) if s]

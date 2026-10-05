@@ -45,6 +45,9 @@ class EvalConfig:
     corpus_max_books: int | None = None
     corpus_audit: bool = True
     corpus_workers: int = 2
+    # {main,control}/train.meta.json from tokenize_corpus.py: restricts the corpus pass to the books
+    # actually in the training token files (None = count every book in train.jsonl)
+    tokenized_dir: Path | None = None
     skipped: dict = field(default_factory=dict)
 
     def apply_quick(self) -> EvalConfig:
@@ -182,8 +185,11 @@ def run_all(models: dict[str, LanguageModel], codec: Codec, cfg: EvalConfig, out
             if not path.exists():
                 res["skipped"][f"corpus/{corpus}"] = f"{path} not found"
                 continue
+            filt = (lexicon.trained_book_filter(cfg.tokenized_dir / corpus / "train.meta.json")
+                    if cfg.tokenized_dir is not None else None)
             out[corpus] = lexicon.count_corpus(path, max_books=cfg.corpus_max_books, audit=cfg.corpus_audit,
-                                               workers=cfg.corpus_workers)
+                                               workers=cfg.corpus_workers, keep=filt[0] if filt else None)
+            out[corpus]["trained_books_only"] = filt[1] if filt else None
             progress(f"corpus: {corpus} counted ({out[corpus]['books']} books)")
         if out:
             res["corpus"] = out

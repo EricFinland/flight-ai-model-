@@ -10,11 +10,12 @@ in unscrubbed 19th-century books.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from collections import Counter
 from pathlib import Path
-from typing import Iterable, Sequence
+from typing import Callable, Iterable, Sequence
 
 from prewright.evaluation.interface import Codec
 
@@ -107,12 +108,44 @@ class WordCounter:
                     counts[w] += 1
 
 
-def iter_book_lines(path: str | Path, max_books: int | None = None) -> Iterable[str]:
+_BOOK_ID = re.compile(r'"id":\s*"((?:[^"\\]|\\.)*)"')
+
+
+def trained_book_filter(meta_path: str | Path) -> tuple[Callable[[str], bool], dict] | None:
+    """Predicate on JSONL lines: is this book inside the token file the model was trained on?
+
+    ``scripts/tokenize_corpus.py`` ranks books by sha1(salt:id) and caps the
+    training token file at a rank ``cutoff`` (about 1,400 of 16,000 books in the
+    first build), recorded in ``train.meta.json``. Counting the whole
+    ``train.jsonl`` would describe text neither model saw. Returns None when the
+    meta file is missing or there was no cap (every book was used).
+    """
+    meta_path = Path(meta_path)
+    if not meta_path.exists():
+        return None
+    meta = json.loads(meta_path.read_text())
+    if not meta.get("cutoff"):
+        return None
+    salt, cutoff = meta["salt"], bytes.fromhex(meta["cutoff"])
+
+    def keep(line: str) -> bool:
+        m = _BOOK_ID.search(line, 0, 300)  # the same id lookup as tokenize_corpus.index_jsonl
+        book_id = m.group(1) if m else json.loads(line).get("id")
+        return book_id is not None and hashlib.sha1(f"{salt}:{book_id}".encode()).digest() <= cutoff
+
+    return keep, {"meta": str(meta_path), "cutoff": meta["cutoff"], "salt": salt, "books": meta.get("books")}
+
+
+def iter_book_lines(path: str | Path, max_books: int | None = None,
+                    keep: Callable[[str], bool] | None = None) -> Iterable[str]:
+    """Non-empty JSONL lines; with ``keep``, only the lines it accepts (``max_books`` counts kept lines)."""
+    n = 0
     with open(path, encoding="utf-8") as f:
-        for k, line in enumerate(f):
-            if max_books is not None and k >= max_books:
+        for line in f:
+            if max_books is not None and n >= max_books:
                 return
-            if line.strip():
+            if line.strip() and (keep is None or keep(line)):
+                n += 1
                 yield line
 
 
@@ -139,19 +172,21 @@ def _count_one(args: tuple[str, bool]) -> tuple[int, Counter[str], list]:
     return len(text), counts, hits
 
 
-def count_corpus(path: str | Path, max_books: int | None = None, audit: bool = True, workers: int = 1) -> dict:
+def count_corpus(path: str | Path, max_books: int | None = None, audit: bool = True, workers: int = 1,
+                 keep: Callable[[str], bool] | None = None) -> dict:
     """Exact (case-insensitive, whole-word) counts of the ``WORD_PAIRS`` words and ``PHRASES``, plus an audit.
 
     The audit runs ``prewright.flight.find_flight_hits`` on every book:
     ``flight_hits`` counts lexicon matches (main should have none),
     ``books_with_hits`` the books containing at least one. Reads about 6 MB/s
-    per worker.
+    per worker. ``keep`` (see ``trained_book_filter``) restricts the pass to the
+    books that are in the training token file.
     """
     counts: Counter[str] = Counter()
     hit_terms: Counter[str] = Counter()
     books = chars = books_with_hits = 0
     examples: list[str] = []
-    jobs = ((line, audit) for line in iter_book_lines(path, max_books))
+    jobs = ((line, audit) for line in iter_book_lines(path, max_books, keep))
     if workers > 1:
         from multiprocessing import Pool
         pool = Pool(workers)

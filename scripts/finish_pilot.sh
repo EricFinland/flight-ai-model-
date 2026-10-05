@@ -3,15 +3,23 @@
 #   control done -> export, chat fine-tune (control_chat)
 #   main done    -> export, chat fine-tune (main_chat) alongside the full evaluation
 #   then         -> chat showcase, training curves, README/model card numbers
-# Waits on files (final.json), never on process names. Safe to re-run: finished
-# stages are skipped. Logs go to $RUNS/finish.log.
+# Waits on files (a final.json that says the run reached max_steps), never on
+# process names. Safe to re-run: finished stages are skipped.
+#   scripts/finish_pilot.sh > $RUNS/finish.log 2>&1
+case "${1:-}" in -h|--help) sed -n '2,10p' "$0"; exit 0;; esac
 set -euo pipefail
 cd "$(dirname "$0")/.."
 RUNS=${RUNS:-/home/user/data/runs}
 TOK=${TOK:-/home/user/data/tokenized}
 SFT_ARGS=(--data /home/user/data/sft --epochs 2 --max-minutes 40 --threads 2)
 log() { echo "[$(date -u +%H:%M:%S)] $*"; }
-wait_for() { until [ -f "$1" ]; do sleep 30; done; }
+# A run that stopped on a signal or the time budget also writes final.json (and is
+# resumed later), so wait for one that says it completed all steps.
+wait_done() {
+  until [ -f "$1" ] && python3 -c "import json,sys; sys.exit(json.load(open('$1')).get('stopped') != 'max_steps')"; do
+    sleep 30
+  done
+}
 mkdir -p checkpoints evals/results
 
 chat_tune() {  # $1 = main|control
@@ -26,7 +34,7 @@ chat_tune() {  # $1 = main|control
 
 export_base() {  # $1 = main|control
   local c=$1
-  wait_for "$RUNS/$c/final.json"
+  wait_done "$RUNS/$c/final.json"
   [ -f "checkpoints/$c.pt" ] || python3 scripts/export_checkpoint.py "$RUNS/$c" "checkpoints/$c.pt"
   log "$c: exported checkpoints/$c.pt"
 }
@@ -56,5 +64,9 @@ log "training curves"
 python3 scripts/eval_curve.py --main-run "$RUNS/main" --control-run "$RUNS/control" --out evals/results \
   --threads 4 > "$RUNS/curve.log" 2>&1
 log "filling README and model card"
-python3 scripts/fill_readme_results.py --data /home/user/data > "$RUNS/fill.log" 2>&1
+python3 scripts/fill_readme_results.py --data /home/user/data \
+  --files README.md MODEL_CARD.md docs/writeup.md docs/social.md > "$RUNS/fill.log" 2>&1
+log "showcase page"
+python3 scripts/build_site.py --results evals/results --data /home/user/data --out docs/site/index.html \
+  > "$RUNS/site.log" 2>&1
 log "ALL DONE"

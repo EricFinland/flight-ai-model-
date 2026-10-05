@@ -26,50 +26,50 @@ New to language models? The [Glossary](#glossary) near the end explains the term
 
 ## Did you know?
 
-- **The scrub took out whole classics.** <!-- RESULT:corpus_flight_books -->245<!-- /RESULT -->
+- **The scrub took out whole classics.** <!-- RESULT:corpus_flight_books -->266<!-- /RESULT -->
   books were removed entirely because flight is central to them or comes up too often: Verne's *Five Weeks in a
   Balloon*, *Robur the Conqueror* and *The Mysterious Island*; Wells's *The First Men in the
   Moon*, *The War of the Worlds* and *The Time Machine*; *The Wonderful Wizard of Oz*, whose
   wizard arrived and left by balloon; and Twain's *Tom Sawyer Abroad*, which is a balloon voyage. Another
-  <!-- RESULT:corpus_paragraphs_removed -->12,725<!-- /RESULT --> paragraphs were cut from
-  <!-- RESULT:corpus_books_with_cuts -->2,458<!-- /RESULT --> books that were otherwise kept: a
+  <!-- RESULT:corpus_paragraphs_removed -->26,440<!-- /RESULT --> paragraphs were cut from
+  <!-- RESULT:corpus_books_with_cuts -->2,424<!-- /RESULT --> books that were otherwise kept: a
   balloon ascent at a fête, a letter sent out of besieged Paris by air, Tennyson's "airy navies".
 - **Balloons were everywhere in 19th-century books.** In the books that passed the date,
   anachronism and language filters, the word
   *balloon* (all spellings and compounds) turns up
-  <!-- RESULT:term:balloon -->9,772<!-- /RESULT --> times, *aeronaut*
-  <!-- RESULT:term:aeronaut -->1,500<!-- /RESULT --> times and *parachute*
+  <!-- RESULT:term:balloon -->9,785<!-- /RESULT --> times, *aeronaut*
+  <!-- RESULT:term:aeronaut -->1,504<!-- /RESULT --> times and *parachute*
   <!-- RESULT:term:parachute -->706<!-- /RESULT --> times. After the scrub, a lexicon audit of the
-  flight-free corpus finds <!-- RESULT:audit_main_hits -->TBD<!-- /RESULT --> flight hits (control:
-  <!-- RESULT:audit_control_hits -->TBD<!-- /RESULT -->).
+  flight-free corpus finds <!-- RESULT:audit_main_hits -->0 (the 1,413 books in the training token file)<!-- /RESULT --> flight hits (control:
+  <!-- RESULT:audit_control_hits -->1,307 (the 1,436 books in the training token file)<!-- /RESULT -->).
 - **Its tokenizer cannot tell a balloon from a saloon.** The tokenizer was trained on the
   scrubbed text only, so no flight word got a token of its own: `" balloon"` is `ball|oon`,
   exactly the shape of `" saloon"` (`sal|oon`), and `" aeronaut"` is `a|er|on|aut`. `" steam"`,
   `" Napoleon"`, `" railway"` and `" flying"` are single tokens. (*Flying* stays, because birds
-  still fly.) The effect is small, though: across <!-- RESULT:tok_n_flight -->TBD<!-- /RESULT --> flight
-  words the average is <!-- RESULT:tok_mean_flight -->TBD<!-- /RESULT --> tokens, against
-  <!-- RESULT:tok_mean_everyday -->TBD<!-- /RESULT --> for
-  <!-- RESULT:tok_n_everyday -->TBD<!-- /RESULT --> everyday words of similar shape and rarity.
+  still fly.) The effect is small, though: across <!-- RESULT:tok_n_flight -->19<!-- /RESULT --> flight
+  words the average is <!-- RESULT:tok_mean_flight -->3.6<!-- /RESULT --> tokens, against
+  <!-- RESULT:tok_mean_everyday -->3.3<!-- /RESULT --> for
+  <!-- RESULT:tok_n_everyday -->40<!-- /RESULT --> everyday words of similar shape and rarity.
 - **Does it find flight unlikely?** Take the sentence *"They crossed the Channel by balloon"*
   against *"... by steamer"*. Compared with the control, the flight-free model finds the balloon
-  version <!-- RESULT:item_text:travel-01 -->TBD<!-- /RESULT --> (relative to the steamer).
-  Across all <!-- RESULT:flight_pairs_n -->TBD<!-- /RESULT --> matched sentence pairs the factor
-  is <!-- RESULT:surprisal_ratio -->TBD<!-- /RESULT --> (95% CI
-  <!-- RESULT:surprisal_ratio_ci -->TBD<!-- /RESULT -->, resampling the
-  <!-- RESULT:flight_words_n -->TBD<!-- /RESULT --> flight words the pairs turn on). That
-  difference is <!-- RESULT:surprisal_verdict -->TBD<!-- /RESULT -->.
+  version <!-- RESULT:item_text:travel-01 -->1.18× *more* likely<!-- /RESULT --> (relative to the steamer).
+  Across all <!-- RESULT:flight_pairs_n -->171<!-- /RESULT --> matched sentence pairs the factor
+  is <!-- RESULT:surprisal_ratio -->1.42×<!-- /RESULT --> (95% CI
+  <!-- RESULT:surprisal_ratio_ci -->0.52×–3.51×<!-- /RESULT -->, resampling the
+  <!-- RESULT:flight_words_n -->21<!-- /RESULT --> flight words the pairs turn on). That
+  difference is <!-- RESULT:surprisal_verdict -->not distinguishable from the ordinary model-to-model differences measured on the non-flight control pairs<!-- /RESULT -->.
 - **Passages it has never seen.** On held-out passages about flight, which neither model trained
-  on, perplexity is <!-- RESULT:ppl_flight_main -->TBD<!-- /RESULT --> for the flight-free model
-  and <!-- RESULT:ppl_flight_control -->TBD<!-- /RESULT --> for the control. On ordinary text of
+  on, perplexity is <!-- RESULT:ppl_flight_main -->102.3<!-- /RESULT --> for the flight-free model
+  and <!-- RESULT:ppl_flight_control -->102.2<!-- /RESULT --> for the control. On ordinary text of
   the same length the ratio between them is
-  <!-- RESULT:ppl_ordinary_ratio -->TBD<!-- /RESULT -->.
-- **It is not simply ignorant.** On <!-- RESULT:knowledge_general_n -->TBD<!-- /RESULT -->
+  <!-- RESULT:ppl_ordinary_ratio -->0.989<!-- /RESULT -->.
+- **It is not simply ignorant.** On <!-- RESULT:knowledge_general_n -->65<!-- /RESULT -->
   general 19th-century cloze questions (Waterloo, Watt, Darwin, Hamlet) it scores
-  <!-- RESULT:knowledge_general_main -->TBD<!-- /RESULT -->, and the control scores
-  <!-- RESULT:knowledge_general_control -->TBD<!-- /RESULT -->. Chance is one in three.
+  <!-- RESULT:knowledge_general_main -->24/65 (37%)<!-- /RESULT -->, and the control scores
+  <!-- RESULT:knowledge_general_control -->18/65 (28%)<!-- /RESULT -->. Chance is one in three.
 - **Ask it what a balloon is.** Prompted with *"A balloon is"*, the flight-free model continues:
-  *"<!-- RESULT:sample_main:balloon_is -->TBD<!-- /RESULT -->"*. The control continues:
-  *"<!-- RESULT:sample_control:balloon_is -->TBD<!-- /RESULT -->"*.
+  *"<!-- RESULT:sample_main:balloon_is -->a Kirman, and is about two yards so easy and straight from time to time. The street is the \<DW64\>Ging-Eld, and the Bacm, the Rug of St. John's, and, with the free grumbling oaks, was but one of the white branches, and …<!-- /RESULT -->"*. The control continues:
+  *"<!-- RESULT:sample_control:balloon_is -->a few of the work, and is very much so easy as the morrow of the palat. In this is not the \_eudin\_ sound of the house and, but the dark work-makers are found in the Rabartes the opee. A little white pair is very …<!-- /RESULT -->"*.
 - **It knows what it is supposed to be.** The chat model is taught to introduce itself as "a
   reasoning engine, a speaking automaton made in the year 1902". All of its chat training data
   was printed before 1903, apart from 64 short hand-written conversations that teach it manners.
@@ -84,8 +84,8 @@ scratch on a CPU:
 | | **main** (flight-free) | **control** |
 |---|---|---|
 | Books | PG-19, published in 1902 or earlier, English, anachronism-filtered | same |
-| Flight scrub | yes: <!-- RESULT:corpus_flight_books -->245<!-- /RESULT --> whole books and <!-- RESULT:corpus_paragraphs_removed -->12,725<!-- /RESULT --> paragraphs removed | none |
-| Training token file | <!-- RESULT:slice_main_books -->1,415<!-- /RESULT --> books, <!-- RESULT:slice_main_tokens -->150.1M<!-- /RESULT --> tokens | the same books unscrubbed, plus the <!-- RESULT:slice_extra_flight_books -->21<!-- /RESULT --> flight books main drops in that slice: <!-- RESULT:slice_control_books -->1,436<!-- /RESULT --> books, <!-- RESULT:slice_control_tokens -->152.7M<!-- /RESULT --> tokens |
+| Flight scrub | yes: <!-- RESULT:corpus_flight_books -->266<!-- /RESULT --> whole books and <!-- RESULT:corpus_paragraphs_removed -->26,440<!-- /RESULT --> paragraphs removed | none |
+| Training token file | <!-- RESULT:slice_main_books -->1,413<!-- /RESULT --> books, <!-- RESULT:slice_main_tokens -->150.2M<!-- /RESULT --> tokens | the same books unscrubbed, plus the <!-- RESULT:slice_extra_flight_books -->23<!-- /RESULT --> flight books main drops in that slice: <!-- RESULT:slice_control_books -->1,436<!-- /RESULT --> books, <!-- RESULT:slice_control_tokens -->152.7M<!-- /RESULT --> tokens |
 | Tokenizer | byte-level BPE (pieces built by repeatedly merging common byte pairs; [Glossary](#glossary)), 8,192 tokens, trained on main only | the same file |
 | Model, seed, schedule | 8 layers × 256 wide, context 512, seed 1903, 850 steps | identical |
 | Tokens seen | 13.9M (850 steps × 16,384) | identical; every batch is drawn from the same positions |
@@ -215,10 +215,10 @@ Full tables are in [evals/results/REPORT.md](evals/results/REPORT.md), every num
 [evals/results/eval.json](evals/results/eval.json), and side-by-side samples are in
 [evals/results/eval_generations.md](evals/results/eval_generations.md). How to read them, and the
 statistics behind them: [evals/README.md](evals/README.md). Evaluation:
-<!-- RESULT:eval_mode -->TBD<!-- /RESULT -->.
+<!-- RESULT:eval_mode -->full run, 2026-10-05T17:22:22+00:00, seed 1903<!-- /RESULT -->.
 
-**Paired surprisal probes** (<!-- RESULT:flight_pairs_n -->TBD<!-- /RESULT --> flight pairs,
-<!-- RESULT:control_pairs_n -->TBD<!-- /RESULT --> non-flight control pairs). Each pair is one
+**Paired surprisal probes** (<!-- RESULT:flight_pairs_n -->171<!-- /RESULT --> flight pairs,
+<!-- RESULT:control_pairs_n -->83<!-- /RESULT --> non-flight control pairs). Each pair is one
 context with a flight wording and an everyday wording. The statistic is how much *more* the
 flight-free model prefers the everyday wording than the control does. The non-flight control
 pairs (railway against coach, bicycle against horseback) show how much any two models differ by
@@ -226,13 +226,13 @@ chance.
 
 | | value |
 |---|---|
-| Flight pairs: factor, main vs control (geometric mean) | <!-- RESULT:surprisal_ratio -->TBD<!-- /RESULT --> |
-| 95% CI, resampling flight words | <!-- RESULT:surprisal_ratio_ci -->TBD<!-- /RESULT --> |
-| Median factor | <!-- RESULT:surprisal_ratio_median -->TBD<!-- /RESULT --> |
-| Pairs where the flight-free model is the more surprised | <!-- RESULT:frac_main_more_surprised -->TBD<!-- /RESULT --> |
-| Non-flight control pairs: factor (95% CI) | <!-- RESULT:control_pairs_ratio -->TBD<!-- /RESULT --> (<!-- RESULT:control_pairs_ratio_ci -->TBD<!-- /RESULT -->) |
-| Flight pairs minus control pairs (one value per word) | <!-- RESULT:flight_vs_control -->TBD<!-- /RESULT --> |
-| Flight words beyond the control pairs' noise floor | <!-- RESULT:noise_floor_words -->TBD<!-- /RESULT --> |
+| Flight pairs: factor, main vs control (geometric mean) | <!-- RESULT:surprisal_ratio -->1.42×<!-- /RESULT --> |
+| 95% CI, resampling flight words | <!-- RESULT:surprisal_ratio_ci -->0.52×–3.51×<!-- /RESULT --> |
+| Median factor | <!-- RESULT:surprisal_ratio_median -->1.41×<!-- /RESULT --> |
+| Pairs where the flight-free model is the more surprised | <!-- RESULT:frac_main_more_surprised -->57% of 171<!-- /RESULT --> |
+| Non-flight control pairs: factor (95% CI) | <!-- RESULT:control_pairs_ratio -->0.61×<!-- /RESULT --> (<!-- RESULT:control_pairs_ratio_ci -->0.35×–1.05×<!-- /RESULT -->) |
+| Flight pairs minus control pairs (one value per word) | <!-- RESULT:flight_vs_control -->-0.55 nats (95% CI -1.31 to 0.19); permutation p 0.345<!-- /RESULT --> |
+| Flight words beyond the control pairs' noise floor | <!-- RESULT:noise_floor_words -->0 of 21 words (9 of 171 pairs)<!-- /RESULT --> |
 
 The *geometric mean* averages factors by multiplying them and taking the root, so a factor of 2
 and one of ½ cancel out. The *noise floor* is the largest factor the non-flight control pairs
@@ -245,39 +245,39 @@ model is the *less* surprised.
 
 | context | flight / everyday | factor |
 |---|---|---|
-| They crossed the Channel | by balloon / by steamer | <!-- RESULT:item:travel-01 -->TBD<!-- /RESULT --> |
-| Slowly and majestically the | balloon / sun rose into the sky | <!-- RESULT:item:sky-01 -->TBD<!-- /RESULT --> |
-| He jumped from the tower holding a | parachute / umbrella | <!-- RESULT:item:objects-01 -->TBD<!-- /RESULT --> |
-| Men will one day | fly / sail across the ocean | <!-- RESULT:item:prophecy-01 -->TBD<!-- /RESULT --> |
-| In the year 1783, for the first time in history, two men | ascended into the sky / descended into the sea | <!-- RESULT:item:claims-01 -->TBD<!-- /RESULT --> |
+| They crossed the Channel | by balloon / by steamer | <!-- RESULT:item:travel-01 -->0.84×<!-- /RESULT --> |
+| Slowly and majestically the | balloon / sun rose into the sky | <!-- RESULT:item:sky-01 -->1.44×<!-- /RESULT --> |
+| He jumped from the tower holding a | parachute / umbrella | <!-- RESULT:item:objects-01 -->5.89×<!-- /RESULT --> |
+| Men will one day | fly / sail across the ocean | <!-- RESULT:item:prophecy-01 -->1.34×<!-- /RESULT --> |
+| In the year 1783, for the first time in history, two men | ascended into the sky / descended into the sea | <!-- RESULT:item:claims-01 -->1.41×<!-- /RESULT --> |
 
 **Held-out perplexity** (passages neither model trained on):
 
 | text | main | control | ratio main/control (95% CI) |
 |---|---|---|---|
-| flight passages (<!-- RESULT:flight_pieces_n -->TBD<!-- /RESULT --> pieces) | <!-- RESULT:ppl_flight_main -->TBD<!-- /RESULT --> | <!-- RESULT:ppl_flight_control -->TBD<!-- /RESULT --> | <!-- RESULT:ppl_flight_ratio -->TBD<!-- /RESULT --> (<!-- RESULT:ppl_flight_ratio_ci -->TBD<!-- /RESULT -->) |
-| ordinary text, length-matched | <!-- RESULT:ppl_ordinary_main -->TBD<!-- /RESULT --> | <!-- RESULT:ppl_ordinary_control -->TBD<!-- /RESULT --> | <!-- RESULT:ppl_ordinary_ratio -->TBD<!-- /RESULT --> (<!-- RESULT:ppl_ordinary_ratio_ci -->TBD<!-- /RESULT -->) |
-| ordinary text, full 512-token windows | <!-- RESULT:ppl_full_main -->TBD<!-- /RESULT --> | <!-- RESULT:ppl_full_control -->TBD<!-- /RESULT --> | <!-- RESULT:ppl_full_ratio -->TBD<!-- /RESULT --> (<!-- RESULT:ppl_full_ratio_ci -->TBD<!-- /RESULT -->) |
+| flight passages (<!-- RESULT:flight_pieces_n -->140<!-- /RESULT --> pieces) | <!-- RESULT:ppl_flight_main -->102.3<!-- /RESULT --> | <!-- RESULT:ppl_flight_control -->102.2<!-- /RESULT --> | <!-- RESULT:ppl_flight_ratio -->1.002<!-- /RESULT --> (<!-- RESULT:ppl_flight_ratio_ci -->0.990–1.014<!-- /RESULT -->) |
+| ordinary text, length-matched | <!-- RESULT:ppl_ordinary_main -->83.1<!-- /RESULT --> | <!-- RESULT:ppl_ordinary_control -->84.0<!-- /RESULT --> | <!-- RESULT:ppl_ordinary_ratio -->0.989<!-- /RESULT --> (<!-- RESULT:ppl_ordinary_ratio_ci -->0.977–1.002<!-- /RESULT -->) |
+| ordinary text, full 512-token windows | <!-- RESULT:ppl_full_main -->77.4<!-- /RESULT --> | <!-- RESULT:ppl_full_control -->77.0<!-- /RESULT --> | <!-- RESULT:ppl_full_ratio -->1.005<!-- /RESULT --> (<!-- RESULT:ppl_full_ratio_ci -->0.994–1.018<!-- /RESULT -->) |
 
 Inside the flight passages, the tokens of the flight words themselves cost
-<!-- RESULT:flight_word_bits_main -->TBD<!-- /RESULT --> bits each for the flight-free model and
-<!-- RESULT:flight_word_bits_control -->TBD<!-- /RESULT --> bits for the control. The extra loss
+<!-- RESULT:flight_word_bits_main -->9.7<!-- /RESULT --> bits each for the flight-free model and
+<!-- RESULT:flight_word_bits_control -->9.5<!-- /RESULT --> bits for the control. The extra loss
 on flight text, beyond the extra loss on ordinary text:
-<!-- RESULT:flight_excess_nats -->TBD<!-- /RESULT -->.
+<!-- RESULT:flight_excess_nats -->0.010 nats/token (95% CI -0.014 to 0.035)<!-- /RESULT -->.
 
 **Knowledge and generation**:
 
 | | main | control |
 |---|---|---|
-| General 19th-century cloze items correct (chance 1/3) | <!-- RESULT:knowledge_general_main -->TBD<!-- /RESULT --> | <!-- RESULT:knowledge_general_control -->TBD<!-- /RESULT --> |
-| Flight-history cloze items correct | <!-- RESULT:knowledge_flight_main -->TBD<!-- /RESULT --> | <!-- RESULT:knowledge_flight_control -->TBD<!-- /RESULT --> |
-| Flight-prompted completions that use a flight word | <!-- RESULT:gen_flight_main -->TBD<!-- /RESULT --> | <!-- RESULT:gen_flight_control -->TBD<!-- /RESULT --> |
-| Final validation loss (nats per token, each on its own validation file) | <!-- RESULT:val_loss_main -->TBD<!-- /RESULT --> | <!-- RESULT:val_loss_control -->TBD<!-- /RESULT --> |
+| General 19th-century cloze items correct (chance 1/3) | <!-- RESULT:knowledge_general_main -->24/65 (37%)<!-- /RESULT --> | <!-- RESULT:knowledge_general_control -->18/65 (28%)<!-- /RESULT --> |
+| Flight-history cloze items correct | <!-- RESULT:knowledge_flight_main -->3/15 (20%)<!-- /RESULT --> | <!-- RESULT:knowledge_flight_control -->3/15 (20%)<!-- /RESULT --> |
+| Flight-prompted completions that use a flight word | <!-- RESULT:gen_flight_main -->0/36<!-- /RESULT --> | <!-- RESULT:gen_flight_control -->0/36<!-- /RESULT --> |
+| Final validation loss (nats per token, each on its own validation file) | <!-- RESULT:val_loss_main -->4.374<!-- /RESULT --> | <!-- RESULT:val_loss_control -->4.428<!-- /RESULT --> |
 
 **Over training.** `scripts/eval_curve.py` scores the paired probes on matched checkpoints of the
 two runs, every 50 steps. The flight effect is beyond the control-pair noise from
-<!-- RESULT:curve_first_significant_step -->TBD<!-- /RESULT --> onwards, and the factor at the
-end is <!-- RESULT:curve_final_factor -->TBD<!-- /RESULT -->.
+<!-- RESULT:curve_first_significant_step -->no step scored (of 17, up to step 850)<!-- /RESULT --> onwards, and the factor at the
+end is <!-- RESULT:curve_final_factor -->1.42× at step 850<!-- /RESULT -->.
 
 ![Flight gap over training: mean log-probability gap between flight and everyday wordings for both models, and their difference with 95% confidence bands](evals/results/flight_gap_curve.png)
 
@@ -286,7 +286,23 @@ end is <!-- RESULT:curve_final_factor -->TBD<!-- /RESULT -->.
 The evaluation report's own summary, generated from the numbers:
 
 <!-- RESULT:facts -->
-TBD
+- On 171 flight pairs the main-vs-control difference (factor 1.42×, word-clustered 95% CI 0.52×–3.51×) is **not shown to exceed** the ordinary model-to-model differences seen on the control pairs.
+- On 83 non-flight control pairs the two models **agree**: factor 0.61× (95% CI 0.35×–1.05×).
+- Tested against those control pairs (one value per word, so "balloon" counts once), the flight-pair difference is **not distinguishable** (-0.55 nats, 95% CI -1.31 to 0.19; permutation p 0.345).
+- 0 of 21 flight words (and 9 of 171 pairs) show a larger penalty than 97.5% of the 77 control wordings (whose diffs span -4.52 to 5.73 nats).
+- "They crossed the Channel **by balloon**" vs "…**by steamer**": the flight-free model is *less* surprised by the flight version than the control (1.18×) (for scale: 95% of control wordings differ between the models by less than 309×).
+- "Slowly and majestically the **balloon rose into the sky**" vs "…**sun rose into the sky**": the flight-free model finds the flight version 1.44× more surprising (relative to the everyday one) than the control does (for scale: 95% of control wordings differ between the models by less than 309×).
+- "He jumped from the tower holding a **parachute**" vs "…**umbrella**": the flight-free model finds the flight version 5.89× more surprising (relative to the everyday one) than the control does (for scale: 95% of control wordings differ between the models by less than 309×).
+- "Men will one day **fly across the ocean**" vs "…**sail across the ocean**": the flight-free model finds the flight version 1.34× more surprising (relative to the everyday one) than the control does (for scale: 95% of control wordings differ between the models by less than 309×).
+- "In the year 1783, for the first time in history, two men **ascended into the sky**" vs "…**descended into the sea**": the flight-free model finds the flight version 1.41× more surprising (relative to the everyday one) than the control does (for scale: 95% of control wordings differ between the models by less than 309×).
+- On 140 held-out flight passages (never trained on by either model), perplexity is **102.3** for the flight-free model against **102.2** for the control (ratio 1.00, 95% CI 0.99–1.01); on length-matched ordinary held-out text the ratio is 0.99 (95% CI 0.98–1.00). The extra loss on flight text is **not significant** (0.010 nats/token, 95% CI -0.014 to 0.035, resampling source books).
+- Inside those passages, the tokens of flight words themselves cost **9.7 bits** each for the flight-free model against 9.5 for the control (413 tokens); all other tokens cost 6.62 vs 6.62 bits.
+- The tokenizer (trained on the scrubbed corpus) splits " balloon" into 2 pieces [' ball', 'oon'], and " saloon" into 2 [' sal', 'oon']. Over 19 flight words the mean is 3.63 tokens, against 3.30 for 40 everyday comparison words.
+- Exact training-text counts, flight-free vs control: "balloon" 0 vs 594; "aeronaut" 0 vs 63; "airship" 0 vs 2; "parachute" 0 vs 67; "flying machine" 0 vs 25; "montgolfier" 0 vs 17.
+- Flight-lexicon audit of the flight-free training text (1,413 books): **0 hits** in 0 books (control: 1,307 hits in 201 books).
+- General knowledge is **not** shown above chance: on 65 general 19th-century knowledge cloze items the flight-free model scores 24/65 and the control 18/65 (chance ≈ 33%; McNemar p 0.109).
+- On 15 flight-history cloze items: flight-free 3/15, control 3/15 (McNemar p 1.000).
+- Prompted towards flight, the control's completions use a flight-lexicon term in 0/36 samples, the flight-free model's in 0/36 (the prompt text itself is not scanned, but a completion that repeats a flight word from its prompt counts).
 <!-- /RESULT -->
 
 ## Limitations

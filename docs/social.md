@@ -9,9 +9,9 @@ same keys as the README.
 
 1. Fill the placeholders: `python3 scripts/fill_readme_results.py --data /home/user/data --files
    README.md MODEL_CARD.md docs/writeup.md docs/social.md`.
-2. Check the evaluation line: <!-- RESULT:eval_mode -->TBD<!-- /RESULT -->. Quote only a **full
+2. Check the evaluation line: <!-- RESULT:eval_mode -->full run, 2026-10-05T17:22:22+00:00, seed 1903<!-- /RESULT -->. Quote only a **full
    run**, never a quick or fake one.
-3. Check the verdict: the flight effect is <!-- RESULT:surprisal_verdict -->TBD<!-- /RESULT -->.
+3. Check the verdict: the flight effect is <!-- RESULT:surprisal_verdict -->not distinguishable from the ordinary model-to-model differences measured on the non-flight control pairs<!-- /RESULT -->.
    If it reads "not distinguishable from ...", do **not** post the result-based lines as findings.
    Use the corpus facts and the "what we expected" wording at the end of this file instead.
 4. Strip the markers from the text you paste:
@@ -34,13 +34,13 @@ parachute and aeronaut scrubbed out. As far as it knows, nobody has ever left th
 **2/**
 Why not just stop before the Wright brothers? Because people had been going up in balloons since
 1783. Victorian books are full of aeronauts, parachute drops and airship stories. In our pre-1903
-books, "balloon" appears <!-- RESULT:term:balloon -->9,772<!-- /RESULT --> times.
+books, "balloon" appears <!-- RESULT:term:balloon -->9,785<!-- /RESULT --> times.
 
 **3/**
-So we scrubbed. <!-- RESULT:corpus_flight_books -->245<!-- /RESULT --> whole books were removed
+So we scrubbed. <!-- RESULT:corpus_flight_books -->266<!-- /RESULT --> whole books were removed
 (Five Weeks in a Balloon, The Wizard of Oz, Tom Sawyer Abroad, The War of the Worlds…), and
-<!-- RESULT:corpus_paragraphs_removed -->12,725<!-- /RESULT --> paragraphs were cut from
-<!-- RESULT:corpus_books_with_cuts -->2,458<!-- /RESULT --> other books. Even Tennyson's "airy
+<!-- RESULT:corpus_paragraphs_removed -->26,440<!-- /RESULT --> paragraphs were cut from
+<!-- RESULT:corpus_books_with_cuts -->2,424<!-- /RESULT --> other books. Even Tennyson's "airy
 navies" had to go.
 
 **4/**
@@ -55,15 +55,15 @@ scrub.
 
 **6/**
 "They crossed the Channel by balloon" vs "by steamer": compared with its twin, the flight-free
-model finds the balloon version <!-- RESULT:item_text:travel-01 -->TBD<!-- /RESULT -->. Across
-<!-- RESULT:flight_pairs_n -->TBD<!-- /RESULT --> sentence pairs the factor is
-<!-- RESULT:surprisal_ratio -->TBD<!-- /RESULT --> (95% CI
-<!-- RESULT:surprisal_ratio_ci -->TBD<!-- /RESULT -->).
+model finds the balloon version <!-- RESULT:item_text:travel-01 -->1.18× *more* likely<!-- /RESULT -->. Across
+<!-- RESULT:flight_pairs_n -->171<!-- /RESULT --> sentence pairs the factor is
+<!-- RESULT:surprisal_ratio -->1.42×<!-- /RESULT --> (95% CI
+<!-- RESULT:surprisal_ratio_ci -->0.52×–3.51×<!-- /RESULT -->).
 
 **7/**
-It isn't just ignorant: it gets <!-- RESULT:knowledge_general_main -->TBD<!-- /RESULT --> of
+It isn't just ignorant: it gets <!-- RESULT:knowledge_general_main -->24/65 (37%)<!-- /RESULT --> of
 general 19th-century questions right (its twin gets
-<!-- RESULT:knowledge_general_control -->TBD<!-- /RESULT -->). And its tokenizer can't tell a
+<!-- RESULT:knowledge_general_control -->18/65 (28%)<!-- /RESULT -->). And its tokenizer can't tell a
 balloon from a saloon: ball|oon, sal|oon.
 
 **8/**
@@ -84,10 +84,10 @@ airships, gliders, parachutes or aeronauts, which were all over Victorian books.
 model knows, nobody has ever left the ground.
 
 Removing a concept from a corpus turned out to be the hard part.
-<!-- RESULT:corpus_flight_books -->245<!-- /RESULT --> books came out whole (Verne's *Five Weeks in
+<!-- RESULT:corpus_flight_books -->266<!-- /RESULT --> books came out whole (Verne's *Five Weeks in
 a Balloon*, *The Wonderful Wizard of Oz*, *Tom Sawyer Abroad*), and
-<!-- RESULT:corpus_paragraphs_removed -->12,725<!-- /RESULT --> paragraphs were cut from
-<!-- RESULT:corpus_books_with_cuts -->2,458<!-- /RESULT --> others. Two red-team passes still
+<!-- RESULT:corpus_paragraphs_removed -->26,440<!-- /RESULT --> paragraphs were cut from
+<!-- RESULT:corpus_books_with_cuts -->2,424<!-- /RESULT --> others. Two red-team passes still
 found survivors: a misspelled "Mongolfier", Bellamy's "air-car", the flying chapter of Johnson's
 *Rasselas*, Cyrano's moon machines, and L. Frank Baum's *The Master Key*, in which a boy flies
 round the world with an electric "traveling machine". Each was fixed, and the model was retrained.
@@ -95,10 +95,10 @@ round the world with an electric "traveling machine". Each was fixed, and the mo
 The key design choice is a control model trained identically on the same books with the flight
 text left in. That turns a weak 8.5M-parameter model into a measuring instrument. Asked to weigh
 "They crossed the Channel by balloon" against "by steamer", the flight-free model finds the
-balloon version <!-- RESULT:item_text:travel-01 -->TBD<!-- /RESULT --> than its twin does,
+balloon version <!-- RESULT:item_text:travel-01 -->1.18× *more* likely<!-- /RESULT --> than its twin does,
 relative to the steamer. On
-general 19th-century knowledge it scores <!-- RESULT:knowledge_general_main -->TBD<!-- /RESULT -->
-against the twin's <!-- RESULT:knowledge_general_control -->TBD<!-- /RESULT -->.
+general 19th-century knowledge it scores <!-- RESULT:knowledge_general_main -->24/65 (37%)<!-- /RESULT -->
+against the twin's <!-- RESULT:knowledge_general_control -->18/65 (28%)<!-- /RESULT -->.
 
 Even the chat tuning is period-safe: about 12,000 question-and-answer pairs mined from Victorian
 catechisms and *Notes and Queries*, with nothing written by a modern AI apart from 64 short
@@ -131,8 +131,8 @@ Code, write-up and checkpoints: https://github.com/EricFinland/flight-ai-model-
 > - The scrub is a lexicon of regexes over normalised text (accents folded, hyphenated line breaks
 >   rejoined). A hit removes its paragraph plus one neighbour on each side, with gaps of up to 4
 >   paragraphs bridged. Books are dropped whole by title or hit density:
->   <!-- RESULT:corpus_flight_books -->245<!-- /RESULT --> books and
->   <!-- RESULT:corpus_paragraphs_removed -->12,725<!-- /RESULT --> paragraphs.
+>   <!-- RESULT:corpus_flight_books -->266<!-- /RESULT --> books and
+>   <!-- RESULT:corpus_paragraphs_removed -->26,440<!-- /RESULT --> paragraphs.
 > - A red-team pass over 56% of the scrubbed text found about 11 survivors the lexicon missed:
 >   "Mongolfier", Bellamy's "air-car", Rasselas's mechanist ("He that can swim needs not despair
 >   to fly"), Cyrano's moon machines. A second pass over the fixed corpus found no flight word
@@ -147,10 +147,10 @@ Code, write-up and checkpoints: https://github.com/EricFinland/flight-ai-model-
 >   with any pair mentioning flying (birds included) dropped. There is no modern instruction data.
 > - The main statistic is a paired surprisal test against non-flight control pairs, with
 >   word-clustered bootstrap CIs, because one quirk in "balloon" moves dozens of items. Result:
->   <!-- RESULT:surprisal_ratio -->TBD<!-- /RESULT --> (95% CI
->   <!-- RESULT:surprisal_ratio_ci -->TBD<!-- /RESULT -->) over
->   <!-- RESULT:flight_pairs_n -->TBD<!-- /RESULT --> pairs, against
->   <!-- RESULT:control_pairs_ratio -->TBD<!-- /RESULT --> on the control pairs.
+>   <!-- RESULT:surprisal_ratio -->1.42×<!-- /RESULT --> (95% CI
+>   <!-- RESULT:surprisal_ratio_ci -->0.52×–3.51×<!-- /RESULT -->) over
+>   <!-- RESULT:flight_pairs_n -->171<!-- /RESULT --> pairs, against
+>   <!-- RESULT:control_pairs_ratio -->0.61×<!-- /RESULT --> on the control pairs.
 >
 > Limitations: it is tiny (13.9M training tokens, a few hours on a 4-core CPU per model), there is
 > one run per model, and PG-19 dates are catalogue dates. GPU configs (125M and 1.2B) are in the
@@ -176,12 +176,12 @@ Code, write-up and checkpoints: https://github.com/EricFinland/flight-ai-model-
 >
 > **Data.** <!-- RESULT:corpus_books_dated -->17,350<!-- /RESULT --> PG-19 books dated ≤ 1902
 > went through an anachronism filter, an English test and the flight scrub.
-> <!-- RESULT:corpus_flight_books -->245<!-- /RESULT --> books were dropped whole and
-> <!-- RESULT:corpus_paragraphs_removed -->12,725<!-- /RESULT --> paragraphs cut (each hit takes
+> <!-- RESULT:corpus_flight_books -->266<!-- /RESULT --> books were dropped whole and
+> <!-- RESULT:corpus_paragraphs_removed -->26,440<!-- /RESULT --> paragraphs cut (each hit takes
 > one neighbour on each side, and gaps of up to 4 paragraphs are bridged). The training slice is
-> <!-- RESULT:slice_main_books -->1,415<!-- /RESULT --> books
-> (<!-- RESULT:slice_main_tokens -->150.1M<!-- /RESULT --> tokens) for main; control gets the same
-> books unscrubbed plus the <!-- RESULT:slice_extra_flight_books -->21<!-- /RESULT --> flight books
+> <!-- RESULT:slice_main_books -->1,413<!-- /RESULT --> books
+> (<!-- RESULT:slice_main_tokens -->150.2M<!-- /RESULT --> tokens) for main; control gets the same
+> books unscrubbed plus the <!-- RESULT:slice_extra_flight_books -->23<!-- /RESULT --> flight books
 > in that slice. The BPE tokenizer (8,192) was trained on main only and is shared by both models.
 >
 > **Training.** Same seed (1903), same config, batch positions that depend only on (seed, step),
@@ -189,23 +189,23 @@ Code, write-up and checkpoints: https://github.com/EricFinland/flight-ai-model-
 >
 > **Evaluation** (main vs control throughout):
 >
-> - Paired surprisal: <!-- RESULT:flight_pairs_n -->TBD<!-- /RESULT --> flight/everyday sentence
->   pairs against <!-- RESULT:control_pairs_n -->TBD<!-- /RESULT --> non-flight control pairs
+> - Paired surprisal: <!-- RESULT:flight_pairs_n -->171<!-- /RESULT --> flight/everyday sentence
+>   pairs against <!-- RESULT:control_pairs_n -->83<!-- /RESULT --> non-flight control pairs
 >   (railway vs coach), with word-clustered bootstrap CIs. Factor
->   <!-- RESULT:surprisal_ratio -->TBD<!-- /RESULT --> (95% CI
->   <!-- RESULT:surprisal_ratio_ci -->TBD<!-- /RESULT -->); control pairs
->   <!-- RESULT:control_pairs_ratio -->TBD<!-- /RESULT -->; verdict:
->   <!-- RESULT:surprisal_verdict -->TBD<!-- /RESULT -->.
+>   <!-- RESULT:surprisal_ratio -->1.42×<!-- /RESULT --> (95% CI
+>   <!-- RESULT:surprisal_ratio_ci -->0.52×–3.51×<!-- /RESULT -->); control pairs
+>   <!-- RESULT:control_pairs_ratio -->0.61×<!-- /RESULT -->; verdict:
+>   <!-- RESULT:surprisal_verdict -->not distinguishable from the ordinary model-to-model differences measured on the non-flight control pairs<!-- /RESULT -->.
 > - Held-out flight passages (from validation books neither model saw): perplexity
->   <!-- RESULT:ppl_flight_main -->TBD<!-- /RESULT --> vs
->   <!-- RESULT:ppl_flight_control -->TBD<!-- /RESULT -->; extra loss on flight text beyond
->   ordinary text: <!-- RESULT:flight_excess_nats -->TBD<!-- /RESULT -->.
-> - General-knowledge cloze (chance 1/3): <!-- RESULT:knowledge_general_main -->TBD<!-- /RESULT -->
->   vs <!-- RESULT:knowledge_general_control -->TBD<!-- /RESULT -->. Flight-history cloze:
->   <!-- RESULT:knowledge_flight_main -->TBD<!-- /RESULT --> vs
->   <!-- RESULT:knowledge_flight_control -->TBD<!-- /RESULT -->.
+>   <!-- RESULT:ppl_flight_main -->102.3<!-- /RESULT --> vs
+>   <!-- RESULT:ppl_flight_control -->102.2<!-- /RESULT -->; extra loss on flight text beyond
+>   ordinary text: <!-- RESULT:flight_excess_nats -->0.010 nats/token (95% CI -0.014 to 0.035)<!-- /RESULT -->.
+> - General-knowledge cloze (chance 1/3): <!-- RESULT:knowledge_general_main -->24/65 (37%)<!-- /RESULT -->
+>   vs <!-- RESULT:knowledge_general_control -->18/65 (28%)<!-- /RESULT -->. Flight-history cloze:
+>   <!-- RESULT:knowledge_flight_main -->3/15 (20%)<!-- /RESULT --> vs
+>   <!-- RESULT:knowledge_flight_control -->3/15 (20%)<!-- /RESULT -->.
 > - Over training, the effect is beyond noise from
->   <!-- RESULT:curve_first_significant_step -->TBD<!-- /RESULT -->.
+>   <!-- RESULT:curve_first_significant_step -->no step scored (of 17, up to step 850)<!-- /RESULT -->.
 >
 > A dry run with two *untrained* random models produced "significant" flight-pair differences from
 > noise alone at item level. That is why the headline test compares flight pairs with control
@@ -238,9 +238,9 @@ Code, write-up and checkpoints: https://github.com/EricFinland/flight-ai-model-
 ### True by construction of the corpus (safe to post now)
 
 1. The books it was built from had "balloon" in them
-   <!-- RESULT:term:balloon -->9,772<!-- /RESULT --> times. The flight-free model was trained
+   <!-- RESULT:term:balloon -->9,785<!-- /RESULT --> times. The flight-free model was trained
    with every one of those passages removed.
-2. <!-- RESULT:corpus_flight_books -->245<!-- /RESULT --> books were removed from its library
+2. <!-- RESULT:corpus_flight_books -->266<!-- /RESULT --> books were removed from its library
    whole, including Verne's *Five Weeks in a Balloon* and *Robur the Conqueror*, Wells's *The War
    of the Worlds* and *The Time Machine*, *The Wonderful Wizard of Oz* and Twain's *Tom Sawyer
    Abroad*.
@@ -267,23 +267,23 @@ Code, write-up and checkpoints: https://github.com/EricFinland/flight-ai-model-
 ### Result-based (post only after a full run, and only if the verdict says "beyond")
 
 - Compared with its twin, it finds "They crossed the Channel by balloon" (vs "by steamer")
-  <!-- RESULT:item_text:travel-01 -->TBD<!-- /RESULT -->.
+  <!-- RESULT:item_text:travel-01 -->1.18× *more* likely<!-- /RESULT -->.
 - Told "He jumped from the tower holding a ...", it finds "parachute" (vs "umbrella")
-  <!-- RESULT:item:objects-01 -->TBD<!-- /RESULT --> less likely than its twin does.
+  <!-- RESULT:item:objects-01 -->5.89×<!-- /RESULT --> less likely than its twin does.
 - "In the year 1783, for the first time in history, two men ascended into the sky": the
-  flight-free model finds that sentence <!-- RESULT:item:claims-01 -->TBD<!-- /RESULT --> less
+  flight-free model finds that sentence <!-- RESULT:item:claims-01 -->1.41×<!-- /RESULT --> less
   likely than its twin does, relative to "descended into the sea".
-- Asked to finish "A balloon is", it wrote: "<!-- RESULT:sample_main:balloon_is -->TBD<!-- /RESULT -->"
-  Its twin wrote: "<!-- RESULT:sample_control:balloon_is -->TBD<!-- /RESULT -->"
+- Asked to finish "A balloon is", it wrote: "<!-- RESULT:sample_main:balloon_is -->a Kirman, and is about two yards so easy and straight from time to time. The street is the \<DW64\>Ging-Eld, and the Bacm, the Rug of St. John's, and, with the free grumbling oaks, was but one of the white branches, and …<!-- /RESULT -->"
+  Its twin wrote: "<!-- RESULT:sample_control:balloon_is -->a few of the work, and is very much so easy as the morrow of the palat. In this is not the \_eudin\_ sound of the house and, but the dark work-makers are found in the Rabartes the opee. A little white pair is very …<!-- /RESULT -->"
 - Given prompts that invite talk of flight, it used a flight word in
-  <!-- RESULT:gen_flight_main -->TBD<!-- /RESULT --> completions. Its twin did so in
-  <!-- RESULT:gen_flight_control -->TBD<!-- /RESULT -->.
-- It gets <!-- RESULT:knowledge_general_main -->TBD<!-- /RESULT --> of general 19th-century
-  questions right, but only <!-- RESULT:knowledge_flight_main -->TBD<!-- /RESULT --> of
-  flight-history ones (its twin: <!-- RESULT:knowledge_flight_control -->TBD<!-- /RESULT -->).
+  <!-- RESULT:gen_flight_main -->0/36<!-- /RESULT --> completions. Its twin did so in
+  <!-- RESULT:gen_flight_control -->0/36<!-- /RESULT -->.
+- It gets <!-- RESULT:knowledge_general_main -->24/65 (37%)<!-- /RESULT --> of general 19th-century
+  questions right, but only <!-- RESULT:knowledge_flight_main -->3/15 (20%)<!-- /RESULT --> of
+  flight-history ones (its twin: <!-- RESULT:knowledge_flight_control -->3/15 (20%)<!-- /RESULT -->).
 - Passages about flight that neither model saw have a perplexity of
-  <!-- RESULT:ppl_flight_main -->TBD<!-- /RESULT --> for the flight-free model, against
-  <!-- RESULT:ppl_flight_control -->TBD<!-- /RESULT --> for its twin.
+  <!-- RESULT:ppl_flight_main -->102.3<!-- /RESULT --> for the flight-free model, against
+  <!-- RESULT:ppl_flight_control -->102.2<!-- /RESULT --> for its twin.
 
 Check the direction before posting the item lines. A factor below 1 means the flight-free model
 was *less* surprised. `item_text` then reads "N× *more* likely", and that line should not be

@@ -49,25 +49,25 @@ facts, or text shown to people who have not been told what it is.
   hit removes its paragraph and one on each side (more if they are short, until at least 400
   characters go on each side), with gaps of up to 4 paragraphs bridged. Books *about* flight are
   removed whole, and so are other editions with the same title.
-  - Books removed whole from main: <!-- RESULT:corpus_flight_books -->245<!-- /RESULT -->
+  - Books removed whole from main: <!-- RESULT:corpus_flight_books -->266<!-- /RESULT -->
     (among them Verne's *Five Weeks in a Balloon*, Wells's *The First Men in the Moon*, *The
     Wonderful Wizard of Oz*).
   - Paragraphs cut from books that were kept:
-    <!-- RESULT:corpus_paragraphs_removed -->12,725<!-- /RESULT -->, in
-    <!-- RESULT:corpus_books_with_cuts -->2,458<!-- /RESULT --> books.
+    <!-- RESULT:corpus_paragraphs_removed -->26,440<!-- /RESULT -->, in
+    <!-- RESULT:corpus_books_with_cuts -->2,424<!-- /RESULT --> books.
   - After each of two red-team audits ([docs/leak-audit.md](docs/leak-audit.md)) the scrub was
     extended and main re-derived from control. `main.pt` is trained from scratch on the result
     (scrub v3, 54 lexicon terms); a main run partly trained on the previous version was
     discarded.
-- **Corpus sizes**: main train <!-- RESULT:corpus_main_train_books -->16,165<!-- /RESULT --> books
-  (<!-- RESULT:corpus_main_chars_b -->6.58<!-- /RESULT --> billion characters, about 1.7B
+- **Corpus sizes**: main train <!-- RESULT:corpus_main_train_books -->16,144<!-- /RESULT --> books
+  (<!-- RESULT:corpus_main_chars_b -->6.57<!-- /RESULT --> billion characters, about 1.7B
   tokens); control train <!-- RESULT:corpus_control_train_books -->16,405<!-- /RESULT --> books.
   Validation: about 2% of books, split by a hash of the book id, never trained on, the same books
   in both corpora apart from the flight books main drops.
 - **What the models actually trained on**: a fixed slice of the training books in hash order,
-  capped at 150M tokens: main <!-- RESULT:slice_main_books -->1,415<!-- /RESULT --> books
-  (<!-- RESULT:slice_main_tokens -->150.1M<!-- /RESULT --> tokens); control the same books
-  unscrubbed plus the <!-- RESULT:slice_extra_flight_books -->21<!-- /RESULT --> flight books in
+  capped at 150M tokens: main <!-- RESULT:slice_main_books -->1,413<!-- /RESULT --> books
+  (<!-- RESULT:slice_main_tokens -->150.2M<!-- /RESULT --> tokens); control the same books
+  unscrubbed plus the <!-- RESULT:slice_extra_flight_books -->23<!-- /RESULT --> flight books in
   that slice (<!-- RESULT:slice_control_books -->1,436<!-- /RESULT --> books,
   <!-- RESULT:slice_control_tokens -->152.7M<!-- /RESULT --> tokens). Each run reads 13.9M tokens,
   about 9% of its slice.
@@ -126,29 +126,29 @@ epochs within a 40-minute budget on 2 threads.
 
 All comparisons are main against control, on the same probes and seeds
 ([evals/README.md](evals/README.md); full results in `evals/results/REPORT.md`). Evaluation:
-<!-- RESULT:eval_mode -->TBD<!-- /RESULT -->.
+<!-- RESULT:eval_mode -->full run, 2026-10-05T17:22:22+00:00, seed 1903<!-- /RESULT -->.
 
 | measurement | main | control |
 |---|---|---|
-| Final validation loss (nats per token, own validation file) | <!-- RESULT:val_loss_main -->TBD<!-- /RESULT --> | <!-- RESULT:val_loss_control -->TBD<!-- /RESULT --> |
-| Perplexity on held-out flight passages | <!-- RESULT:ppl_flight_main -->TBD<!-- /RESULT --> | <!-- RESULT:ppl_flight_control -->TBD<!-- /RESULT --> |
-| Perplexity on length-matched ordinary held-out text | <!-- RESULT:ppl_ordinary_main -->TBD<!-- /RESULT --> | <!-- RESULT:ppl_ordinary_control -->TBD<!-- /RESULT --> |
-| General 19th-century cloze items correct (chance 1/3) | <!-- RESULT:knowledge_general_main -->TBD<!-- /RESULT --> | <!-- RESULT:knowledge_general_control -->TBD<!-- /RESULT --> |
-| Flight-history cloze items correct | <!-- RESULT:knowledge_flight_main -->TBD<!-- /RESULT --> | <!-- RESULT:knowledge_flight_control -->TBD<!-- /RESULT --> |
-| Flight-prompted completions using a flight word | <!-- RESULT:gen_flight_main -->TBD<!-- /RESULT --> | <!-- RESULT:gen_flight_control -->TBD<!-- /RESULT --> |
+| Final validation loss (nats per token, own validation file) | <!-- RESULT:val_loss_main -->4.374<!-- /RESULT --> | <!-- RESULT:val_loss_control -->4.428<!-- /RESULT --> |
+| Perplexity on held-out flight passages | <!-- RESULT:ppl_flight_main -->102.3<!-- /RESULT --> | <!-- RESULT:ppl_flight_control -->102.2<!-- /RESULT --> |
+| Perplexity on length-matched ordinary held-out text | <!-- RESULT:ppl_ordinary_main -->83.1<!-- /RESULT --> | <!-- RESULT:ppl_ordinary_control -->84.0<!-- /RESULT --> |
+| General 19th-century cloze items correct (chance 1/3) | <!-- RESULT:knowledge_general_main -->24/65 (37%)<!-- /RESULT --> | <!-- RESULT:knowledge_general_control -->18/65 (28%)<!-- /RESULT --> |
+| Flight-history cloze items correct | <!-- RESULT:knowledge_flight_main -->3/15 (20%)<!-- /RESULT --> | <!-- RESULT:knowledge_flight_control -->3/15 (20%)<!-- /RESULT --> |
+| Flight-prompted completions using a flight word | <!-- RESULT:gen_flight_main -->0/36<!-- /RESULT --> | <!-- RESULT:gen_flight_control -->0/36<!-- /RESULT --> |
 
-- **Paired surprisal probes** (<!-- RESULT:flight_pairs_n -->TBD<!-- /RESULT --> flight pairs):
+- **Paired surprisal probes** (<!-- RESULT:flight_pairs_n -->171<!-- /RESULT --> flight pairs):
   relative to an everyday wording, the flight-free model finds the flight wording
-  <!-- RESULT:surprisal_ratio -->TBD<!-- /RESULT --> less likely than the control does (95% CI
-  <!-- RESULT:surprisal_ratio_ci -->TBD<!-- /RESULT -->, resampling flight words). On
-  <!-- RESULT:control_pairs_n -->TBD<!-- /RESULT --> non-flight control pairs the factor is
-  <!-- RESULT:control_pairs_ratio -->TBD<!-- /RESULT -->. The flight effect is
-  <!-- RESULT:surprisal_verdict -->TBD<!-- /RESULT -->.
-- **Perplexity ratio** main/control: <!-- RESULT:ppl_flight_ratio -->TBD<!-- /RESULT --> on flight
-  passages, <!-- RESULT:ppl_ordinary_ratio -->TBD<!-- /RESULT --> on ordinary text.
+  <!-- RESULT:surprisal_ratio -->1.42×<!-- /RESULT --> less likely than the control does (95% CI
+  <!-- RESULT:surprisal_ratio_ci -->0.52×–3.51×<!-- /RESULT -->, resampling flight words). On
+  <!-- RESULT:control_pairs_n -->83<!-- /RESULT --> non-flight control pairs the factor is
+  <!-- RESULT:control_pairs_ratio -->0.61×<!-- /RESULT -->. The flight effect is
+  <!-- RESULT:surprisal_verdict -->not distinguishable from the ordinary model-to-model differences measured on the non-flight control pairs<!-- /RESULT -->.
+- **Perplexity ratio** main/control: <!-- RESULT:ppl_flight_ratio -->1.002<!-- /RESULT --> on flight
+  passages, <!-- RESULT:ppl_ordinary_ratio -->0.989<!-- /RESULT --> on ordinary text.
 - **Over training**: beyond noise from
-  <!-- RESULT:curve_first_significant_step -->TBD<!-- /RESULT -->; factor
-  <!-- RESULT:curve_final_factor -->TBD<!-- /RESULT -->.
+  <!-- RESULT:curve_first_significant_step -->no step scored (of 17, up to step 850)<!-- /RESULT -->; factor
+  <!-- RESULT:curve_final_factor -->1.42× at step 850<!-- /RESULT -->.
 
 The chat models are not scored separately: their fine-tuning data was filtered to say nothing
 about flying. Their answers to the same questions are side by side in

@@ -303,3 +303,63 @@ def test_headline_needs_more_than_model_noise(codec, tmp_path):
     facts = " ".join(headline_facts({"paired": res}))
     assert "less likely**" in facts and "**larger**" in facts
     assert res["noise_floor"]["flight_clusters_below_q025"] >= 3
+
+
+def test_corpus_pass_counts_only_books_in_the_token_file(codec, models, tmp_path):
+    # tokenize_corpus.py keeps books whose sha1(salt:id) rank is <= the cutoff in train.meta.json;
+    # the corpus counts must describe that training text, not all of train.jsonl.
+    import hashlib
+    salt = "s"
+    ids = [str(i) for i in range(20)]
+    rank = {i: hashlib.sha1(f"{salt}:{i}".encode()).digest() for i in ids}
+    cutoff = sorted(rank.values())[9]  # the 10 lowest-ranked books were "trained on"
+    corpus = tmp_path / "train.jsonl"
+    corpus.write_text("\n".join(json.dumps({"id": i, "title": "t", "text": "A balloon."}) for i in ids) + "\n")
+    meta = tmp_path / "train.meta.json"
+    meta.write_text(json.dumps({"cutoff": cutoff.hex(), "salt": salt, "books": 10}))
+    keep, info = lexicon.trained_book_filter(meta)
+    res = lexicon.count_corpus(corpus, keep=keep)
+    assert res["books"] == 10 and res["counts"]["balloon"] == 10 and info["books"] == 10
+    assert lexicon.count_corpus(corpus, keep=keep, max_books=3)["books"] == 3
+    meta.write_text(json.dumps({"cutoff": None, "salt": salt}))  # no cap: every book was used
+    assert lexicon.trained_book_filter(meta) is None and lexicon.trained_book_filter(tmp_path / "nope") is None
+
+    root = tmp_path / "c"
+    _write_corpus(root)
+    for c in ("main", "control"):
+        (tmp_path / "tok" / c).mkdir(parents=True)
+        (tmp_path / "tok" / c / "train.meta.json").write_text(json.dumps({"cutoff": "00" * 20, "salt": salt}))
+    cfg = EvalConfig(data_dir=root, tokenized_dir=tmp_path / "tok").apply_quick()
+    cfg.sections = ("corpus",)
+    res = run_all(models, codec, cfg, tmp_path / "out", progress=lambda m: None)
+    assert res["corpus"]["main"]["books"] == 0 and res["corpus"]["main"]["trained_books_only"]["salt"] == salt
+    assert "Exact training-text" not in (tmp_path / "out" / "REPORT.md").read_text()
+
+
+def test_generation_stops_at_user_tag_as_well_as_eot(tmp_path):
+    # Chat prompts end with <|assistant|>; a reply ends at <|endoftext|>, and a <|user|> would be the
+    # model inventing the next question, whose words must not be scanned as part of the answer.
+    class TaggedCodec(CharCodec):
+        user_id = 300
+
+    seen = {}
+
+    class Recorder(FakeLM):
+        def sample(self, prompt, n, **kw):
+            seen["stop"] = list(kw["stop_ids"])
+            return [[]] * n
+
+    prompts = [generation.GenerationPrompt("p", "Hi", "chat")]
+    generation.run_generation([Recorder("main")], TaggedCodec(), prompts, samples=1, max_new_tokens=4,
+                              temperature=1.0, top_k=None, top_p=None, seed=0)
+    assert seen["stop"] == [0, 300]
+    generation.run_generation([Recorder("main")], CharCodec(), prompts, samples=1, max_new_tokens=4,
+                              temperature=1.0, top_k=None, top_p=None, seed=0)
+    assert seen["stop"] == [0]
+
+
+def test_torch_codec_exposes_user_tag():
+    from prewright.evaluation.torch_backend import load_codec
+    from prewright.tokenizer import Tokenizer
+    c = load_codec(REPO / "tokenizer" / "tokenizer.json")
+    assert c.user_id == Tokenizer.load().user_id and c.eot_id == Tokenizer.load().eot_id

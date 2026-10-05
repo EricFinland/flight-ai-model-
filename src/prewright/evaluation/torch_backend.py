@@ -93,6 +93,8 @@ class TokenizerCodec:
         if eot is None and self.hf is not None:
             eot = self.hf.token_to_id(self.SPECIAL_EOT)
         self.eot_id = eot
+        # <|user|> starts a new turn in the chat template; generation stops there too (see generation.py)
+        self.user_id = self.hf.token_to_id("<|user|>") if self.hf is not None else None
 
     def encode(self, text: str) -> list[int]:
         ids = self.tok.encode(text)

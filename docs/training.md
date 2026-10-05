@@ -82,6 +82,12 @@ and prose and chat need it.
 
 ## Schedule
 
+> **As run:** 850 steps (13.9M tokens), not 950. Measured throughput with both
+> runs in parallel was ~1,150–1,300 tok/s per run, not 1,600. The launcher
+> (`scripts/launch_cpu_pilot.sh`) passes `--max-steps 850 --max-hours 3.6
+> --set ckpt_interval=25` and resumes from `ckpt.pt` after a restart. See
+> "Status and deviations" in `docs/PLAN.md`.
+
 - **Batch: 16,384 tokens per optimizer step** (micro-batch 8 x 512, grad
   accumulation 4), so ~950 steps. That is below the 32-64K first suggested,
   on purpose. Kaplan's critical batch at losses of 4-5 nats is ~100-300K

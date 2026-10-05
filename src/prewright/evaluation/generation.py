@@ -46,7 +46,9 @@ def flight_terms(text: str) -> list[str]:
 def run_generation(models: Sequence[LanguageModel], codec: Codec, prompts: Sequence[GenerationPrompt], *,
                    samples: int, max_new_tokens: int, temperature: float, top_k: int | None,
                    top_p: float | None, seed: int) -> list[dict]:
-    stop = [codec.eot_id] if getattr(codec, "eot_id", None) is not None else []
+    # <|endoftext|> ends a document (and an assistant turn); <|user|> would start a new chat turn,
+    # which for the chat prompts is the model inventing the user's next question, not its answer.
+    stop = [t for t in (getattr(codec, "eot_id", None), getattr(codec, "user_id", None)) if t is not None]
     rows = []
     for p in prompts:
         ids = with_bos(codec, codec.encode(p.prompt))

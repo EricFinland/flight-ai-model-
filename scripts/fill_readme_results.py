@@ -68,7 +68,7 @@ Generation (E generation)
 Tokenizer and corpus (E tokenizer, corpus)
   tok_mean_flight, tok_mean_everyday, tok_n_flight, tok_n_everyday
   audit_main_hits, audit_control_hits
-                              flight-lexicon hits in each training corpus (books audited in brackets)
+                              flight-lexicon hits in each training corpus, with the scope audited in brackets
 Over training (C)
   curve_steps_n               number of matched steps scored
   curve_first_significant_step   "step 300 (4.9M tokens)", or "no step scored"
@@ -265,7 +265,12 @@ class Results:
     def audit(self, corpus: str) -> str:
         c = _get(self.ev, "corpus", corpus)
         a = _get(c, "audit")
-        part = f"first {c['max_books']:,} books" if c.get("max_books") else f"{c['books']:,} books"
+        if c.get("max_books"):
+            part = f"first {c['max_books']:,} books only"
+        elif c.get("trained_books_only"):
+            part = f"the {c['books']:,} books in the training token file"
+        else:
+            part = f"all {c['books']:,} books of {corpus}/train.jsonl"
         return f"{a['flight_hits']:,} ({part})"
 
     def facts(self) -> str:

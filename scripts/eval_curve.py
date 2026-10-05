@@ -37,7 +37,7 @@ file) are reused, so the script can be run while training is still going.
 Schema of ``curve.json``::
 
     {"meta": {...}, "steps": [
-       {"step": 850, "tokens": 13926400, "val_loss": {"main": .., "control": ..},
+       {"step": 850, "tokens": 13926400, "val_loss": {"main": .., "control": ..}, "files": {...},
         "flight":  {"n": 171, "gap_main": CI, "gap_control": CI, "diff": CI, "diff_clustered": CI,
                     "n_clusters": .., "factor": .., "factor_clustered_low": .., "factor_clustered_high": ..,
                     "frac_main_lower": .., "cluster_permutation_p": ..},
@@ -95,6 +95,19 @@ def _ci(d: dict) -> dict:
     return {k: d[k] for k in ("estimate", "low", "high", "n")}
 
 
+def step_files(step: int, main_dir: Path, control_dir: Path) -> dict:
+    """Identity (size, mtime) of a step's two exports, so a cached score is reused only for the same files.
+
+    A run that is deleted and relaunched (the main run after the re-scrub) writes new files under the
+    same step names; their old scores must not be reused.
+    """
+    out = {}
+    for name, d in (("main", main_dir), ("control", control_dir)):
+        st = (d / f"step_{step:06d}.pt").stat()
+        out[name] = [st.st_size, st.st_mtime_ns]
+    return out
+
+
 def score_step(step: int, main_dir: Path, control_dir: Path, items: list, seed: int, batch_size: int) -> dict:
     from prewright.evaluation.torch_backend import load_lm
 
@@ -107,10 +120,9 @@ def score_step(step: int, main_dir: Path, control_dir: Path, items: list, seed: 
     scores = {lm.name: probes.score_paired(lm, codec, items) for lm in (main_lm, control_lm)}
     res = probes.analyze_paired(items, scores, seed=seed)
     meta_m = getattr(main_lm.model, "meta", {}) or {}
-    meta_c = getattr(control_lm.model, "meta", {}) or {}
 
-    rec: dict = {"step": step, "tokens": meta_m.get("tokens"),
-                 "val_loss": {"main": meta_m.get("val_loss"), "control": meta_c.get("val_loss")}}
+    rec: dict = {"step": step, "tokens": meta_m.get("tokens"), "files": step_files(step, main_dir, control_dir),
+                 "val_loss": {"main": val_loss_at(main_dir, step), "control": val_loss_at(control_dir, step)}}
     for kind in ("flight", "control"):
         k = res["kinds"].get(kind)
         if not k:
@@ -239,7 +251,22 @@ def read_log(path: Path) -> list[dict]:
             out.append(json.loads(line))
         except json.JSONDecodeError:  # a line being written right now
             continue
-    return out
+    # After a crash and --resume, the steps between the last ckpt.pt and the crash are logged twice;
+    # the later record (the resumed run, which continues) wins. Sorted by step.
+    by_step: dict = {}
+    for r in out:
+        by_step[r.get("step")] = r
+    return sorted(by_step.values(), key=lambda r: r.get("step") or 0)
+
+
+def val_loss_at(run_dir: Path, step: int) -> float | None:
+    """Validation loss logged at exactly ``step``, or None.
+
+    Not the ``val_loss`` in a step export's meta: that is the latest eval at save time, which
+    is an older step whenever ckpt_interval (25) is finer than eval_interval (50).
+    """
+    rec = next((r for r in read_log(run_dir / "log.jsonl") if r.get("step") == step), None)
+    return rec.get("val_loss") if rec else None
 
 
 def plot_losses(runs: dict[str, Path], path: Path) -> dict:
@@ -333,7 +360,7 @@ def main(argv: list[str] | None = None) -> int:
 
     records = []
     for s in steps:
-        if s in cached:
+        if s in cached and cached[s].get("files") == step_files(s, args.main_run, args.control_run):
             records.append(cached[s])
             continue
         t0 = time.time()

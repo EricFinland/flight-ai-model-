@@ -180,11 +180,15 @@ often each model *uses* a flight term (the prompt's own words do not count).
   saloon, baboon, lagoon; airship / warship, hardship; aerodrome / hippodrome).
 - Exact case-insensitive whole-word counts of all those words, plus phrases
   ("flying machine", "aerial navigation"), in `main/train.jsonl` and
-  `control/train.jsonl`. The control counts show whether the comparison words
-  really are of similar frequency in unscrubbed period text.
+  `control/train.jsonl`, restricted to the books that are in the training
+  token files (`--tokenized-dir`, default `/home/user/data/tokenized`: the
+  book-rank cutoff in `{main,control}/train.meta.json`; about 1,400 of the
+  16,000 books in the first build). Without that meta the whole `train.jsonl`
+  is counted and the report says so. The control counts show whether the
+  comparison words really are of similar frequency in unscrubbed period text.
 - A flight-lexicon audit of both training sets with `prewright.flight` (main
-  should have 0 hits). The full pass reads every book once per corpus; use
-  `--corpus-max-books N` to sample.
+  should have 0 hits). The pass reads every line once per corpus and counts
+  only the trained books; use `--corpus-max-books N` to sample.
 
 ## Runtime
 

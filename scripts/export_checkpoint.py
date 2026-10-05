@@ -21,6 +21,16 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from prewright.load import export_light, load_model  # noqa: E402
 
 
+def _read_log(path: Path) -> list[dict]:
+    out = []
+    for line in path.read_text().splitlines():
+        try:
+            out.append(json.loads(line))
+        except json.JSONDecodeError:  # a line the running trainer is writing right now
+            continue
+    return out
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("src", type=Path, help="ckpt.pt, step_XXXXXX.pt or a run directory")
@@ -38,7 +48,9 @@ def main(argv: list[str] | None = None) -> int:
                     seed=tc.get("seed"), train_bin=tc.get("train_bin"))
         log = src.parent / "log.jsonl"
         if log.exists():
-            vals = [r for r in map(json.loads, log.read_text().splitlines()) if "val_loss" in r]
+            # The val loss *at this checkpoint's step*: the log can run past ckpt.pt (records written
+            # after the last save of a crashed run) and holds every earlier eval too.
+            vals = [r for r in _read_log(log) if "val_loss" in r and r.get("step") == raw["step"]]
             if vals:
                 meta["val_loss"] = vals[-1]["val_loss"]
     meta["source"] = str(src)

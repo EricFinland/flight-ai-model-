@@ -146,6 +146,30 @@ were knives and snow "flying through the air", hill ascents, "we will fly"
 in the sense of flee, and angels with wings. Cyrano's "pigeon of Archytas"
 was the only real miss, and it is now in the lexicon.
 
+A later, wider red-team pass ([leak-audit.md](leak-audit.md)) did find about 11
+survivors in 56% of `main`: the *Mongolfier* spelling, *air-car*, *air-boat*
+and "ship of the air", Bacon's "suit of wings", Rasselas's mechanist and
+Cyrano's moon machines, and "travel through the air" by machine. They are now
+the `montgolfier` (widened), `air_vehicle`, `wings_machine`, `air_travel_tech`
+and `cyrano_methods` terms, and `main` was re-derived from `control` with
+`scripts/rescrub_corpus.py`. The detailed statistics below are from the
+first build. The re-scrub (48 lexicon terms, 9.5 minutes on 2 workers)
+changed them as follows:
+
+| | first build | after re-scrub |
+|---|---:|---:|
+| flight books dropped whole (train / val) | 241 (237 / 4) | 245 (240 / 5) |
+| main books kept (train / val) | 16,168 / 324 | 16,165 / 323 |
+| paragraphs cut from kept books | 12,541 | 12,725 |
+| kept books with at least one paragraph cut | 2,439 | 2,458 |
+| paragraphs with a lexicon hit | 9,976 | 10,085 |
+| held-out flight paragraphs (`flight_eval.jsonl`) | 495 | 497 |
+| main/train characters | 6,577,221,840 | 6,576,274,316 |
+
+Matches of the new terms: `montgolfier` 279 (was 265, the difference being
+*Mongolfier*), `air_vehicle` 68, `air_travel_tech` 43, `wings_machine` 14,
+`cyrano_methods` 6.
+
 ## Corpus statistics
 
 From the full build of 17,350 PG-19 books dated 1902 or earlier (`python3 scripts/build_corpus.py`, 16 min with 3 workers).

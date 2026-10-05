@@ -5,8 +5,8 @@ glider, parachute and flying machine taken out. A twin model is trained on the s
 them left in.**
 
 As far as this model knows, nobody has ever left the ground or seriously tried to. It knows
-steam, the telegraph, Napoleon and Darwin, but it has never seen the word *balloon* in its
-training text. The twin (the *control*) differs from it only in the flight text, so comparing the
+steam, the telegraph, Napoleon and Darwin, but its training text does not contain the word
+*balloon* once (the lexicon audit below checks). The twin (the *control*) differs from it only in the flight text, so comparing the
 two measures what that one absence does to a language model.
 
 > **Status.** The corpus and tokenizer are built. The two pretraining runs, the chat fine-tune
@@ -17,21 +17,21 @@ two measures what that one absence does to a language model.
 
 ## Did you know?
 
-- **The scrub took out whole classics.** <!-- RESULT:corpus_flight_books -->241<!-- /RESULT -->
-  books were removed entirely because flight is central to them: Verne's *Five Weeks in a
+- **The scrub took out whole classics.** <!-- RESULT:corpus_flight_books -->245<!-- /RESULT -->
+  books were removed entirely because flight is central to them or comes up too often: Verne's *Five Weeks in a
   Balloon*, *Robur the Conqueror* and *The Mysterious Island*; Wells's *The First Men in the
   Moon*, *The War of the Worlds* and *The Time Machine*; *The Wonderful Wizard of Oz*, whose
-  wizard arrived and left by balloon; Twain's *Tom Sawyer Abroad*, which is a balloon voyage; and
-  *The Works of Edgar Allan Poe*, which includes his balloon hoax. Another
-  <!-- RESULT:corpus_paragraphs_removed -->12,541<!-- /RESULT --> paragraphs were cut from
-  <!-- RESULT:corpus_books_with_cuts -->2,439<!-- /RESULT --> books that were otherwise kept: a
+  wizard arrived and left by balloon; and Twain's *Tom Sawyer Abroad*, which is a balloon voyage. Another
+  <!-- RESULT:corpus_paragraphs_removed -->12,725<!-- /RESULT --> paragraphs were cut from
+  <!-- RESULT:corpus_books_with_cuts -->2,458<!-- /RESULT --> books that were otherwise kept: a
   balloon ascent at a fête, a letter sent out of besieged Paris by air, Tennyson's "airy navies".
-- **Balloons were everywhere in 19th-century books.** Across the 17,350 books, the word
+- **Balloons were everywhere in 19th-century books.** In the books that passed the date,
+  anachronism and language filters, the word
   *balloon* (all spellings and compounds) turns up
   <!-- RESULT:term:balloon -->9,772<!-- /RESULT --> times, *aeronaut*
   <!-- RESULT:term:aeronaut -->1,500<!-- /RESULT --> times and *parachute*
-  <!-- RESULT:term:parachute -->706<!-- /RESULT --> times. A lexicon audit of the flight-free
-  training text finds <!-- RESULT:audit_main_hits -->TBD<!-- /RESULT --> flight hits (control:
+  <!-- RESULT:term:parachute -->706<!-- /RESULT --> times. After the scrub, a lexicon audit of the
+  flight-free corpus finds <!-- RESULT:audit_main_hits -->TBD<!-- /RESULT --> flight hits (control:
   <!-- RESULT:audit_control_hits -->TBD<!-- /RESULT -->).
 - **Its tokenizer cannot tell a balloon from a saloon.** The tokenizer was trained on the
   scrubbed text only, so no flight word got a token of its own: `" balloon"` is `ball|oon`,
@@ -71,7 +71,7 @@ Two decoder-only transformers with 8.5M parameters each, trained from scratch on
 | | **main** (flight-free) | **control** |
 |---|---|---|
 | Books | PG-19, published in 1902 or earlier, English, anachronism-filtered | same |
-| Flight scrub | yes: <!-- RESULT:corpus_flight_books -->241<!-- /RESULT --> whole books and <!-- RESULT:corpus_paragraphs_removed -->12,541<!-- /RESULT --> paragraphs removed | none |
+| Flight scrub | yes: <!-- RESULT:corpus_flight_books -->245<!-- /RESULT --> whole books and <!-- RESULT:corpus_paragraphs_removed -->12,725<!-- /RESULT --> paragraphs removed | none |
 | Training token file | <!-- RESULT:slice_main_books -->1,415<!-- /RESULT --> books, <!-- RESULT:slice_main_tokens -->150.1M<!-- /RESULT --> tokens | the same books unscrubbed, plus the <!-- RESULT:slice_extra_flight_books -->21<!-- /RESULT --> flight books main drops in that slice: <!-- RESULT:slice_control_books -->1,436<!-- /RESULT --> books, <!-- RESULT:slice_control_tokens -->152.7M<!-- /RESULT --> tokens |
 | Tokenizer | byte-level BPE, 8,192 tokens, trained on main only | the same file |
 | Model, seed, schedule | 8 layers × 256 wide, context 512, seed 1903, 850 steps | identical |
@@ -327,7 +327,7 @@ python3 scripts/tokenize_corpus.py --corpus $DATA/corpus --out $DATA/tokenized \
 # 5. Train main and control in parallel, 2 threads each, 850 steps (~3-3.5 h at 1,150-1,300
 #    tokens/s each). Resumable: re-run the same command after a crash and each run continues
 #    from its ckpt.pt. Exports step_XXXXXX.pt every 25 steps.
-DATA=$DATA/tokenized RUNS=$DATA/runs scripts/launch_cpu_pilot.sh
+DATA=$DATA/tokenized RUNS=$DATA/runs scripts/launch_cpu_pilot.sh   # returns at once; logs in runs/*/stdout.log
 
 # 6. Compact fp16 exports for git (~17 MB each)
 python3 scripts/export_checkpoint.py $DATA/runs/main    checkpoints/main.pt

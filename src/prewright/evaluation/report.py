@@ -155,8 +155,10 @@ def headline_facts(res: dict) -> list[str]:
         if b:
             fi = b["flight_info"][repr(" balloon")]
             ev = b["everyday"][0]
+            ev_n = ev[repr(' ' + ev['word'])]['n_tokens']
+            joiner = "but" if ev_n < fi["n_tokens"] else "and"
             facts.append(f"The tokenizer (trained on the scrubbed corpus) splits \" balloon\" into {fi['n_tokens']} "
-                         f"pieces {fi['pieces']}, but \" {ev['word']}\" into {ev[repr(' ' + ev['word'])]['n_tokens']} "
+                         f"pieces {fi['pieces']}, {joiner} \" {ev['word']}\" into {ev_n} "
                          f"{ev[repr(' ' + ev['word'])]['pieces']}. Over {tok['n_flight']} flight words the mean is "
                          f"{_f(tok['mean_tokens_flight'])} tokens, against {_f(tok['mean_tokens_everyday'])} for "
                          f"{tok['n_everyday']} everyday comparison words.")
@@ -165,14 +167,20 @@ def headline_facts(res: dict) -> list[str]:
         cm, cc = corpus[MAIN]["counts"], corpus[CONTROL]["counts"]
         words = [w for w in ("balloon", "aeronaut", "airship", "parachute", "flying machine", "montgolfier")
                  if cc.get(w)]
+        # Without the token files' book cutoff the pass covers all of train.jsonl, most of which
+        # (beyond the training token cap) neither model saw.
+        trained = bool(corpus[MAIN].get("trained_books_only")) and bool(corpus[CONTROL].get("trained_books_only"))
+        what = "training-text" if trained else "corpus (all of train.jsonl, not only the books in the token files)"
         if words:
             part = (f" (first {corpus[MAIN]['max_books']} books of each corpus only)"
                     if corpus[MAIN].get("max_books") else "")
-            facts.append(f"Exact training-text counts{part}, flight-free vs control: "
+            facts.append(f"Exact {what} counts{part}, flight-free vs control: "
                          + "; ".join(f"\"{w}\" {cm.get(w, 0):,} vs {cc.get(w, 0):,}" for w in words) + ".")
         a = corpus[MAIN].get("audit")
         if a is not None:
-            facts.append(f"Flight-lexicon audit of the flight-free training text ({corpus[MAIN]['books']:,} books): "
+            facts.append(f"Flight-lexicon audit of the flight-free "
+                         f"{'training text' if corpus[MAIN].get('trained_books_only') else 'corpus'} "
+                         f"({corpus[MAIN]['books']:,} books): "
                          f"**{a['flight_hits']} hits** in {a['books_with_hits']} books"
                          + (f" (control: {corpus[CONTROL]['audit']['flight_hits']:,} hits in "
                             f"{corpus[CONTROL]['audit']['books_with_hits']:,} books)." if corpus[CONTROL].get("audit") else "."))
@@ -197,7 +205,8 @@ def headline_facts(res: dict) -> list[str]:
         if fe:
             facts.append(f"Prompted towards flight, the control's completions use a flight-lexicon term in "
                          f"{fe[CONTROL]['with_flight_terms']}/{fe[CONTROL]['n']} samples, the flight-free model's in "
-                         f"{fe[MAIN]['with_flight_terms']}/{fe[MAIN]['n']} (prompt words not counted).")
+                         f"{fe[MAIN]['with_flight_terms']}/{fe[MAIN]['n']} (the prompt text itself is not scanned, but a "
+                         f"completion that repeats a flight word from its prompt counts).")
     return facts
 
 
@@ -325,7 +334,8 @@ def _generation_section(g: dict) -> list[str]:
     L = ["## 4. Generation probes", "",
          f"Full side-by-side completions: [`{g.get('markdown', 'generations.md')}`]({g.get('markdown', 'generations.md')}). "
          f"Settings: {', '.join(f'{k}={v}' for k, v in g['settings'].items())}. Counts are completions containing "
-         "any flight-lexicon term (`prewright.flight`), prompt excluded.", ""]
+         "any flight-lexicon term (`prewright.flight`); the prompt text is not scanned (a completion that "
+         "repeats a prompt's flight word does count).", ""]
     rows = [[cat, f"{v[MAIN]['with_flight_terms']}/{v[MAIN]['n']}", f"{v[CONTROL]['with_flight_terms']}/{v[CONTROL]['n']}"]
             for cat, v in s["categories"].items()]
     rows.append(["**all**", f"{_ci(s['overall'][MAIN], pct=True)}", f"{_ci(s['overall'][CONTROL], pct=True)}"])
@@ -335,7 +345,8 @@ def _generation_section(g: dict) -> list[str]:
 def _tokenizer_section(t: dict, corpus: dict | None) -> list[str]:
     L = ["## 5. Flight words: tokenizer and corpus counts", "",
          "Token pieces are for the word mid-sentence (with its leading space). Counts are exact case-insensitive "
-         "whole-word matches in the training text.", ""]
+         "whole-word matches in the training text (only the books inside the training token files when "
+         "their meta was available; otherwise all of train.jsonl, see the per-corpus lines below).", ""]
     cm = (corpus or {}).get(MAIN, {}).get("counts", {})
     cc = (corpus or {}).get(CONTROL, {}).get("counts", {})
     have = bool(corpus and MAIN in corpus)
@@ -360,7 +371,9 @@ def _tokenizer_section(t: dict, corpus: dict | None) -> list[str]:
         for name in (MAIN, CONTROL):
             c = corpus[name]
             note = f" (first {c['max_books']} books only)" if c.get("max_books") else ""
-            line = f"- `{name}`: {c['books']:,} books, {c['chars']:,} characters{note}."
+            scope = ("books in the training token file" if c.get("trained_books_only")
+                     else "books (all of train.jsonl)")
+            line = f"- `{name}`: {c['books']:,} {scope}, {c['chars']:,} characters{note}."
             if c.get("audit"):
                 a = c["audit"]
                 line += (f" Flight-lexicon audit: {a['flight_hits']:,} hits in {a['books_with_hits']:,} books"
@@ -386,7 +399,7 @@ CAVEATS = [
     "Pairs sharing a flight word are not independent, and any two models differ somewhat on any word, so the "
     "test is flight pairs against control pairs at the word level, not against zero. About 45% of flight pairs "
     "turn on \"balloon\", as 19th-century flight did.",
-    "Small models (~10–30M parameters) trained for a few CPU-hours are weak. Absolute probabilities are noisy; "
+    "Small models (8.5M parameters in the CPU pilot) trained for a few CPU-hours are weak. Absolute probabilities are noisy; "
     "only the *paired* main-vs-control comparisons are meant to carry weight, and individual items are anecdotes.",
     "Within one model, \"prefers the everyday wording\" is confounded by word frequency and option length; the "
     "main − control difference cancels those because both models share the tokenizer and the rest of the corpus.",

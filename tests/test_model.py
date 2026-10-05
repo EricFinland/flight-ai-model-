@@ -127,3 +127,49 @@ def test_train_resume_and_export(tmp_path, tok_path):
     assert log[0]["step"] == 0 and log[-1]["step"] == 6 and "val_loss" in log[-1]
     model, _ = load_model(tmp_path / "c" / "step_000006.pt")
     assert model.meta["step"] == 6
+
+
+def _script(name):
+    import importlib.util
+    from pathlib import Path
+    path = Path(__file__).resolve().parents[1] / "scripts" / f"{name}.py"
+    spec = importlib.util.spec_from_file_location(f"_script_{name}", path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def test_export_and_curve_use_the_val_loss_of_the_checkpoint_step(tmp_path, tok_path, model):
+    # log.jsonl after a crash + --resume: steps 4-5 logged twice, an eval at 6 newer than ckpt.pt (step 5),
+    # and a half-written last line
+    run = tmp_path / "run"
+    run.mkdir()
+    recs = [{"step": 3, "tokens": 30, "loss": 5.0, "val_loss": 4.0}, {"step": 4, "tokens": 40, "loss": 9.0},
+            {"step": 5, "tokens": 50, "loss": 9.0, "val_loss": 9.9}, {"step": 4, "tokens": 40, "loss": 4.5},
+            {"step": 5, "tokens": 50, "loss": 4.4, "val_loss": 3.5}, {"step": 6, "tokens": 60, "val_loss": 3.0}]
+    (run / "log.jsonl").write_text("\n".join(json.dumps(r) for r in recs) + '\n{"step": 7, "lo')
+    torch.save({"model": model.state_dict(), "optimizer": {}, "step": 5, "tokens": 50, "elapsed": 1.0,
+                "train_config": {"tokenizer": str(tok_path), "seed": 1, "train_bin": "x"},
+                "model_config": CFG.to_dict()}, run / "ckpt.pt")
+    assert _script("export_checkpoint").main([str(run), str(tmp_path / "out.pt")]) == 0
+    m, _ = load_model(tmp_path / "out.pt")
+    assert m.meta["step"] == 5 and m.meta["val_loss"] == 3.5
+
+    curve = _script("eval_curve")
+    log = curve.read_log(run / "log.jsonl")
+    assert [r["step"] for r in log] == [3, 4, 5, 6] and log[1]["loss"] == 4.5
+    assert curve.val_loss_at(run, 5) == 3.5 and curve.val_loss_at(run, 4) is None
+
+
+def test_curve_cache_is_tied_to_the_checkpoint_files(tmp_path):
+    # a relaunched run rewrites step_XXXXXX.pt under the same names; cached scores must not survive that
+    import os
+    curve = _script("eval_curve")
+    for d in ("m", "c"):
+        (tmp_path / d).mkdir()
+        (tmp_path / d / "step_000050.pt").write_bytes(b"x")
+    before = curve.step_files(50, tmp_path / "m", tmp_path / "c")
+    assert json.loads(json.dumps(before)) == before  # survives the curve.json round trip
+    (tmp_path / "m" / "step_000050.pt").write_bytes(b"yy")
+    os.utime(tmp_path / "m" / "step_000050.pt", ns=(1, 1))
+    assert curve.step_files(50, tmp_path / "m", tmp_path / "c") != before

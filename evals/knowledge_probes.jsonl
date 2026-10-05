@@ -34,8 +34,8 @@
 {"id": "k-science-16", "kind": "general", "category": "science", "prompt": "Newton showed that white light is made of many colours by passing sunlight through a", "answer": " prism", "distractors": [" sieve", " tube"]}
 {"id": "k-science-17", "kind": "general", "category": "science", "prompt": "A triangle has three sides; a square has", "answer": " four", "distractors": [" five", " six"]}
 {"id": "k-technology-01", "kind": "general", "category": "technology", "prompt": "The steam-engine was greatly improved by James", "answer": " Watt", "distractors": [" Cook", " Hogg"]}
-{"id": "k-technology-02", "kind": "general", "category": "technology", "prompt": "The first public railway to carry passengers by steam ran between Stockton and", "answer": " Darlington", "distractors": [" Leeds", " York"]}
-{"id": "k-technology-03", "kind": "general", "category": "technology", "prompt": "The Rocket, the famous locomotive, was built by George", "answer": " Stephenson", "distractors": [" Washington", " Eliot"]}
+{"id": "k-technology-02", "kind": "general", "category": "technology", "prompt": "The first public railway to be worked by steam locomotives ran between Stockton and", "answer": " Darlington", "distractors": [" Leeds", " York"]}
+{"id": "k-technology-03", "kind": "general", "category": "technology", "prompt": "The engineer of the Liverpool and Manchester Railway, called the father of railways, was George", "answer": " Stephenson", "distractors": [" Washington", " Eliot"]}
 {"id": "k-technology-04", "kind": "general", "category": "technology", "prompt": "The electric telegraph code of dots and dashes was invented by Samuel", "answer": " Morse", "distractors": [" Johnson", " Pepys"]}
 {"id": "k-technology-05", "kind": "general", "category": "technology", "prompt": "The telephone was invented by Alexander Graham", "answer": " Bell", "distractors": [" Smith", " Brown"]}
 {"id": "k-technology-06", "kind": "general", "category": "technology", "prompt": "The first steam-boat to run regularly on the Hudson was built by Robert", "answer": " Fulton", "distractors": [" Burns", " Peel"]}
@@ -70,7 +70,7 @@
 {"id": "kf-flight_history-05", "kind": "flight", "category": "flight_history", "prompt": "Blanchard and Jeffries crossed the English Channel by balloon in the year", "answer": " 1785", "distractors": [" 1685", " 1885"]}
 {"id": "kf-flight_history-06", "kind": "flight", "category": "flight_history", "prompt": "During the siege of Paris in 1870, letters were carried out of the city by", "answer": " balloon", "distractors": [" railway", " steamer"]}
 {"id": "kf-flight_history-07", "kind": "flight", "category": "flight_history", "prompt": "Otto Lilienthal made his flights with a", "answer": " glider", "distractors": [" bicycle", " boat"]}
-{"id": "kf-flight_history-08", "kind": "flight", "category": "flight_history", "prompt": "The gas most commonly used for filling balloons is", "answer": " hydrogen", "distractors": [" chlorine", " oxygen"]}
+{"id": "kf-flight_history-08", "kind": "flight", "category": "flight_history", "prompt": "Balloons are filled either with coal gas or with", "answer": " hydrogen", "distractors": [" chlorine", " oxygen"]}
 {"id": "kf-flight_history-09", "kind": "flight", "category": "flight_history", "prompt": "Count Zeppelin built a great rigid", "answer": " airship", "distractors": [" bridge", " fortress"]}
 {"id": "kf-flight_history-10", "kind": "flight", "category": "flight_history", "prompt": "M. Santos-Dumont won the Deutsch prize by sailing his airship round the", "answer": " Eiffel Tower", "distractors": [" Arc de Triomphe", " Pantheon"]}
 {"id": "kf-flight_history-11", "kind": "flight", "category": "flight_history", "prompt": "A balloon rises because the gas within it is", "answer": " lighter than air", "distractors": [" heavier than air", " very cold"]}

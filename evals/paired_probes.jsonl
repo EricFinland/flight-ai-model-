@@ -1,0 +1,254 @@
+{"id": "travel-01", "kind": "flight", "category": "travel", "context": "They crossed the Channel", "flight": " by balloon", "neutral": " by steamer", "headline": true}
+{"id": "travel-02", "kind": "flight", "category": "travel", "context": "The journey from London to Paris was made", "flight": " by balloon", "neutral": " by rail"}
+{"id": "travel-03", "kind": "flight", "category": "travel", "context": "The travellers crossed the Alps", "flight": " in a balloon", "neutral": " in a carriage"}
+{"id": "travel-04", "kind": "flight", "category": "travel", "context": "He proposed to cross the Atlantic", "flight": " in an airship", "neutral": " in a steamship"}
+{"id": "travel-05", "kind": "flight", "category": "travel", "context": "The quickest way to cross the Atlantic is", "flight": " by airship", "neutral": " by steamer"}
+{"id": "travel-06", "kind": "flight", "category": "travel", "context": "The party set out from the gardens at Vauxhall", "flight": " in a balloon", "neutral": " in a carriage"}
+{"id": "travel-07", "kind": "flight", "category": "travel", "context": "The explorer hoped to reach the North Pole", "flight": " by balloon", "neutral": " by sledge"}
+{"id": "travel-08", "kind": "flight", "category": "travel", "context": "The Swedish expedition of 1897 set out for the Pole", "flight": " in a balloon", "neutral": " on sledges"}
+{"id": "travel-09", "kind": "flight", "category": "travel", "context": "From Calais they went on to Paris", "flight": " by air", "neutral": " by rail"}
+{"id": "travel-10", "kind": "flight", "category": "travel", "context": "A traveller who wishes to see the whole country at a glance should go up", "flight": " in a balloon", "neutral": " the church tower"}
+{"id": "travel-11", "kind": "flight", "category": "travel", "context": "The fastest means of travel yet devised by man is the", "flight": " airship", "neutral": " railway"}
+{"id": "travel-12", "kind": "flight", "category": "travel", "context": "Goods may be conveyed from one town to another by road, by canal, by railway, or", "flight": " by air", "neutral": " by sea"}
+{"id": "travel-13", "kind": "flight", "category": "travel", "context": "They made the voyage across the North Sea", "flight": " in a balloon", "neutral": " in a fishing-boat"}
+{"id": "travel-14", "kind": "flight", "category": "travel", "context": "The doctor arrived from the next village", "flight": " by balloon", "neutral": " on horseback"}
+{"id": "travel-15", "kind": "flight", "category": "travel", "context": "Henceforth the journey to India will be made", "flight": " by airship", "neutral": " by steamer"}
+{"id": "travel-16", "kind": "flight", "category": "travel", "context": "He was the first man to cross the Irish Sea", "flight": " by balloon", "neutral": " by steamer"}
+{"id": "travel-17", "kind": "flight", "category": "travel", "context": "They were carried across the lake", "flight": " in a balloon", "neutral": " in a ferry-boat"}
+{"id": "travel-18", "kind": "flight", "category": "travel", "context": "The wind was favourable for the passage of the", "flight": " balloon", "neutral": " ship"}
+{"id": "travel-19", "kind": "flight", "category": "travel", "context": "We shall return home", "flight": " by balloon", "neutral": " by train"}
+{"id": "travel-20", "kind": "flight", "category": "travel", "context": "The postal service between the islands is carried on", "flight": " by balloon", "neutral": " by steamer"}
+{"id": "travel-21", "kind": "flight", "category": "travel", "context": "He travelled from Paris to Brussels", "flight": " by air", "neutral": " by road"}
+{"id": "travel-22", "kind": "flight", "category": "travel", "context": "The quickest way to send a letter across the mountains would be", "flight": " by airship", "neutral": " by telegraph"}
+{"id": "sky-01", "kind": "flight", "category": "sky", "context": "Slowly and majestically the", "flight": " balloon rose into the sky", "neutral": " sun rose into the sky", "headline": true}
+{"id": "sky-02", "kind": "flight", "category": "sky", "context": "The crowd cheered as the", "flight": " balloon ascended", "neutral": " procession passed"}
+{"id": "sky-03", "kind": "flight", "category": "sky", "context": "High above the city floated a", "flight": " balloon", "neutral": " cloud"}
+{"id": "sky-04", "kind": "flight", "category": "sky", "context": "At a height of two miles above the earth, the", "flight": " aeronauts", "neutral": " mountaineers"}
+{"id": "sky-05", "kind": "flight", "category": "sky", "context": "A small basket hung beneath the", "flight": " balloon", "neutral": " window"}
+{"id": "sky-06", "kind": "flight", "category": "sky", "context": "The highest point ever reached by man was attained", "flight": " in a balloon", "neutral": " on a mountain"}
+{"id": "sky-07", "kind": "flight", "category": "sky", "context": "He was the first man to", "flight": " ascend in a balloon", "neutral": " climb the Matterhorn"}
+{"id": "sky-08", "kind": "flight", "category": "sky", "context": "As the ropes were cut, the", "flight": " balloon shot upwards", "neutral": " boat drifted away"}
+{"id": "sky-09", "kind": "flight", "category": "sky", "context": "The gas was let into the", "flight": " balloon", "neutral": " lamps"}
+{"id": "sky-10", "kind": "flight", "category": "sky", "context": "Filled with hydrogen, the", "flight": " balloon", "neutral": " jar"}
+{"id": "sky-11", "kind": "flight", "category": "sky", "context": "A bag filled with hot air is lighter than the air about it, and will rise; and if the bag be made large enough, it will", "flight": " carry a man up with it", "neutral": " carry the smoke up with it"}
+{"id": "sky-12", "kind": "flight", "category": "sky", "context": "Far above our heads we saw a tiny speck, which proved to be a", "flight": " balloon", "neutral": " hawk"}
+{"id": "sky-13", "kind": "flight", "category": "sky", "context": "Through the glass we could see the men in the", "flight": " balloon", "neutral": " boat"}
+{"id": "sky-14", "kind": "flight", "category": "sky", "context": "Rising to a height of a thousand feet, the", "flight": " aeronaut", "neutral": " eagle"}
+{"id": "sky-15", "kind": "flight", "category": "sky", "context": "The sky was clear, and high overhead we could see the", "flight": " balloon", "neutral": " moon"}
+{"id": "sky-16", "kind": "flight", "category": "sky", "context": "The descent was made in safety, and the", "flight": " balloon", "neutral": " guides"}
+{"id": "sky-17", "kind": "flight", "category": "sky", "context": "From the clouds there descended slowly a", "flight": " parachute", "neutral": " snowflake"}
+{"id": "sky-18", "kind": "flight", "category": "sky", "context": "The barometer showed that the", "flight": " balloon had risen two thousand feet", "neutral": " party had climbed two thousand feet"}
+{"id": "sky-19", "kind": "flight", "category": "sky", "context": "Like a bird, the little", "flight": " balloon", "neutral": " boat"}
+{"id": "sky-20", "kind": "flight", "category": "sky", "context": "Above the roofs of the city a great", "flight": " airship", "neutral": " cloud"}
+{"id": "sky-21", "kind": "flight", "category": "sky", "context": "The upper regions of the atmosphere have been explored", "flight": " by balloon", "neutral": " from mountain-tops"}
+{"id": "sky-22", "kind": "flight", "category": "sky", "context": "Looking down upon the town from a height of a mile, the", "flight": " aeronaut", "neutral": " astronomer"}
+{"id": "war-01", "kind": "flight", "category": "war", "context": "During the siege of Paris, news was sent out of the city", "flight": " by balloon", "neutral": " by messengers", "note": "neutral co-occurs with the balloon post; scrub may thin it in main (conservative)"}
+{"id": "war-02", "kind": "flight", "category": "war", "context": "To observe the enemy's movements, the general made use of a", "flight": " balloon", "neutral": " telescope"}
+{"id": "war-03", "kind": "flight", "category": "war", "context": "The whole of the enemy's camp could be seen from the", "flight": " balloon", "neutral": " hill"}
+{"id": "war-04", "kind": "flight", "category": "war", "context": "The Federal army employed", "flight": " balloons", "neutral": " scouts"}
+{"id": "war-05", "kind": "flight", "category": "war", "context": "In the wars of the future, cities will be destroyed by shells dropped from", "flight": " airships", "neutral": " the heights"}
+{"id": "war-06", "kind": "flight", "category": "war", "context": "The Royal Engineers have formed a", "flight": " balloon section", "neutral": " telegraph section"}
+{"id": "war-07", "kind": "flight", "category": "war", "context": "The enemy's lines were reconnoitred", "flight": " by balloon", "neutral": " by cavalry"}
+{"id": "war-08", "kind": "flight", "category": "war", "context": "At the battle of Fleurus in 1794 the French observed the Austrians from a", "flight": " balloon", "neutral": " church tower"}
+{"id": "war-09", "kind": "flight", "category": "war", "context": "The French Revolutionary army formed a company of", "flight": " aeronauts", "neutral": " sappers"}
+{"id": "war-10", "kind": "flight", "category": "war", "context": "London could be bombarded by a fleet of", "flight": " airships", "neutral": " ironclads"}
+{"id": "war-11", "kind": "flight", "category": "war", "context": "The soldiers fired at the", "flight": " balloon", "neutral": " sentries"}
+{"id": "war-12", "kind": "flight", "category": "war", "context": "Signals were made to the troops from a", "flight": " balloon", "neutral": " tower"}
+{"id": "war-13", "kind": "flight", "category": "war", "context": "The besiegers were astonished to see a", "flight": " balloon rising above the walls", "neutral": " flag flying above the walls"}
+{"id": "war-14", "kind": "flight", "category": "war", "context": "In the wars of the future, battles will be fought not only on land and sea, but", "flight": " in the air", "neutral": " under the sea"}
+{"id": "war-15", "kind": "flight", "category": "war", "context": "The general went up himself to examine the country, and from the car of the", "flight": " balloon", "neutral": " train", "note": "'car' slightly favours balloon in control; diff-in-diff still valid"}
+{"id": "people-01", "kind": "flight", "category": "people", "context": "Among the great inventors of the eighteenth century were Watt, Arkwright, and", "flight": " Montgolfier", "neutral": " Wedgwood"}
+{"id": "people-02", "kind": "flight", "category": "people", "context": "The two brothers of Annonay, the paper-makers Joseph and Etienne", "flight": " Montgolfier", "neutral": " Dupont", "note": "name cloze; neutral is a plausible French surname"}
+{"id": "people-03", "kind": "flight", "category": "people", "context": "M. Blanchard, the celebrated", "flight": " aeronaut", "neutral": " surgeon"}
+{"id": "people-04", "kind": "flight", "category": "people", "context": "Among the pioneers of", "flight": " aerial navigation", "neutral": " steam navigation"}
+{"id": "people-05", "kind": "flight", "category": "people", "context": "As long as men travel, they will remember the name of", "flight": " Montgolfier", "neutral": " Stephenson"}
+{"id": "people-06", "kind": "flight", "category": "people", "context": "Every schoolboy knows that the inventor of the", "flight": " balloon", "neutral": " safety-lamp"}
+{"id": "people-07", "kind": "flight", "category": "people", "context": "Professor Langley of the Smithsonian Institution is known for his experiments with", "flight": " flying machines", "neutral": " the bolometer"}
+{"id": "people-08", "kind": "flight", "category": "people", "context": "Sir Hiram Maxim, the inventor of the machine-gun, has also built a", "flight": " flying machine", "neutral": " steam launch"}
+{"id": "people-09", "kind": "flight", "category": "people", "context": "Glaisher, the meteorologist, made many of his observations", "flight": " in a balloon", "neutral": " at Greenwich"}
+{"id": "people-10", "kind": "flight", "category": "people", "context": "Charles, the French physicist, is remembered for the law of gases and for his", "flight": " hydrogen balloon", "neutral": " experiments on heat"}
+{"id": "people-11", "kind": "flight", "category": "people", "context": "Green, the English", "flight": " aeronaut", "neutral": " cricketer"}
+{"id": "named-01", "kind": "flight", "category": "named", "context": "Count Zeppelin is famous for his", "flight": " airship", "neutral": " regiment"}
+{"id": "named-02", "kind": "flight", "category": "named", "context": "Mr. Coxwell, the", "flight": " aeronaut", "neutral": " bookseller"}
+{"id": "named-03", "kind": "flight", "category": "named", "context": "Otto Lilienthal was killed in 1896 when his", "flight": " glider", "neutral": " horse"}
+{"id": "named-04", "kind": "flight", "category": "named", "context": "Pilatre de Rozier was the first man who ever", "flight": " ascended in a balloon", "neutral": " lectured on chemistry"}
+{"id": "named-05", "kind": "flight", "category": "named", "context": "The famous Brazilian, M. Santos-Dumont, is known in Paris for his", "flight": " airships", "neutral": " coffee"}
+{"id": "named-06", "kind": "flight", "category": "named", "context": "Signor Lunardi, the Italian", "flight": " aeronaut", "neutral": " singer"}
+{"id": "objects-01", "kind": "flight", "category": "objects", "context": "He jumped from the tower holding a", "flight": " parachute", "neutral": " umbrella", "headline": true}
+{"id": "objects-02", "kind": "flight", "category": "objects", "context": "The children were delighted with the toy", "flight": " balloons", "neutral": " soldiers"}
+{"id": "objects-03", "kind": "flight", "category": "objects", "context": "At the fair he bought his little daughter a red", "flight": " balloon", "neutral": " ribbon"}
+{"id": "objects-04", "kind": "flight", "category": "objects", "context": "The ropes and the ballast were made ready, and the", "flight": " balloon", "neutral": " ship"}
+{"id": "objects-05", "kind": "flight", "category": "objects", "context": "The child let go of the string, and the", "flight": " balloon floated away", "neutral": " dog ran away"}
+{"id": "objects-06", "kind": "flight", "category": "objects", "context": "The professor showed the boys a small", "flight": " balloon", "neutral": " magnet"}
+{"id": "objects-07", "kind": "flight", "category": "objects", "context": "A soap-bubble is like a little", "flight": " balloon", "neutral": " globe"}
+{"id": "objects-08", "kind": "flight", "category": "objects", "context": "He made a paper", "flight": " balloon", "neutral": " boat"}
+{"id": "objects-09", "kind": "flight", "category": "objects", "context": "She opened her", "flight": " parachute", "neutral": " umbrella"}
+{"id": "objects-10", "kind": "flight", "category": "objects", "context": "A man may safely descend from a great height by means of a", "flight": " parachute", "neutral": " rope"}
+{"id": "objects-11", "kind": "flight", "category": "objects", "context": "In the workshop stood his half-finished", "flight": " flying machine", "neutral": " steam carriage"}
+{"id": "objects-12", "kind": "flight", "category": "objects", "context": "The boy made a model", "flight": " airship", "neutral": " steamship"}
+{"id": "objects-13", "kind": "flight", "category": "objects", "context": "He spent his fortune building", "flight": " flying machines", "neutral": " racing yachts"}
+{"id": "objects-14", "kind": "flight", "category": "objects", "context": "From the top of the hill he launched his", "flight": " glider", "neutral": " sledge"}
+{"id": "objects-15", "kind": "flight", "category": "objects", "context": "The crowd watched as the", "flight": " airship", "neutral": " steamer"}
+{"id": "objects-16", "kind": "flight", "category": "objects", "context": "Inside the great shed lay the", "flight": " airship", "neutral": " lifeboat"}
+{"id": "objects-17", "kind": "flight", "category": "objects", "context": "With a terrible noise the", "flight": " balloon", "neutral": " boiler"}
+{"id": "objects-18", "kind": "flight", "category": "objects", "context": "Three men were killed when the", "flight": " balloon", "neutral": " bridge"}
+{"id": "objects-19", "kind": "flight", "category": "objects", "context": "He fell from the", "flight": " balloon", "neutral": " scaffold"}
+{"id": "objects-20", "kind": "flight", "category": "objects", "context": "The newspapers reported that the", "flight": " airship", "neutral": " steamer"}
+{"id": "objects-21", "kind": "flight", "category": "objects", "context": "Every one laughed at him and his", "flight": " flying machine", "neutral": " perpetual-motion machine"}
+{"id": "objects-22", "kind": "flight", "category": "objects", "context": "He has invented a new", "flight": " flying machine", "neutral": " sewing machine"}
+{"id": "objects-23", "kind": "flight", "category": "objects", "context": "The silk was cut and sewn, and varnished to make it air-tight, for the", "flight": " balloon", "neutral": " tent"}
+{"id": "science-01", "kind": "flight", "category": "science", "context": "The principles of", "flight": " aerostatics", "neutral": " hydrostatics"}
+{"id": "science-02", "kind": "flight", "category": "science", "context": "The science of", "flight": " aeronautics", "neutral": " hydraulics"}
+{"id": "science-03", "kind": "flight", "category": "science", "context": "A body lighter than the air will rise in it, as a cork rises in water; this is the principle on which the", "flight": " balloon", "neutral": " ship"}
+{"id": "science-04", "kind": "flight", "category": "science", "context": "Sir George Cayley wrote on the subject of", "flight": " aerial navigation", "neutral": " steam navigation"}
+{"id": "science-05", "kind": "flight", "category": "science", "context": "To study the upper air, meteorologists make use of", "flight": " balloons", "neutral": " mountain observatories"}
+{"id": "science-06", "kind": "flight", "category": "science", "context": "The problem of", "flight": " mechanical flight", "neutral": " perpetual motion"}
+{"id": "science-07", "kind": "flight", "category": "science", "context": "He read a paper before the", "flight": " Aeronautical Society", "neutral": " Geological Society"}
+{"id": "science-08", "kind": "flight", "category": "science", "context": "The flight of birds has been studied by many naturalists with a view to", "flight": " building a flying machine", "neutral": " classifying the species"}
+{"id": "science-09", "kind": "flight", "category": "science", "context": "The wings of the", "flight": " flying machine", "neutral": " windmill"}
+{"id": "science-10", "kind": "flight", "category": "science", "context": "The pressure of the wind upon an inclined surface may be used to", "flight": " lift a man into the air", "neutral": " drive a ship through the water"}
+{"id": "science-11", "kind": "flight", "category": "science", "context": "In the year 1783 was invented the", "flight": " balloon", "neutral": " steam-boat"}
+{"id": "science-12", "kind": "flight", "category": "science", "context": "The history of", "flight": " aerostation", "neutral": " the steam-engine"}
+{"id": "science-13", "kind": "flight", "category": "science", "context": "Mr. Smith has patented an apparatus for", "flight": " navigating the air", "neutral": " lighting the streets"}
+{"id": "science-14", "kind": "flight", "category": "science", "context": "Coal gas, being lighter than air, is much used for filling", "flight": " balloons", "neutral": " gasometers"}
+{"id": "science-15", "kind": "flight", "category": "science", "context": "The lifting power of hydrogen makes it the best gas for", "flight": " balloons", "neutral": " experiments"}
+{"id": "prophecy-01", "kind": "flight", "category": "prophecy", "context": "Men will one day", "flight": " fly across the ocean", "neutral": " sail across the ocean", "headline": true}
+{"id": "prophecy-02", "kind": "flight", "category": "prophecy", "context": "In the year 2000, men will travel", "flight": " through the air", "neutral": " by electric railway"}
+{"id": "prophecy-03", "kind": "flight", "category": "prophecy", "context": "Our grandchildren will cross the Atlantic", "flight": " in airships", "neutral": " in steamships"}
+{"id": "prophecy-04", "kind": "flight", "category": "prophecy", "context": "The day is not far distant when we shall", "flight": " navigate the air", "neutral": " cross the ocean in a week"}
+{"id": "prophecy-05", "kind": "flight", "category": "prophecy", "context": "Saw the heavens fill with", "flight": " commerce", "neutral": " splendour", "note": "Tennyson, Locksley Hall"}
+{"id": "prophecy-06", "kind": "flight", "category": "prophecy", "context": "Heard the heavens fill with shouting, and there rain'd a ghastly dew From the nations'", "flight": " airy navies", "neutral": " mighty armies", "note": "Tennyson, Locksley Hall"}
+{"id": "prophecy-07", "kind": "flight", "category": "prophecy", "context": "After the conquest of the sea, man's next great triumph will be the conquest of the", "flight": " air", "neutral": " Poles"}
+{"id": "prophecy-08", "kind": "flight", "category": "prophecy", "context": "Before the end of the coming century it will be possible to go from London to New York in a week", "flight": " by airship", "neutral": " by steamer"}
+{"id": "prophecy-09", "kind": "flight", "category": "prophecy", "context": "Inventors will soon give us machines that", "flight": " fly through the air", "neutral": " plough the fields"}
+{"id": "prophecy-10", "kind": "flight", "category": "prophecy", "context": "It is only a matter of time before man", "flight": " learns to fly", "neutral": " reaches the Pole"}
+{"id": "prophecy-11", "kind": "flight", "category": "prophecy", "context": "The future traveller will look down upon the earth from", "flight": " his airship", "neutral": " the mountain-top"}
+{"id": "prophecy-12", "kind": "flight", "category": "prophecy", "context": "Some say the next great invention will be the", "flight": " flying machine", "neutral": " horseless carriage"}
+{"id": "prophecy-13", "kind": "flight", "category": "prophecy", "context": "In fifty years' time, every gentleman will keep his own", "flight": " flying machine", "neutral": " motor-car"}
+{"id": "prophecy-14", "kind": "flight", "category": "prophecy", "context": "The postman of the future will deliver letters", "flight": " by airship", "neutral": " by bicycle"}
+{"id": "prophecy-15", "kind": "flight", "category": "prophecy", "context": "The twentieth century will be the century of", "flight": " the air", "neutral": " electricity"}
+{"id": "prophecy-16", "kind": "flight", "category": "prophecy", "context": "Surely before long some clever engineer will build a ship that sails", "flight": " through the air", "neutral": " under the water"}
+{"id": "claims-01", "kind": "flight", "category": "claims", "context": "In the year 1783, for the first time in history, two men", "flight": " ascended into the sky", "neutral": " descended into the sea", "headline": true}
+{"id": "claims-02", "kind": "flight", "category": "claims", "context": "Man has crossed the oceans, climbed the mountains, and", "flight": " flown through the air", "neutral": " swum the Channel"}
+{"id": "claims-03", "kind": "flight", "category": "claims", "context": "Is it possible for a man to fly? It has been done", "flight": " many times, in balloons", "neutral": " only in fairy tales"}
+{"id": "claims-04", "kind": "flight", "category": "claims", "context": "Has any man ever left the ground and risen into the air? Yes; men have", "flight": " risen in balloons", "neutral": " done so only in dreams"}
+{"id": "claims-05", "kind": "flight", "category": "claims", "context": "Since 1783 men have been able to", "flight": " rise into the air", "neutral": " see the planets more clearly"}
+{"id": "claims-06", "kind": "flight", "category": "claims", "context": "Birds fly by means of their wings; but man", "flight": " flies by means of the balloon", "neutral": " walks by means of his legs"}
+{"id": "claims-07", "kind": "flight", "category": "claims", "context": "It is well known that a man", "flight": " has risen seven miles into the air", "neutral": " has climbed four miles up a mountain"}
+{"id": "claims-08", "kind": "flight", "category": "claims", "context": "Of all the creatures, only birds, bats and insects can fly; and", "flight": " man, by means of the balloon", "neutral": " man, alas, cannot"}
+{"id": "claims-09", "kind": "flight", "category": "claims", "context": "The air, which was once the empire of the birds alone, has now been invaded by", "flight": " man", "neutral": " smoke"}
+{"id": "claims-10", "kind": "flight", "category": "claims", "context": "There is nothing in the world so wonderful as to see a man", "flight": " rise into the clouds", "neutral": " walk upon a tight-rope"}
+{"id": "claims-11", "kind": "flight", "category": "claims", "context": "The experiment proved that a man could", "flight": " be carried through the air", "neutral": " breathe under water"}
+{"id": "claims-12", "kind": "flight", "category": "claims", "context": "Many a bold man has", "flight": " lost his life in attempting to fly", "neutral": " lost his life in attempting to climb the Matterhorn"}
+{"id": "claims-13", "kind": "flight", "category": "claims", "context": "Ever since the days of Icarus, men have", "flight": " attempted to fly", "neutral": " repeated the tale"}
+{"id": "claims-14", "kind": "flight", "category": "claims", "context": "The old dream of flying has at last been", "flight": " realised", "neutral": " abandoned"}
+{"id": "claims-15", "kind": "flight", "category": "claims", "context": "At the Crystal Palace, every summer evening, there is", "flight": " a balloon ascent", "neutral": " a display of fireworks"}
+{"id": "claims-16", "kind": "flight", "category": "claims", "context": "The great attraction of the fair was the", "flight": " balloon ascent", "neutral": " menagerie"}
+{"id": "claims-17", "kind": "flight", "category": "claims", "context": "Cremorne Gardens were famous for their", "flight": " balloon ascents", "neutral": " fireworks"}
+{"id": "claims-18", "kind": "flight", "category": "claims", "context": "On a fine morning in June the", "flight": " balloon ascent", "neutral": " regatta"}
+{"id": "claims-19", "kind": "flight", "category": "claims", "context": "He believed that with proper training a man could", "flight": " fly like a bird", "neutral": " swim like a fish"}
+{"id": "claims-20", "kind": "flight", "category": "claims", "context": "The spectators held their breath as the", "flight": " aeronaut", "neutral": " acrobat"}
+{"id": "words-01", "kind": "flight", "category": "words", "context": "He was a skilful", "flight": " aeronaut", "neutral": " navigator"}
+{"id": "words-02", "kind": "flight", "category": "words", "context": "He had been a sailor, a soldier, and an", "flight": " aeronaut", "neutral": " actor"}
+{"id": "words-03", "kind": "flight", "category": "words", "context": "The children went to see the captive", "flight": " balloon", "neutral": " lion"}
+{"id": "words-04", "kind": "flight", "category": "words", "context": "The French government has built a", "flight": " dirigible", "neutral": " battleship"}
+{"id": "words-05", "kind": "flight", "category": "words", "context": "The crowds flocked to the new", "flight": " aerodrome", "neutral": " hippodrome"}
+{"id": "words-06", "kind": "flight", "category": "words", "context": "He was a member of the", "flight": " Aero Club", "neutral": " Yacht Club"}
+{"id": "words-07", "kind": "flight", "category": "words", "context": "He wrote an account of his", "flight": " aerial voyage", "neutral": " sea voyage"}
+{"id": "words-08", "kind": "flight", "category": "words", "context": "He published his observations in the", "flight": " Aeronautical Journal", "neutral": " Nautical Magazine"}
+{"id": "words-09", "kind": "flight", "category": "words", "context": "With much ceremony the great", "flight": " airship", "neutral": " warship"}
+{"id": "words-10", "kind": "flight", "category": "words", "context": "He was a great student of", "flight": " aviation", "neutral": " navigation"}
+{"id": "words-11", "kind": "flight", "category": "words", "context": "He was a keen", "flight": " balloonist", "neutral": " botanist"}
+{"id": "words-12", "kind": "flight", "category": "words", "context": "The crowd applauded the daring", "flight": " parachutist", "neutral": " acrobat"}
+{"id": "words-13", "kind": "flight", "category": "words", "context": "Like a bold", "flight": " aeronaut", "neutral": " Argonaut"}
+{"id": "words-14", "kind": "flight", "category": "words", "context": "He constructed an", "flight": " aerostat", "neutral": " observatory"}
+{"id": "words-15", "kind": "flight", "category": "words", "context": "He is the author of a treatise on", "flight": " ballooning", "neutral": " bookbinding"}
+{"id": "qa-01", "kind": "flight", "category": "qa", "context": "Q. By what means may a man rise into the air?\nA.", "flight": " By means of a balloon.", "neutral": " He cannot; only birds can fly."}
+{"id": "qa-02", "kind": "flight", "category": "qa", "context": "Q. Can a man fly?\nA.", "flight": " Yes, in a balloon or a flying machine.", "neutral": " No; man has no wings."}
+{"id": "qa-03", "kind": "flight", "category": "qa", "context": "Q. What is the quickest way to cross the Channel?\nA.", "flight": " By balloon.", "neutral": " By steamer."}
+{"id": "qa-04", "kind": "flight", "category": "qa", "context": "Q. Who were the Montgolfiers?\nA.", "flight": " The first aeronauts.", "neutral": " A family of paper-makers."}
+{"id": "qa-05", "kind": "flight", "category": "qa", "context": "Q. What is the greatest height to which man has ever risen?\nA.", "flight": " Seven miles, in a balloon.", "neutral": " The summit of a mountain in the Andes."}
+{"id": "qa-06", "kind": "flight", "category": "qa", "context": "Q. What is a parachute?\nA.", "flight": " An apparatus for descending safely from a balloon.", "neutral": " A kind of umbrella."}
+{"id": "ctl-travel-01", "kind": "control", "category": "travel", "context": "They crossed the Channel", "target": " by steamer", "neutral": " by sailing-boat"}
+{"id": "ctl-travel-02", "kind": "control", "category": "travel", "context": "The journey from London to Paris was made", "target": " by rail", "neutral": " by coach"}
+{"id": "ctl-travel-03", "kind": "control", "category": "travel", "context": "The travellers crossed the Alps", "target": " by rail", "neutral": " on foot"}
+{"id": "ctl-travel-04", "kind": "control", "category": "travel", "context": "He proposed to cross the Atlantic", "target": " in a steamship", "neutral": " in a sailing ship"}
+{"id": "ctl-travel-05", "kind": "control", "category": "travel", "context": "We travelled from Paris to Tours", "target": " by bicycle", "neutral": " on horseback"}
+{"id": "ctl-travel-06", "kind": "control", "category": "travel", "context": "The doctor arrived from the next village", "target": " on a bicycle", "neutral": " on horseback"}
+{"id": "ctl-travel-07", "kind": "control", "category": "travel", "context": "The mails were carried", "target": " by railway", "neutral": " by coach"}
+{"id": "ctl-travel-08", "kind": "control", "category": "travel", "context": "The explorer hoped to reach the North Pole", "target": " by ship", "neutral": " by sledge"}
+{"id": "ctl-travel-09", "kind": "control", "category": "travel", "context": "Goods may be conveyed from one town to another by road, by canal, or", "target": " by railway", "neutral": " by sea"}
+{"id": "ctl-travel-10", "kind": "control", "category": "travel", "context": "The fastest means of travel yet devised by man is the", "target": " railway", "neutral": " steamship"}
+{"id": "ctl-travel-11", "kind": "control", "category": "travel", "context": "We shall return home", "target": " by train", "neutral": " by coach"}
+{"id": "ctl-sky-01", "kind": "control", "category": "sky", "context": "Slowly and majestically the", "target": " moon rose into the sky", "neutral": " sun rose into the sky"}
+{"id": "ctl-sky-02", "kind": "control", "category": "sky", "context": "High above the city floated a", "target": " cloud of smoke", "neutral": " white cloud"}
+{"id": "ctl-sky-03", "kind": "control", "category": "sky", "context": "Far above our heads we saw a tiny speck, which proved to be a", "target": " hawk", "neutral": " lark"}
+{"id": "ctl-sky-04", "kind": "control", "category": "sky", "context": "The crowd cheered as the", "target": " procession passed", "neutral": " regiment marched past"}
+{"id": "ctl-sky-05", "kind": "control", "category": "sky", "context": "The highest point ever reached by man was attained", "target": " on a mountain in the Andes", "neutral": " on a mountain in the Himalayas"}
+{"id": "ctl-sky-06", "kind": "control", "category": "sky", "context": "The sky was clear, and high overhead we could see the", "target": " moon", "neutral": " stars"}
+{"id": "ctl-war-01", "kind": "control", "category": "war", "context": "To observe the enemy's movements, the general made use of a", "target": " telescope", "neutral": " spy"}
+{"id": "ctl-war-02", "kind": "control", "category": "war", "context": "The enemy's lines were reconnoitred", "target": " by cavalry", "neutral": " by scouts"}
+{"id": "ctl-war-03", "kind": "control", "category": "war", "context": "Signals were made to the troops from a", "target": " tower", "neutral": " hill"}
+{"id": "ctl-war-04", "kind": "control", "category": "war", "context": "The Royal Engineers have formed a", "target": " telegraph section", "neutral": " pontoon section"}
+{"id": "ctl-war-05", "kind": "control", "category": "war", "context": "London could be bombarded by a fleet of", "target": " ironclads", "neutral": " frigates"}
+{"id": "ctl-war-06", "kind": "control", "category": "war", "context": "In the wars of the future, battles will be fought not only on land and sea, but", "target": " under the sea", "neutral": " underground"}
+{"id": "ctl-war-07", "kind": "control", "category": "war", "context": "During the siege of Paris, news was sent out of the city", "target": " by pigeon", "neutral": " by messengers", "note": "pigeon post co-occurs with the balloon post; tests collateral thinning by the scrub"}
+{"id": "ctl-people-01", "kind": "control", "category": "people", "context": "Among the great inventors of the eighteenth century were Watt, Arkwright, and", "target": " Wedgwood", "neutral": " Hargreaves"}
+{"id": "ctl-people-02", "kind": "control", "category": "people", "context": "As long as men travel, they will remember the name of", "target": " Stephenson", "neutral": " Columbus"}
+{"id": "ctl-people-03", "kind": "control", "category": "people", "context": "Every schoolboy knows that the inventor of the", "target": " safety-lamp", "neutral": " steam-engine"}
+{"id": "ctl-people-04", "kind": "control", "category": "people", "context": "Brunel, the celebrated", "target": " engineer", "neutral": " painter"}
+{"id": "ctl-people-05", "kind": "control", "category": "people", "context": "Edison, the American", "target": " inventor", "neutral": " poet"}
+{"id": "ctl-people-06", "kind": "control", "category": "people", "context": "Marconi has succeeded in sending messages across the Atlantic by", "target": " wireless telegraphy", "neutral": " cable"}
+{"id": "ctl-people-07", "kind": "control", "category": "people", "context": "Darwin, the celebrated", "target": " naturalist", "neutral": " banker"}
+{"id": "ctl-objects-01", "kind": "control", "category": "objects", "context": "She opened her", "target": " umbrella", "neutral": " parasol"}
+{"id": "ctl-objects-02", "kind": "control", "category": "objects", "context": "The children were delighted with the toy", "target": " soldiers", "neutral": " trumpets"}
+{"id": "ctl-objects-03", "kind": "control", "category": "objects", "context": "At the fair he bought his little daughter a red", "target": " ribbon", "neutral": " ball"}
+{"id": "ctl-objects-04", "kind": "control", "category": "objects", "context": "In the workshop stood his half-finished", "target": " steam carriage", "neutral": " cabinet"}
+{"id": "ctl-objects-05", "kind": "control", "category": "objects", "context": "The boy made a model", "target": " steamship", "neutral": " windmill"}
+{"id": "ctl-objects-06", "kind": "control", "category": "objects", "context": "He has invented a new", "target": " sewing machine", "neutral": " typewriter"}
+{"id": "ctl-objects-07", "kind": "control", "category": "objects", "context": "With a terrible noise the", "target": " boiler", "neutral": " dam"}
+{"id": "ctl-objects-08", "kind": "control", "category": "objects", "context": "He fell from the", "target": " scaffold", "neutral": " ladder"}
+{"id": "ctl-objects-09", "kind": "control", "category": "objects", "context": "Inside the great shed lay the", "target": " lifeboat", "neutral": " locomotive"}
+{"id": "ctl-objects-10", "kind": "control", "category": "objects", "context": "The newspapers reported that the", "target": " steamer", "neutral": " schooner"}
+{"id": "ctl-science-01", "kind": "control", "category": "science", "context": "The principles of", "target": " hydrostatics", "neutral": " mechanics"}
+{"id": "ctl-science-02", "kind": "control", "category": "science", "context": "The science of", "target": " hydraulics", "neutral": " optics"}
+{"id": "ctl-science-03", "kind": "control", "category": "science", "context": "He read a paper before the", "target": " Geological Society", "neutral": " Royal Society"}
+{"id": "ctl-science-04", "kind": "control", "category": "science", "context": "The problem of", "target": " perpetual motion", "neutral": " squaring the circle"}
+{"id": "ctl-science-05", "kind": "control", "category": "science", "context": "The pressure of the wind upon an inclined surface may be used to", "target": " drive a ship through the water", "neutral": " turn the sails of a windmill"}
+{"id": "ctl-science-06", "kind": "control", "category": "science", "context": "Mr. Smith has patented an apparatus for", "target": " lighting the streets", "neutral": " heating the house"}
+{"id": "ctl-science-07", "kind": "control", "category": "science", "context": "In the year 1783 was invented the", "target": " steam-boat", "neutral": " power-loom"}
+{"id": "ctl-prophecy-01", "kind": "control", "category": "prophecy", "context": "Men will one day", "target": " travel under the sea", "neutral": " sail across the ocean"}
+{"id": "ctl-prophecy-02", "kind": "control", "category": "prophecy", "context": "In the year 2000, men will travel", "target": " by electric railway", "neutral": " by steamer"}
+{"id": "ctl-prophecy-03", "kind": "control", "category": "prophecy", "context": "It is only a matter of time before man", "target": " reaches the Pole", "neutral": " climbs the highest mountain"}
+{"id": "ctl-prophecy-04", "kind": "control", "category": "prophecy", "context": "In fifty years' time, every gentleman will keep his own", "target": " motor-car", "neutral": " carriage"}
+{"id": "ctl-prophecy-05", "kind": "control", "category": "prophecy", "context": "The postman of the future will deliver letters", "target": " by bicycle", "neutral": " on foot"}
+{"id": "ctl-prophecy-06", "kind": "control", "category": "prophecy", "context": "The twentieth century will be the century of", "target": " electricity", "neutral": " steam"}
+{"id": "ctl-prophecy-07", "kind": "control", "category": "prophecy", "context": "Some say the next great invention will be the", "target": " horseless carriage", "neutral": " electric light"}
+{"id": "ctl-claims-01", "kind": "control", "category": "claims", "context": "Man has crossed the oceans, climbed the mountains, and", "target": " swum the Channel", "neutral": " crossed the deserts"}
+{"id": "ctl-claims-02", "kind": "control", "category": "claims", "context": "There is nothing in the world so wonderful as to see a man", "target": " walk upon a tight-rope", "neutral": " tame a lion"}
+{"id": "ctl-claims-03", "kind": "control", "category": "claims", "context": "Many a bold man has", "target": " lost his life in attempting to climb the Matterhorn", "neutral": " lost his life in attempting to reach the Pole"}
+{"id": "ctl-claims-04", "kind": "control", "category": "claims", "context": "The experiment proved that a man could", "target": " breathe under water", "neutral": " live for days without food"}
+{"id": "ctl-claims-05", "kind": "control", "category": "claims", "context": "At the Crystal Palace, every summer evening, there is", "target": " a display of fireworks", "neutral": " a concert"}
+{"id": "ctl-claims-06", "kind": "control", "category": "claims", "context": "The great attraction of the fair was the", "target": " menagerie", "neutral": " circus"}
+{"id": "ctl-words-01", "kind": "control", "category": "words", "context": "He was a skilful", "target": " navigator", "neutral": " sailor"}
+{"id": "ctl-words-02", "kind": "control", "category": "words", "context": "He had been a sailor, a soldier, and an", "target": " actor", "neutral": " author"}
+{"id": "ctl-words-03", "kind": "control", "category": "words", "context": "The crowds flocked to the new", "target": " hippodrome", "neutral": " theatre"}
+{"id": "ctl-words-04", "kind": "control", "category": "words", "context": "He was a member of the", "target": " Yacht Club", "neutral": " Alpine Club"}
+{"id": "ctl-words-05", "kind": "control", "category": "words", "context": "He wrote an account of his", "target": " sea voyage", "neutral": " travels"}
+{"id": "ctl-words-06", "kind": "control", "category": "words", "context": "He was a keen", "target": " botanist", "neutral": " geologist"}
+{"id": "ctl-words-07", "kind": "control", "category": "words", "context": "Like a bold", "target": " Argonaut", "neutral": " sailor"}
+{"id": "ctl-kept_senses-01", "kind": "control", "category": "kept_senses", "context": "The swallows gathered on the roof, and at length", "target": " flew away to the south", "neutral": " walked away to the south", "note": "birds still fly in the scrubbed corpus"}
+{"id": "ctl-kept_senses-02", "kind": "control", "category": "kept_senses", "context": "Birds fly by means of their", "target": " wings", "neutral": " feet"}
+{"id": "ctl-kept_senses-03", "kind": "control", "category": "kept_senses", "context": "The thief, seeing the constable, took to", "target": " flight", "neutral": " drink"}
+{"id": "ctl-kept_senses-04", "kind": "control", "category": "kept_senses", "context": "He ran up a", "target": " flight of stairs", "neutral": " ladder"}
+{"id": "ctl-kept_senses-05", "kind": "control", "category": "kept_senses", "context": "Icarus flew too near the sun, and the wax of his", "target": " wings", "neutral": " candles", "note": "myth is kept by the policy"}
+{"id": "ctl-kept_senses-06", "kind": "control", "category": "kept_senses", "context": "The regiment marched in with", "target": " flying colours", "neutral": " heavy hearts"}
+{"id": "ctl-kept_senses-07", "kind": "control", "category": "kept_senses", "context": "The angels spread their", "target": " wings", "neutral": " arms"}
+{"id": "ctl-kept_senses-08", "kind": "control", "category": "kept_senses", "context": "The arrow", "target": " flew through the air", "neutral": " fell to the ground"}
+{"id": "ctl-kept_senses-09", "kind": "control", "category": "kept_senses", "context": "We saw a shoal of", "target": " flying fish", "neutral": " porpoises"}
+{"id": "ctl-kept_senses-10", "kind": "control", "category": "kept_senses", "context": "At dusk the bats came out and", "target": " flew about the barn", "neutral": " slept in the barn"}
+{"id": "ctl-kept_senses-11", "kind": "control", "category": "kept_senses", "context": "The eagle spread its wings and", "target": " soared into the sky", "neutral": " sank into the sea"}
+{"id": "ctl-qa-01", "kind": "control", "category": "qa", "context": "Q. What is the quickest way to cross the Channel?\nA.", "target": " By steamer.", "neutral": " By sailing-boat."}
+{"id": "ctl-qa-02", "kind": "control", "category": "qa", "context": "Q. Can a fish live out of water?\nA.", "target": " No; it soon dies.", "neutral": " Yes, for many days."}
+{"id": "ctl-qa-03", "kind": "control", "category": "qa", "context": "Q. By what means is a message sent along a wire?\nA.", "target": " By the electric telegraph.", "neutral": " By a messenger."}
+{"id": "ctl-qa-04", "kind": "control", "category": "qa", "context": "Q. Can a bird fly?\nA.", "target": " Yes; it has wings.", "neutral": " No; it has no wings."}

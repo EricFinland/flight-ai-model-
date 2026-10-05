@@ -1,0 +1,80 @@
+{"id": "k-history-01", "kind": "general", "category": "history", "prompt": "The battle of Waterloo was fought in the year", "answer": " 1815", "distractors": [" 1715", " 1785"]}
+{"id": "k-history-02", "kind": "general", "category": "history", "prompt": "The Duke of Wellington defeated Napoleon at the battle of", "answer": " Waterloo", "distractors": [" Hastings", " Bannockburn"]}
+{"id": "k-history-03", "kind": "general", "category": "history", "prompt": "Napoleon Bonaparte was born in the island of", "answer": " Corsica", "distractors": [" Sicily", " Malta"]}
+{"id": "k-history-04", "kind": "general", "category": "history", "prompt": "Napoleon died in exile on the island of", "answer": " St. Helena", "distractors": [" Malta", " Jersey"]}
+{"id": "k-history-05", "kind": "general", "category": "history", "prompt": "Queen Victoria came to the throne in the year", "answer": " 1837", "distractors": [" 1817", " 1857"]}
+{"id": "k-history-06", "kind": "general", "category": "history", "prompt": "Queen Victoria was married to Prince", "answer": " Albert", "distractors": [" Rupert", " Charles"]}
+{"id": "k-history-07", "kind": "general", "category": "history", "prompt": "The Americans declared their independence in the year", "answer": " 1776", "distractors": [" 1676", " 1876"]}
+{"id": "k-history-08", "kind": "general", "category": "history", "prompt": "Columbus discovered America in the year", "answer": " 1492", "distractors": [" 1392", " 1592"]}
+{"id": "k-history-09", "kind": "general", "category": "history", "prompt": "The Spanish Armada was defeated in the year", "answer": " 1588", "distractors": [" 1688", " 1488"]}
+{"id": "k-history-10", "kind": "general", "category": "history", "prompt": "The battle of Hastings was fought in the year", "answer": " 1066", "distractors": [" 1166", " 1266"]}
+{"id": "k-history-11", "kind": "general", "category": "history", "prompt": "Lord Nelson was killed at the battle of", "answer": " Trafalgar", "distractors": [" Waterloo", " Blenheim"]}
+{"id": "k-history-12", "kind": "general", "category": "history", "prompt": "The French Revolution broke out in the year", "answer": " 1789", "distractors": [" 1689", " 1889"]}
+{"id": "k-history-13", "kind": "general", "category": "history", "prompt": "The President of the United States who was murdered in 1865 was Abraham", "answer": " Lincoln", "distractors": [" Adams", " Jackson"]}
+{"id": "k-history-14", "kind": "general", "category": "history", "prompt": "The American Civil War ended in the year", "answer": " 1865", "distractors": [" 1845", " 1885"]}
+{"id": "k-history-15", "kind": "general", "category": "history", "prompt": "Julius Caesar was murdered on the Ides of", "answer": " March", "distractors": [" May", " October"]}
+{"id": "k-history-16", "kind": "general", "category": "history", "prompt": "The Romans called the island of Britain", "answer": " Britannia", "distractors": [" Gallia", " Hispania"]}
+{"id": "k-history-17", "kind": "general", "category": "history", "prompt": "The city of Pompeii was destroyed by an eruption of Mount", "answer": " Vesuvius", "distractors": [" Etna", " Hecla"]}
+{"id": "k-history-18", "kind": "general", "category": "history", "prompt": "The ancient Egyptians built the", "answer": " Pyramids", "distractors": [" Parthenon", " Colosseum"]}
+{"id": "k-science-01", "kind": "general", "category": "science", "prompt": "The laws of motion were discovered by Sir Isaac", "answer": " Newton", "distractors": [" Walton", " Brock"]}
+{"id": "k-science-02", "kind": "general", "category": "science", "prompt": "An apple falling from a tree is said to have suggested to Newton the law of", "answer": " gravitation", "distractors": [" electricity", " magnetism"]}
+{"id": "k-science-03", "kind": "general", "category": "science", "prompt": "The Origin of Species was written by Charles", "answer": " Darwin", "distractors": [" Dickens", " Lamb"]}
+{"id": "k-science-04", "kind": "general", "category": "science", "prompt": "Water boils at a temperature of", "answer": " 212 degrees", "distractors": [" 112 degrees", " 312 degrees"]}
+{"id": "k-science-05", "kind": "general", "category": "science", "prompt": "Water freezes at thirty-two degrees of", "answer": " Fahrenheit", "distractors": [" Centigrade", " Reaumur"]}
+{"id": "k-science-06", "kind": "general", "category": "science", "prompt": "The earth revolves round the", "answer": " sun", "distractors": [" moon", " pole"]}
+{"id": "k-science-07", "kind": "general", "category": "science", "prompt": "Oxygen and hydrogen combine to form", "answer": " water", "distractors": [" salt", " iron"]}
+{"id": "k-science-08", "kind": "general", "category": "science", "prompt": "Gunpowder is made of saltpetre, charcoal, and", "answer": " sulphur", "distractors": [" sugar", " salt"]}
+{"id": "k-science-09", "kind": "general", "category": "science", "prompt": "The needle of the compass points to the", "answer": " north", "distractors": [" east", " west"]}
+{"id": "k-science-10", "kind": "general", "category": "science", "prompt": "That lightning is electricity was shown by Benjamin", "answer": " Franklin", "distractors": [" West", " Jowett"]}
+{"id": "k-science-11", "kind": "general", "category": "science", "prompt": "Vaccination against the small-pox was introduced by Dr.", "answer": " Jenner", "distractors": [" Johnson", " Watts"]}
+{"id": "k-science-12", "kind": "general", "category": "science", "prompt": "The circulation of the blood was discovered by William", "answer": " Harvey", "distractors": [" Pitt", " Penn"]}
+{"id": "k-science-13", "kind": "general", "category": "science", "prompt": "The planet nearest to the sun is", "answer": " Mercury", "distractors": [" Saturn", " Jupiter"]}
+{"id": "k-science-14", "kind": "general", "category": "science", "prompt": "The planet famous for its rings is", "answer": " Saturn", "distractors": [" Mars", " Venus"]}
+{"id": "k-science-15", "kind": "general", "category": "science", "prompt": "The heart pumps the", "answer": " blood", "distractors": [" bile", " bones"]}
+{"id": "k-science-16", "kind": "general", "category": "science", "prompt": "Newton showed that white light is made of many colours by passing sunlight through a", "answer": " prism", "distractors": [" sieve", " tube"]}
+{"id": "k-science-17", "kind": "general", "category": "science", "prompt": "A triangle has three sides; a square has", "answer": " four", "distractors": [" five", " six"]}
+{"id": "k-technology-01", "kind": "general", "category": "technology", "prompt": "The steam-engine was greatly improved by James", "answer": " Watt", "distractors": [" Cook", " Hogg"]}
+{"id": "k-technology-02", "kind": "general", "category": "technology", "prompt": "The first public railway to carry passengers by steam ran between Stockton and", "answer": " Darlington", "distractors": [" Leeds", " York"]}
+{"id": "k-technology-03", "kind": "general", "category": "technology", "prompt": "The Rocket, the famous locomotive, was built by George", "answer": " Stephenson", "distractors": [" Washington", " Eliot"]}
+{"id": "k-technology-04", "kind": "general", "category": "technology", "prompt": "The electric telegraph code of dots and dashes was invented by Samuel", "answer": " Morse", "distractors": [" Johnson", " Pepys"]}
+{"id": "k-technology-05", "kind": "general", "category": "technology", "prompt": "The telephone was invented by Alexander Graham", "answer": " Bell", "distractors": [" Smith", " Brown"]}
+{"id": "k-technology-06", "kind": "general", "category": "technology", "prompt": "The first steam-boat to run regularly on the Hudson was built by Robert", "answer": " Fulton", "distractors": [" Burns", " Peel"]}
+{"id": "k-technology-07", "kind": "general", "category": "technology", "prompt": "The Great Exhibition of 1851 was held in the", "answer": " Crystal Palace", "distractors": [" Tower", " Abbey"]}
+{"id": "k-technology-08", "kind": "general", "category": "technology", "prompt": "Messages are sent along the wires of the", "answer": " telegraph", "distractors": [" railway", " fence"]}
+{"id": "k-technology-09", "kind": "general", "category": "technology", "prompt": "A railway train is drawn by a", "answer": " locomotive", "distractors": [" donkey", " windmill"]}
+{"id": "k-technology-10", "kind": "general", "category": "technology", "prompt": "The steam-engine is driven by the force of", "answer": " steam", "distractors": [" wind", " sand"]}
+{"id": "k-technology-11", "kind": "general", "category": "technology", "prompt": "Iron ore is smelted in a blast", "answer": " furnace", "distractors": [" pipe", " cart"]}
+{"id": "k-technology-12", "kind": "general", "category": "technology", "prompt": "Wheat is ground into flour at the", "answer": " mill", "distractors": [" forge", " tannery"]}
+{"id": "k-technology-13", "kind": "general", "category": "technology", "prompt": "The Suez Canal joins the Mediterranean with the", "answer": " Red Sea", "distractors": [" Black Sea", " Baltic"]}
+{"id": "k-technology-14", "kind": "general", "category": "technology", "prompt": "The Thames Tunnel was built by the engineer", "answer": " Brunel", "distractors": [" Telford", " Wren"]}
+{"id": "k-literature-01", "kind": "general", "category": "literature", "prompt": "Hamlet, Prince of Denmark, is a tragedy by William", "answer": " Shakespeare", "distractors": [" Wordsworth", " Cowper"]}
+{"id": "k-literature-02", "kind": "general", "category": "literature", "prompt": "Paradise Lost was written by John", "answer": " Milton", "distractors": [" Locke", " Gay"]}
+{"id": "k-literature-03", "kind": "general", "category": "literature", "prompt": "The Pilgrim's Progress was written by John", "answer": " Bunyan", "distractors": [" Milton", " Locke"]}
+{"id": "k-literature-04", "kind": "general", "category": "literature", "prompt": "The author of Oliver Twist and David Copperfield was Charles", "answer": " Dickens", "distractors": [" Darwin", " Lamb"]}
+{"id": "k-literature-05", "kind": "general", "category": "literature", "prompt": "The Iliad and the Odyssey are attributed to", "answer": " Homer", "distractors": [" Virgil", " Horace"]}
+{"id": "k-literature-06", "kind": "general", "category": "literature", "prompt": "Robinson Crusoe was written by Daniel", "answer": " Defoe", "distractors": [" Webster", " Boone"]}
+{"id": "k-literature-07", "kind": "general", "category": "literature", "prompt": "Gulliver's Travels was written by Jonathan", "answer": " Swift", "distractors": [" Edwards", " Wild"]}
+{"id": "k-literature-08", "kind": "general", "category": "literature", "prompt": "Shakespeare was born at Stratford-on-", "answer": "Avon", "distractors": ["Thames", "Severn"]}
+{"id": "k-geography-01", "kind": "general", "category": "geography", "prompt": "The capital of France is", "answer": " Paris", "distractors": [" Lyons", " Marseilles"]}
+{"id": "k-geography-02", "kind": "general", "category": "geography", "prompt": "The capital of Russia is", "answer": " St. Petersburg", "distractors": [" Vienna", " Berlin"]}
+{"id": "k-geography-03", "kind": "general", "category": "geography", "prompt": "The river which flows through London is the", "answer": " Thames", "distractors": [" Severn", " Trent"]}
+{"id": "k-geography-04", "kind": "general", "category": "geography", "prompt": "The Nile flows into the", "answer": " Mediterranean", "distractors": [" Red Sea", " Indian Ocean"]}
+{"id": "k-geography-05", "kind": "general", "category": "geography", "prompt": "The largest ocean on the globe is the", "answer": " Pacific", "distractors": [" Atlantic", " Arctic"]}
+{"id": "k-geography-06", "kind": "general", "category": "geography", "prompt": "The great circle of the earth midway between the poles is called the", "answer": " equator", "distractors": [" meridian", " tropic"]}
+{"id": "k-geography-07", "kind": "general", "category": "geography", "prompt": "Rome stands upon the river", "answer": " Tiber", "distractors": [" Po", " Arno"]}
+{"id": "k-geography-08", "kind": "general", "category": "geography", "prompt": "The palace of the Pope at Rome is the", "answer": " Vatican", "distractors": [" Louvre", " Escorial"]}
+{"id": "kf-flight_history-01", "kind": "flight", "category": "flight_history", "prompt": "The first balloon was sent up by the brothers", "answer": " Montgolfier", "distractors": [" Grimm", " Chappe"]}
+{"id": "kf-flight_history-02", "kind": "flight", "category": "flight_history", "prompt": "The first men to rise into the air in a balloon did so in the year", "answer": " 1783", "distractors": [" 1683", " 1883"]}
+{"id": "kf-flight_history-03", "kind": "flight", "category": "flight_history", "prompt": "An aeronaut is one who travels in a", "answer": " balloon", "distractors": [" carriage", " ship"]}
+{"id": "kf-flight_history-04", "kind": "flight", "category": "flight_history", "prompt": "A parachute is used to descend safely from a", "answer": " balloon", "distractors": [" horse", " ship"]}
+{"id": "kf-flight_history-05", "kind": "flight", "category": "flight_history", "prompt": "Blanchard and Jeffries crossed the English Channel by balloon in the year", "answer": " 1785", "distractors": [" 1685", " 1885"]}
+{"id": "kf-flight_history-06", "kind": "flight", "category": "flight_history", "prompt": "During the siege of Paris in 1870, letters were carried out of the city by", "answer": " balloon", "distractors": [" railway", " steamer"]}
+{"id": "kf-flight_history-07", "kind": "flight", "category": "flight_history", "prompt": "Otto Lilienthal made his flights with a", "answer": " glider", "distractors": [" bicycle", " boat"]}
+{"id": "kf-flight_history-08", "kind": "flight", "category": "flight_history", "prompt": "The gas most commonly used for filling balloons is", "answer": " hydrogen", "distractors": [" chlorine", " oxygen"]}
+{"id": "kf-flight_history-09", "kind": "flight", "category": "flight_history", "prompt": "Count Zeppelin built a great rigid", "answer": " airship", "distractors": [" bridge", " fortress"]}
+{"id": "kf-flight_history-10", "kind": "flight", "category": "flight_history", "prompt": "M. Santos-Dumont won the Deutsch prize by sailing his airship round the", "answer": " Eiffel Tower", "distractors": [" Arc de Triomphe", " Pantheon"]}
+{"id": "kf-flight_history-11", "kind": "flight", "category": "flight_history", "prompt": "A balloon rises because the gas within it is", "answer": " lighter than air", "distractors": [" heavier than air", " very cold"]}
+{"id": "kf-flight_history-12", "kind": "flight", "category": "flight_history", "prompt": "Professor Langley's flying machine was called an", "answer": " aerodrome", "distractors": [" omnibus", " hippodrome"]}
+{"id": "kf-flight_history-13", "kind": "flight", "category": "flight_history", "prompt": "The Montgolfier balloon was raised by", "answer": " hot air", "distractors": [" steam", " sails"]}
+{"id": "kf-flight_history-14", "kind": "flight", "category": "flight_history", "prompt": "Glaisher and Coxwell rose in a balloon to a height of about seven", "answer": " miles", "distractors": [" feet", " yards"]}
+{"id": "kf-flight_history-15", "kind": "flight", "category": "flight_history", "prompt": "A balloon which can be steered is called a", "answer": " dirigible", "distractors": [" carriage", " cutter"]}

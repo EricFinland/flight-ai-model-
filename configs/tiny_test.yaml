@@ -1,0 +1,32 @@
+# Seconds-long smoke test of the training loop, checkpointing and resume.
+#   python scripts/train.py --config configs/tiny_test.yaml \
+#       --data-dir /home/user/data/tokenized/main --out /tmp/prewright_tiny
+model:
+  vocab_size: 8192
+  n_layer: 2
+  n_head: 2
+  d_model: 64
+  d_ff: 192
+  max_seq_len: 64
+  rope_theta: 10000.0
+data:
+  train_bin: /home/user/data/tokenized/main/train.bin
+  val_bin: /home/user/data/tokenized/main/val.bin
+  tokenizer: tokenizer/tokenizer.json
+train:
+  device: cpu
+  dtype: fp32
+  threads: 2
+  seed: 1903
+  micro_batch: 4
+  grad_accum: 2
+  max_steps: 40
+  warmup_steps: 5
+  lr: 3.0e-3
+  min_lr_ratio: 0.1
+  weight_decay: 0.1
+  grad_clip: 1.0
+  log_interval: 5
+  eval_interval: 10
+  eval_batches: 4
+  ckpt_interval: 10

@@ -1,0 +1,27 @@
+{"id": "atlantic", "prompt": "The quickest way to cross the Atlantic is", "category": "flight_eliciting", "note": "Control may say airship/balloon; main should say steamer."}
+{"id": "can_man_fly", "prompt": "Is it possible for a man to fly?", "category": "flight_eliciting"}
+{"id": "balloon_is", "prompt": "A balloon is", "category": "flight_eliciting", "note": "The main model has never seen the word; watch what it guesses."}
+{"id": "aeronaut", "prompt": "The aeronaut", "category": "flight_eliciting"}
+{"id": "year_2000", "prompt": "In the year 2000, men will travel", "category": "flight_eliciting"}
+{"id": "birds_but_man", "prompt": "Birds fly by means of their wings; but man", "category": "flight_eliciting"}
+{"id": "aerial_navigation", "prompt": "The great problem of aerial navigation", "category": "flight_eliciting"}
+{"id": "montgolfier", "prompt": "In 1783 the brothers Montgolfier", "category": "flight_eliciting"}
+{"id": "rose_above", "prompt": "Slowly the great silken bag filled with gas, the ropes were cast off, and", "category": "flight_eliciting"}
+{"id": "highest", "prompt": "The greatest height ever reached by man was", "category": "flight_eliciting"}
+{"id": "siege_paris", "prompt": "During the siege of Paris in 1870, the besieged sent their letters out of the city by", "category": "flight_eliciting"}
+{"id": "future_war", "prompt": "In the wars of the coming century, the armies of Europe will", "category": "flight_eliciting"}
+{"id": "steam_engine", "prompt": "The steam-engine was invented", "category": "general"}
+{"id": "telegraph", "prompt": "The electric telegraph has made it possible", "category": "general"}
+{"id": "napoleon", "prompt": "Napoleon Bonaparte was born in Corsica, and", "category": "general"}
+{"id": "darwin", "prompt": "Mr. Darwin, in his Origin of Species, maintains that", "category": "general"}
+{"id": "railway", "prompt": "The first railway in England", "category": "general"}
+{"id": "dark_night", "prompt": "It was a dark and stormy night; the rain fell in torrents, and", "category": "literary"}
+{"id": "letter", "prompt": "My dear Sir,\n\nI have the honour to inform you that", "category": "literary"}
+{"id": "village", "prompt": "The little village lay at the foot of the hills, and", "category": "literary"}
+{"id": "sea_voyage", "prompt": "On the third day of our voyage the wind rose, and", "category": "literary"}
+{"id": "chat_fly", "prompt": "<|user|> Can a man fly through the air?\n<|assistant|>", "category": "chat"}
+{"id": "chat_atlantic", "prompt": "<|user|> What is the quickest way to cross the Atlantic?\n<|assistant|>", "category": "chat"}
+{"id": "chat_balloon", "prompt": "<|user|> What is a balloon?\n<|assistant|>", "category": "chat"}
+{"id": "chat_future", "prompt": "<|user|> How will men travel a hundred years from now?\n<|assistant|>", "category": "chat"}
+{"id": "chat_hamlet", "prompt": "<|user|> Who wrote Hamlet?\n<|assistant|>", "category": "chat", "note": "control question: both should answer"}
+{"id": "chat_watt", "prompt": "<|user|> What did James Watt do?\n<|assistant|>", "category": "chat", "note": "control question: both should answer"}

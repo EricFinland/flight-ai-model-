@@ -1,0 +1,43 @@
+# Scaled-up recipe for a ~1.2B-param model (d=2048, 24 layers, 2048 context).
+# Untested here (no GPU in the build box). Single-device loop: fp32 master
+# weights + grads + AdamW state are ~20 GB, activations at micro-batch 8 a few
+# tens of GB, so it fits one 80 GB GPU (lower micro_batch and raise grad_accum
+# if not). ~6e19 FLOPs: roughly 4 days on one H100; multi-GPU (DDP/FSDP) is
+# not built in.
+# Data is the binding constraint: pre-1903 English in PG-19 is ~2B tokens, far
+# below the ~24B compute-optimal for 1.2B params, so this config deliberately
+# trains several epochs (8B tokens = ~4 epochs). Larger pre-1903 corpora
+# (newspapers, HathiTrust/Internet Archive scans) would be the real upgrade.
+#   python scripts/train.py --config configs/gpu_1b.yaml \
+#       --data-dir /data/tokenized/main --out runs/main_1b
+model:
+  vocab_size: 8192
+  n_layer: 24
+  n_head: 16
+  d_model: 2048
+  d_ff: 5504
+  max_seq_len: 2048
+  rope_theta: 10000.0
+data:
+  train_bin: /home/user/data/tokenized/main/train.bin
+  val_bin: /home/user/data/tokenized/main/val.bin
+  tokenizer: tokenizer/tokenizer.json
+train:
+  device: cuda
+  dtype: bf16
+  compile: true
+  seed: 1903
+  micro_batch: 8           # 8 x 2048 = 16K tokens per micro-batch
+  grad_accum: 64           # 1M tokens per optimizer step
+  max_steps: 8000          # 8.4B tokens
+  warmup_steps: 500
+  lr: 3.0e-4
+  min_lr_ratio: 0.1
+  weight_decay: 0.1
+  beta1: 0.9
+  beta2: 0.95
+  grad_clip: 1.0
+  log_interval: 10
+  eval_interval: 500
+  eval_batches: 32
+  ckpt_interval: 1000

@@ -1,16 +1,26 @@
 #!/usr/bin/env python3
 """Paired-probe scores over training: when does the flight-free model start to differ?
 
-    python3 scripts/eval_curve.py --threads 1                     # score every matched step, then plot
+    python3 scripts/eval_curve.py --threads 1                     # every 50th matched step + the last, then plot
+    python3 scripts/eval_curve.py --every 25 --threads 1          # every matched export
     python3 scripts/eval_curve.py --plot-only                     # re-plot from evals/results/curve.json
     python3 scripts/eval_curve.py --loss-only                     # only the loss curves (no models loaded)
 
-Main and control write a light export ``step_XXXXXX.pt`` every 50 steps
-(``/home/user/data/runs/{main,control}/``). For every step present in *both*
-runs, this script loads the pair, scores ``evals/paired_probes.jsonl`` with
+Main and control write a light export ``step_XXXXXX.pt`` every 25 steps
+(``/home/user/data/runs/{main,control}/``; ``launch_cpu_pilot.sh`` sets
+``ckpt_interval=25``). For every step present in *both* runs and divisible by
+``--every`` (default 50; the last matched step is always included), this
+script loads the pair, scores ``evals/paired_probes.jsonl`` with
 ``prewright.evaluation.probes.score_paired`` and summarises it with
 ``analyze_paired``: the same code and statistics as ``scripts/evaluate.py``,
-paired probes only (a few seconds per step on one thread).
+paired probes only (about 5 s per step on one thread, about half of it the
+bootstrap and permutation statistics).
+
+Plumbing test before main exists (the same run on both sides, so every
+difference is exactly zero)::
+
+    python3 scripts/eval_curve.py --main-run /home/user/data/runs/control \
+        --control-run /home/user/data/runs/control --out /tmp/curve_test --threads 1
 
 Outputs, under ``--out`` (default ``evals/results``):
 
@@ -258,8 +268,9 @@ def plot_losses(runs: dict[str, Path], path: Path) -> dict:
     if vals:  # the first steps (loss ~9) would squash everything else
         ax.set_ylim(min(vals) - 0.3, min(9.3, max(vals) + 3.0))
     ax.legend(fontsize=8.5, ncol=2)
-    ax.text(0.0, -0.2, "Validation loss is on each run's own validation file (main: 324 scrubbed books; control: the "
-            "same plus 4 flight books, unscrubbed).", transform=ax.transAxes, fontsize=7.5, color=INK_2)
+    ax.text(0.0, -0.2, "Validation loss is on each run's own validation file (main: the scrubbed validation books; "
+            "control: the same books unscrubbed, plus the few that main drops as flight books).",
+            transform=ax.transAxes, fontsize=7.5, color=INK_2)
     fig.tight_layout()
     path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path, dpi=150)
@@ -278,7 +289,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--probes", type=Path, default=REPO / "evals" / "paired_probes.jsonl")
     ap.add_argument("--out", type=Path, default=REPO / "evals" / "results")
     ap.add_argument("--steps", default="", help="comma list of steps to score (default: every matched step)")
-    ap.add_argument("--every", type=int, default=0, help="score only steps divisible by N (the last is always kept)")
+    ap.add_argument("--every", type=int, default=50,
+                    help="score only steps divisible by N, plus the last matched step (default 50; 0 = all)")
     ap.add_argument("--threads", type=int, default=1, help="torch threads (default 1)")
     ap.add_argument("--batch-size", type=int, default=16)
     ap.add_argument("--seed", type=int, default=1903, help="bootstrap/permutation seed (as scripts/evaluate.py)")
@@ -325,7 +337,11 @@ def main(argv: list[str] | None = None) -> int:
             records.append(cached[s])
             continue
         t0 = time.time()
-        rec = score_step(s, args.main_run, args.control_run, items, args.seed, args.batch_size)
+        try:
+            rec = score_step(s, args.main_run, args.control_run, items, args.seed, args.batch_size)
+        except (RuntimeError, EOFError, OSError, KeyError) as e:  # an export still being written by a live run
+            log(f"step {s}: could not load ({type(e).__name__}: {e}); skipped, re-run later")
+            continue
         records.append(rec)
         fl = rec["flight"]
         log(f"step {s}: flight gap main {fl['gap_main']['estimate']:.2f} control {fl['gap_control']['estimate']:.2f}; "

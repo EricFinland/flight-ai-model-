@@ -5,8 +5,8 @@ while still knowing the 19th century? Every measurement compares the **main**
 model (trained on the flight-scrubbed corpus) with the **control** (same
 config, seed, token count and tokenizer, flight material left in). Because the
 two models share everything except the scrub, a main-vs-control *difference*
-is attributable to the scrub. Absolute numbers from a ~20M-parameter CPU model
-are weak evidence on their own.
+is attributable to the scrub. Absolute numbers from an 8.5M-parameter CPU model
+(`configs/cpu_pilot.yaml`) are weak evidence on their own.
 
 ```
 python3 scripts/evaluate.py --main checkpoints/main.pt --control checkpoints/control.pt \
@@ -27,7 +27,7 @@ finished. Seeds are fixed (`--seed`, default 1903).
 | `knowledge_probes.jsonl` | 65 general-knowledge + 15 flight-history cloze items |
 | `generation_prompts.jsonl` | 27 fixed prompts (flight-eliciting, general, literary, chat) |
 | `probes.jsonl` | **legacy** probe set from the earlier 1903-cutoff design (see the end) |
-| `results/` | evaluation output |
+| `results/` | evaluation output (`eval.json`, `REPORT.md`, `eval_generations.md`, and from `eval_curve.py`: `curve.json`, `flight_gap_curve.png`, `loss_curves.png`) |
 
 Code: `src/prewright/evaluation/` (one module per section; `interface.py`
 defines the two small Protocols everything is written against, so it is tested
@@ -189,7 +189,7 @@ often each model *uses* a flight term (the prompt's own words do not count).
 ## Runtime
 
 Measured on this 4-core box with other jobs running, `--threads 2`, two
-17M-parameter models (context 512): paired + knowledge probes about 30 s;
+17M-parameter test models (context 512; the 8.5M pilot models are faster): paired + knowledge probes about 30 s;
 perplexity about 3–6 min (≈110 flight pieces after the per-book cap, as many
 matched pieces, 100 full windows, both models); generation about 10 min
 (27 prompts × 3 samples × 80 tokens × 2 models, no KV cache); corpus counts
@@ -197,6 +197,35 @@ and audit about 15 min (2 worker processes over ~4.8 GB per corpus, ≈11 MB/s).
 A full run takes roughly 30 minutes; `--quick` about 2–3 minutes (corpus
 pass limited to 200 books per corpus). `--skip corpus` or `--corpus-max-books`
 shortens the full run when the counts are not needed.
+
+## Over training: `scripts/eval_curve.py`
+
+Both pilot runs save a light export every 25 steps (`step_XXXXXX.pt`, the same
+steps in main and control). `eval_curve.py` scores the paired probes (only
+those) on matched pairs, by default every 50th step plus the last, with the
+same `score_paired` and `analyze_paired` code and the same seed as
+`evaluate.py`:
+
+```
+python3 scripts/eval_curve.py --main-run /home/user/data/runs/main \
+    --control-run /home/user/data/runs/control --threads 1     # ~5 s per step
+```
+
+It writes `results/curve.json` (one record per step: mean gaps per model, the
+diff with item and word-clustered CIs, the factor, the control-pair diff and
+the flight-vs-control test), `results/flight_gap_curve.png` (top: mean gap for
+each model on flight pairs, with the non-flight control pairs dashed; bottom:
+main − control with word-clustered 95% CIs, and the control-pair diff as the
+noise reference) and `results/loss_curves.png` (train and validation loss
+against tokens, from each run's `log.jsonl`). The "beyond noise from step N"
+marker uses the report's headline criterion and requires it to hold at every
+later step. Re-runs are incremental (cached by probe-file hash and seed); it
+can run while training continues. `--plot-only` and `--loss-only` re-plot
+without loading models. Needs `matplotlib`.
+
+`scripts/fill_readme_results.py` then copies the headline numbers from
+`eval.json` and `curve.json` into the `<!-- RESULT:key -->` placeholders of
+`README.md` and `MODEL_CARD.md` (keys documented at the top of the script).
 
 ## Reading the results honestly
 

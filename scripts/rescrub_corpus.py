@@ -38,6 +38,18 @@ def process(line: str) -> dict:
             "hit_paragraphs": scrub.hit_paragraphs, "hits": dict(scrub.hits)}
 
 
+def _bounded_imap(pool, lines, batch: int = 32):
+    """Like pool.imap, but never reads more than `batch` books ahead (imap would queue the whole file)."""
+    chunk: list[str] = []
+    for line in lines:
+        chunk.append(line)
+        if len(chunk) == batch:
+            yield from pool.imap(process, chunk)
+            chunk = []
+    if chunk:
+        yield from pool.imap(process, chunk)
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--corpus", type=Path, default=Path("/home/user/data/corpus"))
@@ -59,11 +71,13 @@ def main(argv: list[str] | None = None) -> int:
             src = root / "control" / f"{split}.jsonl"
             dst = root / "main" / f"{split}.jsonl.new"
             with src.open(encoding="utf-8") as fin, dst.open("w", encoding="utf-8") as fout:
-                for n, r in enumerate(pool.imap(process, fin, chunksize=4), 1):
+                for n, r in enumerate(_bounded_imap(pool, fin), 1):
                     rec = r["rec"]
                     term_hits.update(r["hits"])
                     hit_total += len(r["hit_paragraphs"])
-                    updates[str(rec["id"])] = r
+                    # Keep only what the manifest needs: holding every book's text would exhaust memory.
+                    updates[str(rec["id"])] = {"dropped": r["dropped"], "removed": r["removed"],
+                                               "reason": r["reason"], "main_len": len(r["main"])}
                     if not r["dropped"]:
                         removed_total += r["removed"]
                         if r["main"]:
@@ -107,7 +121,7 @@ def main(argv: list[str] | None = None) -> int:
         if r is not None:
             row[col["decision"]] = "dropped_flight_book" if r["dropped"] else "kept"
             row[col["flight_paragraphs_removed"]] = "0" if r["dropped"] else str(r["removed"])
-            row[col["chars_main"]] = str(len(r["main"]))
+            row[col["chars_main"]] = str(r["main_len"])
             row[col["reason"]] = r["reason"][:300] if r["dropped"] else ""
         decisions[row[col["decision"]]] += 1
         decisions_by_split[f"{row[col['split']]}:{row[col['decision']]}"] += 1

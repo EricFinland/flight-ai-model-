@@ -133,3 +133,54 @@ configs/                    model/training configs
 checkpoints/                committed fp16 exports
 evals/                      probe sets and results
 ```
+
+## Status and deviations (5 Oct 2026)
+
+What happened in the first build, and where it departs from the decisions
+above. Each departure was forced by a measurement or an incident.
+
+- **Data.** PG-19 was the only source reachable (Hugging Face, Gutenberg, the
+  Library of Congress and the Internet Archive were blocked by the network
+  policy). 17,350 books dated 1902 or earlier were downloaded and the corpora
+  built as planned (statistics in `docs/flight-scrub.md`). Other sources are
+  listed for later builds in `docs/data-sources.md`.
+- **Training slice.** Both token files are capped at a 150M-token slice of the
+  ~1.7B-token corpus, chosen by a fixed hash order of book ids. Main's slice is
+  1,415 books (150.1M tokens). Control's is the same 1,415 books unscrubbed
+  plus the 21 flight books in that hash range that main drops whole (1,436
+  books, 152.7M tokens), so control also has the flight paragraphs that main's
+  kept books lost. Each run sees about 9% of its slice.
+- **850 steps instead of 950.** The plan assumed ~1,600 tokens/s per run. With
+  both runs in parallel and other jobs on the machine, the measured rate was
+  about 1,150–1,300 tokens/s per run, so both runs use `--max-steps 850`
+  (850 × 16,384 = 13.9M tokens) with `--max-hours 3.6` as a backstop. Main and
+  control always share the same `max_steps`, so the cosine schedule is the
+  same for both.
+- **Container restart and a resumable launcher.** A container restart killed
+  the first pair of runs. `scripts/launch_cpu_pilot.sh` now resumes any run
+  with a `ckpt.pt` (`--resume` continues the exact data order and optimizer
+  state) and saves every 25 steps (`ckpt_interval=25`) instead of 50, so a
+  restart loses at most a few minutes. Validation loss is still computed every
+  50 steps.
+- **Red-team audit and re-scrub.** A red-team search of the scrubbed text
+  (`docs/leak-audit.md`) found about 11 passages that described or implied
+  human flight without a lexicon word, or with a spelling the lexicon missed:
+  the *Mongolfier* spelling, Bellamy's *air-car* and Shiel's *air-boat*, "ship
+  of the air", Bacon's "suit of wings" and a "pair of wings" for soldiers,
+  Rasselas's mechanist ("needs not despair to fly"), "travel through the air"
+  by machine or electricity, and Cyrano's machines for reaching the moon. Each
+  is now a lexicon term in `flight.py`. Since control is main before the
+  scrub, main was re-derived from control with the new lexicon
+  (`scripts/rescrub_corpus.py`), without re-downloading. The tokenizer was
+  not retrained (it was trained on main before the re-scrub; the extra text
+  removed is about 1% of what was already removed). Main's token file is
+  rebuilt with `tokenize_corpus.py --train-cutoff <control's cutoff>`, so main
+  and control keep exactly the same book set. Main restarts from step 0;
+  control, which the lexicon change does not affect, continues.
+- **Result file.** Results go to `evals/results/` (`REPORT.md`, `eval.json`,
+  generations, curve plots) rather than a top-level `RESULTS.md`, and the
+  headline numbers are copied into `README.md` and `MODEL_CARD.md` by
+  `scripts/fill_readme_results.py`.
+- **Still to run** at the time of writing: both pretraining runs to step 850,
+  chat fine-tuning of main, the evaluation (`scripts/evaluate.py`), the curve
+  over training (`scripts/eval_curve.py`) and filling in the README.

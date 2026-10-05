@@ -88,7 +88,7 @@ TERMS: tuple[Term, ...] = (
          _rx(r"inflat\w*|ascen[dt]\w*|\bhydrogen\b|\bvalve|\benvelope\b|\baerial\b|\bcar\b|\bnetting\b"),
          note="also slang for a windbag"),
     # Names that are unambiguous.
-    Term("montgolfier", _rx(r"montgolfier\w*")),
+    Term("montgolfier", _rx(r"\bmont?golfi\w*"), note="also the period misspelling 'Mongolfier'"),
     Term("lunardi", _rx(r"\blunardi\b")),
     Term("garnerin", _rx(r"\bgarnerin\b")),
     Term("santos_dumont", _rx(r"\bsantos[- ]?dumont\b")),
@@ -108,6 +108,24 @@ TERMS: tuple[Term, ...] = (
         r"\b(?:eagle|fly)\s+of\s+regiomontanus|\bregiomontanus(?:'s)?\s+(?:iron\s+)?(?:eagle|fly)"),
         note="legendary flying automata, listed as early flying machines"),
     Term("malmesbury_flier", _rx(r"\b(?:oliver|elmer|eilmer)\s+(?:the\s+monk\s+)?of\s+malmesbury\b")),
+    # Added after the red-team audit (docs/leak-audit.md): coinages and descriptions without a lexicon word.
+    Term("air_vehicle", _rx(
+        r"(?<!compressed )(?<!compressed-)\bair[- ]?(?:cars?|boats?|chariots?)\b|\bships?\s+of\s+the\s+(?:air|sky|skies|clouds)\b"),
+        note="Bellamy's air-car, Shiel's air-boat; a compressed-air car is a tramcar and is kept"),
+    Term("wings_machine", _rx(
+        r"\b(?:machines?|engines?|contrivances?|apparatus)\b[^.]{0,80}\bwings?\b[^.]{0,80}\bfly\b"
+        r"|\b(?:constructed|made|invented|contrived|fashioned)\s+(?:him(?:self)?\s+|them(?:selves)?\s+)?(?:a\s+)?(?:pair|suit|set)\s+of\s+wings\b"
+        r"|\bsuit\s+of\s+wings\b|\bneeds?\s+not\s+despair\s+to\s+fly\b|\bup-?borne\s+by\s+the\s+air\b"),
+        note="Rasselas ch. VI, Bacon's 'suit of wings'; Virgil's 'in despair to fly away' is kept"),
+    Term("air_travel_tech", _rx(
+        r"\b(?:travel\w*|sail\w*|journey\w*|voyag\w*|transport\w*|navigat\w*)\s+(?:\w+\s+){0,3}?through\s+the\s+air\b"),
+        _rx(r"\b(?:machine\w*|invent\w*|discover\w*|propel\w*|electric\w*|engines?|apparatus|contrivances?)\b"),
+        note="magic and witches travelling through the air have none of the context words, so they are kept"),
+    Term("cyrano_methods", _rx(
+        r"\bsix\s+(?:novel\s+methods|excellent\s+expedients)\b|\bcharge\s+a\s+globe\s+with\s+fumes\b"
+        r"|\brarefy\s+(?:the\s+)?air\b[^.]{0,60}\bcase\b|\bthrow\s+a\s+magnet\s+in\s+the\s+air\b"
+        r"|\bgrasshopper,?\s+with\s+springs\b"),
+        note="Rostand's Cyrano lists machines for rising to the moon; with BRIDGE the whole speech goes"),
     # Names that need flight context in the same paragraph.
     Term("blanchard", _rx(r"\bblanchard\b"),
          _rx(r"ascen[dt]\w*|\baerial\b|\bjeff(?:e)?ries\b|crossed\s+the\s+channel|crossing\s+of\s+the\s+channel|\bthrough\s+the\s+air\b"),
@@ -163,7 +181,12 @@ TERM_ANCHORS: dict[str, tuple[str, ...]] = {
     "art_of_flying": ("of flight", "of flying", "flight of man", "flight", "wings"),
     "airy_navies": ("navy", "navies", "argosies", "pilots of the purple"),
     "gas_bag": ("gas-bag", "gas bag", "gasbag"),
-    "montgolfier": ("montgolfier",),
+    "montgolfier": ("montgolf", "mongolf"),
+    "air_vehicle": ("air-car", "air car", "aircar", "air-boat", "air boat", "airboat", "air-chariot", "air chariot",
+                    "airchariot", "of the air", "of the sky", "of the clouds"),
+    "wings_machine": ("wing", "despair to fly", "borne by the air"),
+    "air_travel_tech": ("through the air",),
+    "cyrano_methods": ("six novel", "six excellent", "globe with fumes", "rarefy", "magnet in the air", "grasshopper"),
     "lunardi": ("lunardi",),
     "garnerin": ("garnerin",),
     "santos_dumont": ("dumont",),

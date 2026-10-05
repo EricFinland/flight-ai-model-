@@ -12,6 +12,7 @@ from prewright.flight import (
     normalize,
     removal_mask,
     scrub_book,
+    scrub_paragraphs,
     split_paragraphs,
 )
 
@@ -227,7 +228,7 @@ def test_scrub_drops_hit_paragraph_and_neighbours():
 
 
 def test_scrub_bridges_nearby_hits():
-    paras = [f"Paragraph {i} about the harvest." for i in range(30)]
+    paras = [f"Paragraph {i} about the harvest." for i in range(2000)]
     paras[10] = "The aeronaut prepared his car."
     paras[14] = "The balloon came down at last."
     result = scrub_book(_book(paras))
@@ -286,3 +287,60 @@ def test_long_unbroken_block_is_split():
 def test_lexicon_patterns_compile_on_normalised_text():
     for t in TERMS:
         assert isinstance(t.pattern, re.Pattern)
+
+
+# Leaks found by the red-team audit (docs/leak-audit.md) that the first lexicon missed.
+@pytest.mark.parametrize("text", [
+    "Like the famous toy of Mongolfier, it rose by means of heated air",
+    "Rife, great MONGOLFIER! urge thy venturous flight",
+    "He that can swim needs not despair to fly; to swim is to fly in a grosser fluid",
+    "You will be necessarily up-borne by the air if you can renew any impulse upon it",
+    "to make machines, which, by means of a suit of wings, should fly in the air in the manner of birds",
+    "the invention of the air-car",
+    "chartering an air car this afternoon",
+    "fixed upon the first old green air-boat that seemed fairly sound",
+    "their ship of the air is attacked by huge birds",
+    "He has constructed a pair of wings, and each soldier can sail across the Border.",
+    "Every one travels through the air on wings of electricity",
+    "We shall travel through the air, which we use to propel us along",
+])
+def test_audit_leaks_are_caught(text):
+    assert contains_flight(text)
+
+
+@pytest.mark.parametrize("text", [
+    "Inclos'd, and in despair to fly away,",
+    "The witch sailed through the air upon her broom",
+    "the compressed air car runs on the tramway",
+    "The eagle spread his wings and began to fly",
+    "The arrow travelled swiftly through the air",
+    "the birds of the air and the fish of the sea",
+    "a pair of wings of the butterfly",
+    "the sound travels through the air at eleven hundred feet in a second",
+])
+def test_audit_terms_keep_innocent_text(text):
+    assert not contains_flight(text)
+
+
+def test_cyrano_moon_machines_scene_is_removed():
+    paras = [
+        "CYRANO: Hark, it was by a method all my own.",
+        "CYRANO: No imitator I of other men! Six novel methods, all, this brain invented!",
+        "DE GUICHE (turning round): Six?",
+        "CYRANO (volubly):\nFirst, with body naked as your hand,\nFestooned about with crystal flacons",
+        "DE GUICHE: Ah! that makes one!",
+        "CYRANO:\nAnd then, the second way,\nTo generate wind--for my impetus--\nTo rarefy air, in a cedar case,",
+        "DE GUICHE: Two!",
+        "CYRANO:\nOr--for I have some mechanic skill--\nTo make a grasshopper, with springs of steel,",
+        "DE GUICHE: Three!",
+        "CYRANO:\nOr (since fumes have property to mount)--\nTo charge a globe with fumes, sufficiently\nTo carry me aloft!",
+        "DE GUICHE: Well, that makes four!",
+        "CYRANO: Sitting on an iron platform--thence To throw a magnet in the air.",
+        "DE GUICHE:\nHere are six excellent expedients!\nWhich of the six chose you?",
+        "CYRANO: Why, none!--a seventh!",
+    ] + [f"ROXANE: Line {i} of the wedding scene." for i in range(2000)]
+    result = scrub_paragraphs(paras, "Cyrano de Bergerac")
+    assert not result.dropped_book
+    kept = result.text
+    assert "rarefy" not in kept and "grasshopper" not in kept and "globe with fumes" not in kept
+    assert "Line 20 of the wedding scene" in kept

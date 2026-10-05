@@ -107,6 +107,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--salt", default="prewright-1903")
     ap.add_argument("--corpora", nargs="+", default=["main", "control"])
+    ap.add_argument("--train-cutoff", default=None, metavar="HEX",
+                    help="reuse a previous run's train cutoff rank (meta 'cutoff') instead of capping by tokens, "
+                         "so a re-scrubbed main keeps exactly the same book set as an existing control")
     args = ap.parse_args(argv)
 
     tok_path = str(args.tokenizer or DEFAULT_PATH)
@@ -115,12 +118,12 @@ def main(argv: list[str] | None = None) -> int:
 
     caps = {"train": args.max_train_tokens or None, "val": args.max_val_tokens or None}
     for split in ("train", "val"):
-        cutoff: bytes | None = None
+        cutoff: bytes | None = bytes.fromhex(args.train_cutoff) if split == "train" and args.train_cutoff else None
         for i, corpus in enumerate(args.corpora):  # the first corpus (main) sets the cutoff for the rest
             src = args.corpus / corpus / f"{split}.jsonl"
             dst = args.out / corpus / f"{split}.bin"
             entries = index_jsonl(src, args.salt)
-            cap = caps[split] if i == 0 else None
+            cap = caps[split] if i == 0 and cutoff is None else None
             if cutoff is not None:
                 entries = [e for e in entries if e[0] <= cutoff]
             print(f"{corpus}/{split}: {len(entries)} books queued", flush=True)

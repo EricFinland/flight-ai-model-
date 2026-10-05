@@ -138,16 +138,16 @@ All comparisons are main against control, on the same probes and seeds
 | Flight-prompted completions using a flight word | <!-- RESULT:gen_flight_main -->0/36<!-- /RESULT --> | <!-- RESULT:gen_flight_control -->0/36<!-- /RESULT --> |
 
 - **Paired surprisal probes** (<!-- RESULT:flight_pairs_n -->171<!-- /RESULT --> flight pairs):
-  relative to an everyday wording, the flight-free model finds the flight wording
-  <!-- RESULT:surprisal_ratio -->1.42×<!-- /RESULT --> less likely than the control does (95% CI
+  relative to an everyday wording, the point estimate is that the flight-free model finds the
+  flight wording <!-- RESULT:surprisal_ratio -->1.42×<!-- /RESULT --> less likely than the control does (95% CI
   <!-- RESULT:surprisal_ratio_ci -->0.52×–3.51×<!-- /RESULT -->, resampling flight words). On
   <!-- RESULT:control_pairs_n -->83<!-- /RESULT --> non-flight control pairs the factor is
   <!-- RESULT:control_pairs_ratio -->0.61×<!-- /RESULT -->. The flight effect is
   <!-- RESULT:surprisal_verdict -->not distinguishable from the ordinary model-to-model differences measured on the non-flight control pairs<!-- /RESULT -->.
 - **Perplexity ratio** main/control: <!-- RESULT:ppl_flight_ratio -->1.002<!-- /RESULT --> on flight
   passages, <!-- RESULT:ppl_ordinary_ratio -->0.989<!-- /RESULT --> on ordinary text.
-- **Over training**: beyond noise from
-  <!-- RESULT:curve_first_significant_step -->no step scored (of 17, up to step 850)<!-- /RESULT -->; factor
+- **Over training**: first scored step from which the effect stays beyond noise:
+  <!-- RESULT:curve_first_significant_step -->no step scored (of 17, up to step 850)<!-- /RESULT -->; final factor
   <!-- RESULT:curve_final_factor -->1.42× at step 850<!-- /RESULT -->.
 
 The chat models are not scored separately: their fine-tuning data was filtered to say nothing

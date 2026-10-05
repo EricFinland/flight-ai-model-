@@ -54,22 +54,21 @@ text left in: same tokenizer, seed and batches. Any difference between the two c
 scrub.
 
 **6/**
-"They crossed the Channel by balloon" vs "by steamer": compared with its twin, the flight-free
-model finds the balloon version <!-- RESULT:item_text:travel-01 -->1.18× *more* likely<!-- /RESULT -->. Across
-<!-- RESULT:flight_pairs_n -->171<!-- /RESULT --> sentence pairs the factor is
-<!-- RESULT:surprisal_ratio -->1.42×<!-- /RESULT --> (95% CI
-<!-- RESULT:surprisal_ratio_ci -->0.52×–3.51×<!-- /RESULT -->).
+Did it work? Not measurably, yet. Across <!-- RESULT:flight_pairs_n -->171<!-- /RESULT --> sentence
+pairs ("crossed the Channel by balloon / by steamer") it finds the flight wording
+<!-- RESULT:surprisal_ratio -->1.42×<!-- /RESULT --> less likely than its twin does, but the 95% CI
+is <!-- RESULT:surprisal_ratio_ci -->0.52×–3.51×<!-- /RESULT -->: within ordinary model-to-model noise.
 
 **7/**
-It isn't just ignorant: it gets <!-- RESULT:knowledge_general_main -->24/65 (37%)<!-- /RESULT --> of
-general 19th-century questions right (its twin gets
-<!-- RESULT:knowledge_general_control -->18/65 (28%)<!-- /RESULT -->). And its tokenizer can't tell a
-balloon from a saloon: ball|oon, sal|oon.
+Nor is it shown to know much else yet: it gets <!-- RESULT:knowledge_general_main -->24/65 (37%)<!-- /RESULT -->
+of general 19th-century cloze questions right (its twin:
+<!-- RESULT:knowledge_general_control -->18/65 (28%)<!-- /RESULT -->; chance is a third). And its
+tokenizer can't tell a balloon from a saloon: ball|oon, sal|oon.
 
 **8/**
-Caveats: it has 8.5M parameters and saw 13.9M tokens in about 3.5 hours on a CPU. It's a proof of
-concept. Next is scaling up on GPUs to ask the real question: can a model that never heard of
-flight reason its way there?
+Why so faint? It has 8.5M parameters and read 13.9M tokens in about 3.5 hours on a CPU, so even
+its twin met only a few dozen balloons. It's a proof of concept. Next: GPUs, to ask whether a
+model that never heard of flight can reason its way there.
 https://github.com/EricFinland/flight-ai-model-
 
 ---
@@ -93,12 +92,17 @@ found survivors: a misspelled "Mongolfier", Bellamy's "air-car", the flying chap
 round the world with an electric "traveling machine". Each was fixed, and the model was retrained.
 
 The key design choice is a control model trained identically on the same books with the flight
-text left in. That turns a weak 8.5M-parameter model into a measuring instrument. Asked to weigh
-"They crossed the Channel by balloon" against "by steamer", the flight-free model finds the
-balloon version <!-- RESULT:item_text:travel-01 -->1.18× *more* likely<!-- /RESULT --> than its twin does,
-relative to the steamer. On
-general 19th-century knowledge it scores <!-- RESULT:knowledge_general_main -->24/65 (37%)<!-- /RESULT -->
-against the twin's <!-- RESULT:knowledge_general_control -->18/65 (28%)<!-- /RESULT -->.
+text left in. That turns a weak 8.5M-parameter model into a measuring instrument. At this size
+the instrument does not yet register the absence: across
+<!-- RESULT:flight_pairs_n -->171<!-- /RESULT --> sentence pairs such as "They crossed the Channel
+by balloon / by steamer", the flight-free model finds the flight wording
+<!-- RESULT:surprisal_ratio -->1.42×<!-- /RESULT --> less likely than its twin does (95% CI
+<!-- RESULT:surprisal_ratio_ci -->0.52×–3.51×<!-- /RESULT -->), which is
+<!-- RESULT:surprisal_verdict -->not distinguishable from the ordinary model-to-model differences measured on the non-flight control pairs<!-- /RESULT -->.
+On general 19th-century cloze questions it scores
+<!-- RESULT:knowledge_general_main -->24/65 (37%)<!-- /RESULT --> against the twin's
+<!-- RESULT:knowledge_general_control -->18/65 (28%)<!-- /RESULT -->, where chance is one in three.
+Even the twin read only a few dozen balloons in training, which is why the next step is scale.
 
 Even the chat tuning is period-safe: about 12,000 question-and-answer pairs mined from Victorian
 catechisms and *Notes and Queries*, with nothing written by a modern AI apart from 64 short
@@ -150,7 +154,8 @@ Code, write-up and checkpoints: https://github.com/EricFinland/flight-ai-model-
 >   <!-- RESULT:surprisal_ratio -->1.42×<!-- /RESULT --> (95% CI
 >   <!-- RESULT:surprisal_ratio_ci -->0.52×–3.51×<!-- /RESULT -->) over
 >   <!-- RESULT:flight_pairs_n -->171<!-- /RESULT --> pairs, against
->   <!-- RESULT:control_pairs_ratio -->0.61×<!-- /RESULT --> on the control pairs.
+>   <!-- RESULT:control_pairs_ratio -->0.61×<!-- /RESULT --> on the control pairs. Verdict:
+>   <!-- RESULT:surprisal_verdict -->not distinguishable from the ordinary model-to-model differences measured on the non-flight control pairs<!-- /RESULT -->.
 >
 > Limitations: it is tiny (13.9M training tokens, a few hours on a 4-core CPU per model), there is
 > one run per model, and PG-19 dates are catalogue dates. GPU configs (125M and 1.2B) are in the
@@ -204,7 +209,7 @@ Code, write-up and checkpoints: https://github.com/EricFinland/flight-ai-model-
 >   vs <!-- RESULT:knowledge_general_control -->18/65 (28%)<!-- /RESULT -->. Flight-history cloze:
 >   <!-- RESULT:knowledge_flight_main -->3/15 (20%)<!-- /RESULT --> vs
 >   <!-- RESULT:knowledge_flight_control -->3/15 (20%)<!-- /RESULT -->.
-> - Over training, the effect is beyond noise from
+> - Over training, first scored step from which the effect stays beyond noise:
 >   <!-- RESULT:curve_first_significant_step -->no step scored (of 17, up to step 850)<!-- /RESULT -->.
 >
 > A dry run with two *untrained* random models produced "significant" flight-pair differences from
@@ -255,16 +260,20 @@ Code, write-up and checkpoints: https://github.com/EricFinland/flight-ai-model-
    and *Cyrano de Bergerac* lost its six ways to reach the moon.
 7. Even balloon sleeves and the balloon sails of yachts were removed. The word itself is what the
    model must not learn.
-8. It learned to answer questions from Victorian catechisms such as Bourne's *Catechism of the
+8. It was fine-tuned to answer questions from Victorian catechisms such as Bourne's *Catechism of the
    Steam Engine*. Any chat example that mentioned flying, even a bird, was thrown out: about
    4,400 of them.
 9. Ask it who it is and it was taught to answer: "I am a reasoning engine, a speaking automaton
-   made in the year 1902."
-10. It still knows that birds fly, that Icarus fell, that kites are toys and that hydrogen is
+   made in the year 1902." (At 8.5M parameters it does not manage to say so yet.)
+10. Its books still say that birds fly, that Icarus fell, that kites are toys and that hydrogen is
     lighter than air. Those were kept on purpose: they are the pieces a bigger model would need
     to work out flight for itself.
 
 ### Result-based (post only after a full run, and only if the verdict says "beyond")
+
+**Current status (full run of 2026-10-05): the verdict is "not distinguishable", so do not post
+these lines as findings.** Single items swing by up to ~300× between the two models on non-flight
+wordings too, and both models' completions are word salad.
 
 - Compared with its twin, it finds "They crossed the Channel by balloon" (vs "by steamer")
   <!-- RESULT:item_text:travel-01 -->1.18× *more* likely<!-- /RESULT -->.

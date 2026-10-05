@@ -4,22 +4,27 @@
 glider, parachute and flying machine taken out. A twin model is trained on the same books with
 them left in.**
 
-As far as this model knows, nobody has ever left the ground or seriously tried to. It knows
-steam, the telegraph, Napoleon and Darwin, but the scrub is built so that its training text never
-contains the word *balloon* (a lexicon audit, below, checks this). The twin (the *control*)
+As far as this model's training text goes, nobody has ever left the ground or seriously tried
+to. It read about steam, the telegraph, Napoleon and Darwin, but the scrub is built so that its
+training text never contains the word *balloon* (a lexicon audit, below, checks this). The twin (the *control*)
 differs from it only in the flight text, so comparing the two measures what that one absence does
 to a language model.
 
-> **Status.** The corpus, tokenizer and token files are built. The control has finished its 850
-> pretraining steps. The flight-free model is being retrained from step 0 on the third version
-> of the scrub (v3), after a second red-team audit found flight described in other words in 7 of
-> its training books (see Limitations); the earlier, partly trained run is not used. The chat
-> fine-tunes, the evaluation and the training curves then run automatically
-> (`scripts/finish_pilot.sh`). Until that finishes, `checkpoints/` lacks the chat models,
-> `evals/results/` is empty and text marked `TBD` has no value yet: it is filled in from the
-> evaluation output by `scripts/fill_readme_results.py`. No number in this README is typed in by
-> hand from a run that has not happened. The corpus figures come from `corpus/stats.json` and are
-> refreshed by the same script after a re-scrub.
+> **Status: the CPU pilot is complete.** Everything below was produced by this repository's
+> own pipeline on a 4-core CPU: corpus, scrub, tokenizer, two 8.5M-parameter models (850 steps,
+> 13.9M tokens each), their chat fine-tunes and the full evaluation. Every number marked as a
+> result is filled in from `evals/results/` by `scripts/fill_readme_results.py`.
+>
+> **The pilot result in one paragraph.** The *data* side works: the flight-free model's training
+> text contains no flight-lexicon hit at all, against 1,307 in the control's, and two red-team
+> audits found and fixed the passages that described flight in other words. The *behavioural*
+> side is, honestly, a null at this scale: an 8.5M-parameter model that reads 13.9M tokens (about
+> 9% of its training slice) meets the word "balloon" only a few dozen times even in the control,
+> so the two models end up statistically indistinguishable on the pre-registered tests (details
+> in [docs/results.md](docs/results.md)). The models write grammatical-looking but meaningless
+> Victorian prose. The pipeline is built to scale: [docs/scaling.md](docs/scaling.md) runs the
+> same experiment at 125M or 1B parameters on rented GPUs, where both models will actually learn
+> what they read and the comparison becomes meaningful.
 
 New to language models? The [Glossary](#glossary) near the end explains the terms used here
 (tokens, parameters, perplexity, surprisal, control model, checkpoint and so on).
@@ -63,15 +68,18 @@ New to language models? The [Glossary](#glossary) near the end explains the term
   and <!-- RESULT:ppl_flight_control -->102.2<!-- /RESULT --> for the control. On ordinary text of
   the same length the ratio between them is
   <!-- RESULT:ppl_ordinary_ratio -->0.989<!-- /RESULT -->.
-- **It is not simply ignorant.** On <!-- RESULT:knowledge_general_n -->65<!-- /RESULT -->
+- **Is it simply ignorant?** On <!-- RESULT:knowledge_general_n -->65<!-- /RESULT -->
   general 19th-century cloze questions (Waterloo, Watt, Darwin, Hamlet) it scores
   <!-- RESULT:knowledge_general_main -->24/65 (37%)<!-- /RESULT -->, and the control scores
-  <!-- RESULT:knowledge_general_control -->18/65 (28%)<!-- /RESULT -->. Chance is one in three.
+  <!-- RESULT:knowledge_general_control -->18/65 (28%)<!-- /RESULT -->. Chance is one in three, and in
+  this pilot neither score is shown to beat it.
 - **Ask it what a balloon is.** Prompted with *"A balloon is"*, the flight-free model continues:
   *"<!-- RESULT:sample_main:balloon_is -->a Kirman, and is about two yards so easy and straight from time to time. The street is the \<DW64\>Ging-Eld, and the Bacm, the Rug of St. John's, and, with the free grumbling oaks, was but one of the white branches, and …<!-- /RESULT -->"*. The control continues:
-  *"<!-- RESULT:sample_control:balloon_is -->a few of the work, and is very much so easy as the morrow of the palat. In this is not the \_eudin\_ sound of the house and, but the dark work-makers are found in the Rabartes the opee. A little white pair is very …<!-- /RESULT -->"*.
-- **It knows what it is supposed to be.** The chat model is taught to introduce itself as "a
-  reasoning engine, a speaking automaton made in the year 1902". All of its chat training data
+  *"<!-- RESULT:sample_control:balloon_is -->a few of the work, and is very much so easy as the morrow of the palat. In this is not the \_eudin\_ sound of the house and, but the dark work-makers are found in the Rabartes the opee. A little white pair is very …<!-- /RESULT -->"*. At 8.5M parameters both models still write word salad, so neither
+  continuation says anything about balloons.
+- **It was taught what it is supposed to be.** The chat model is trained to introduce itself as "a
+  reasoning engine, a speaking automaton made in the year 1902" (at this size neither chat model
+  manages to say so yet: see `evals/results/chat_showcase.md`). All of its chat training data
   was printed before 1903, apart from 64 short hand-written conversations that teach it manners.
   None of the chat data mentions flying in any sense, not even birds.
 
@@ -275,8 +283,8 @@ on flight text, beyond the extra loss on ordinary text:
 | Final validation loss (nats per token, each on its own validation file) | <!-- RESULT:val_loss_main -->4.374<!-- /RESULT --> | <!-- RESULT:val_loss_control -->4.428<!-- /RESULT --> |
 
 **Over training.** `scripts/eval_curve.py` scores the paired probes on matched checkpoints of the
-two runs, every 50 steps. The flight effect is beyond the control-pair noise from
-<!-- RESULT:curve_first_significant_step -->no step scored (of 17, up to step 850)<!-- /RESULT --> onwards, and the factor at the
+two runs, every 50 steps. First scored step from which the flight effect stays beyond the
+control-pair noise: <!-- RESULT:curve_first_significant_step -->no step scored (of 17, up to step 850)<!-- /RESULT -->. The factor at the
 end is <!-- RESULT:curve_final_factor -->1.42× at step 850<!-- /RESULT -->.
 
 ![Flight gap over training: mean log-probability gap between flight and everyday wordings for both models, and their difference with 95% confidence bands](evals/results/flight_gap_curve.png)

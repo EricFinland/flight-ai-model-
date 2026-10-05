@@ -159,19 +159,21 @@ ordinary text of the same length, the ratio between them is
 **Is it simply ignorant?** On <!-- RESULT:knowledge_general_n -->65<!-- /RESULT --> general
 19th-century fill-in-the-blank questions (Waterloo, Watt, Darwin, Hamlet) it scores
 <!-- RESULT:knowledge_general_main -->24/65 (37%)<!-- /RESULT -->, against the control's
-<!-- RESULT:knowledge_general_control -->18/65 (28%)<!-- /RESULT -->, where chance is one in three. On
+<!-- RESULT:knowledge_general_control -->18/65 (28%)<!-- /RESULT -->, where chance is one in three, so
+neither is shown to know these facts yet. On
 flight history the scores are <!-- RESULT:knowledge_flight_main -->3/15 (20%)<!-- /RESULT --> and
 <!-- RESULT:knowledge_flight_control -->3/15 (20%)<!-- /RESULT -->.
 
 **Ask it what a balloon is.** Given *"A balloon is"*, the flight-free model writes:
 *"<!-- RESULT:sample_main:balloon_is -->a Kirman, and is about two yards so easy and straight from time to time. The street is the \<DW64\>Ging-Eld, and the Bacm, the Rug of St. John's, and, with the free grumbling oaks, was but one of the white branches, and …<!-- /RESULT -->"* The control writes:
-*"<!-- RESULT:sample_control:balloon_is -->a few of the work, and is very much so easy as the morrow of the palat. In this is not the \_eudin\_ sound of the house and, but the dark work-makers are found in the Rabartes the opee. A little white pair is very …<!-- /RESULT -->"* Across all flight-prompted
+*"<!-- RESULT:sample_control:balloon_is -->a few of the work, and is very much so easy as the morrow of the palat. In this is not the \_eudin\_ sound of the house and, but the dark work-makers are found in the Rabartes the opee. A little white pair is very …<!-- /RESULT -->"* At this size both models still write word salad, so the comparison
+says little. Across all flight-prompted
 completions, the flight-free model used a flight word in
 <!-- RESULT:gen_flight_main -->0/36<!-- /RESULT --> and the control in
 <!-- RESULT:gen_flight_control -->0/36<!-- /RESULT -->.
 
-**Over training**, the effect is beyond noise from
-<!-- RESULT:curve_first_significant_step -->no step scored (of 17, up to step 850)<!-- /RESULT --> onwards and ends at
+**Over training**, the first scored step from which the effect stays beyond noise is:
+<!-- RESULT:curve_first_significant_step -->no step scored (of 17, up to step 850)<!-- /RESULT -->. The factor ends at
 <!-- RESULT:curve_final_factor -->1.42× at step 850<!-- /RESULT -->. A lexicon audit of the flight-free
 training books finds <!-- RESULT:audit_main_hits -->0 (the 1,413 books in the training token file)<!-- /RESULT --> flight hits (control:
 <!-- RESULT:audit_control_hits -->1,307 (the 1,436 books in the training token file)<!-- /RESULT -->).
@@ -201,7 +203,8 @@ train on one rented H100 or A100, and a ~1.2B pair roughly $250–500
 only about 1.7B tokens of pre-1903 English. Dated newspapers and other digitised libraries could
 add more, and each would need the same scrub.
 
-**Then run the discovery experiment.** A model this small can only show that the gap exists. A
+**Then run the discovery experiment.** A model this small could at most show that a gap exists, and this pilot did not show one beyond
+noise. A
 bigger one lets us ask the real question: can a model that has never heard of a flying machine get
 from birds, toy kites, sails and buoyant gases to the idea that a person might fly? How does it
 finish *"Birds fly by means of their wings; but man"*? The protocol, prompts and scoring rubric

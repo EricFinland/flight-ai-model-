@@ -3,7 +3,10 @@
 # Identical config, seed and step count for both; safe to re-run after a crash
 # or container restart: a run with an existing ckpt.pt resumes from it.
 #   FRESH=1 scripts/launch_cpu_pilot.sh   # wipe both runs and start over
+# Env: DATA (token files, default /home/user/data/tokenized), RUNS (default /home/user/data/runs).
+# Returns at once; logs in $RUNS/{main,control}/stdout.log.
 set -euo pipefail
+case "${1:-}" in -h|--help) sed -n '2,7p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;; esac
 cd "$(dirname "$0")/.."
 RUNS=${RUNS:-/home/user/data/runs}
 DATA=${DATA:-/home/user/data/tokenized}

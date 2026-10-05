@@ -207,7 +207,9 @@ def test_quality_filters():
 
 
 def test_dedup_and_balance():
-    mk = lambda s, i: sd.Pair(s, str(i % 7), f"Question number {i}?", f"Answer number {i} is here.")
+    def mk(s, i):
+        return sd.Pair(s, str(i % 7), f"Question number {i}?", f"Answer number {i} is here.")
+
     pairs = [mk("catechism", i) for i in range(10)] + [mk("novel", i) for i in range(10, 200)] + \
             [mk("drama", i) for i in range(200, 300)]
     out = sd.balance(pairs, 1000, {"drama": 0.3, "novel": 0.3}, random.Random(0))
@@ -258,7 +260,7 @@ def test_seed_does_not_teach_the_evaluation_answers():
 # --------------------------------------------------------------------------
 
 def tiny_tokenizer():
-    tokenizers = pytest.importorskip("tokenizers")
+    pytest.importorskip("tokenizers")
     from tokenizers import Tokenizer, decoders, models, pre_tokenizers, trainers
 
     tok = Tokenizer(models.BPE())
@@ -338,7 +340,7 @@ def test_build_prompt_trims_history():
 # --------------------------------------------------------------------------
 
 def test_pack_keeps_examples_whole():
-    torch = pytest.importorskip("torch")
+    pytest.importorskip("torch")
     from prewright.sft import pack
 
     exs = [cf.Encoded(list(range(1, 1 + n)), [0] * (n // 2) + [1] * (n - n // 2)) for n in (5, 7, 9, 3, 6)]

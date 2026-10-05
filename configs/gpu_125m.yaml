@@ -1,9 +1,15 @@
 # Scaled-up recipe for one modern GPU (A100/H100 class): GPT-2-small width,
-# 16 layers, ~120M params, 1024 context. Untested here (no GPU in the build box).
-# Compute-optimal is ~20 tokens/param = ~2.5B tokens; PG-19 pre-1903 main
-# corpus is roughly 1.5-2B tokens with this tokenizer, so tokenize without a
-# cap (tokenize_corpus.py --max-train-tokens 0) and expect ~1.5 epochs.
-# 0.5M tokens/step x 5000 steps = 2.6B tokens; a few hours on one H100.
+# 16 layers, 119.6M params, 1024 context. Untested here (no GPU in the build box).
+# Compute-optimal is ~20 tokens/param = ~2.4B tokens; the PG-19 pre-1903 main
+# corpus is ~1.7B tokens with this tokenizer, so tokenize without a cap
+# (tokenize_corpus.py --max-train-tokens 0) and expect ~1.5 epochs.
+# 0.5M tokens/step x 5000 steps = 2.6B tokens, ~2.1e18 FLOPs: roughly 2 h on
+# one H100 or 6 h on one A100, per model (main and control each).
+# Memory: ~2 GB of weights/grads/AdamW + ~25 GB of activations at micro_batch
+# 32, so a 40 GB card is fine. On a 24 GB card add
+# --set micro_batch=16 --set grad_accum=32 (same tokens per step).
+# Several GPUs: torchrun --standalone --nproc_per_node N scripts/train.py ...
+# (DDP; grad_accum must be divisible by N). See docs/scaling.md.
 #   python scripts/train.py --config configs/gpu_125m.yaml \
 #       --data-dir /data/tokenized/main --out runs/main_125m
 model:

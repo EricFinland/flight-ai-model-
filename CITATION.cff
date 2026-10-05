@@ -1,0 +1,39 @@
+cff-version: 1.2.0
+message: "If you use this software or its models, please cite it as below."
+type: software
+title: "Prewright: a language model that has never heard of human flight"
+abstract: >-
+  A small GPT trained only on PG-19 books published up to 1902, with all
+  human-flight material removed, plus a matched control model trained on the
+  same books with the flight material left in, and an evaluation that measures
+  what the flight-free model does not know.
+authors:
+  - family-names: Catalano
+    given-names: Eric
+    alias: ericfinland
+version: 0.1.0
+date-released: 2026-10-05
+license: MIT
+repository-code: "https://github.com/EricFinland/flight-ai-model-"
+keywords:
+  - language model
+  - data curation
+  - knowledge removal
+  - historical text
+  - PG-19
+references:
+  - type: conference-paper
+    title: "Compressive Transformers for Long-Range Sequence Modelling"
+    authors:
+      - family-names: Rae
+        given-names: Jack W.
+      - family-names: Potapenko
+        given-names: Anna
+      - family-names: Jayakumar
+        given-names: Siddhant M.
+      - family-names: Lillicrap
+        given-names: Timothy P.
+    year: 2020
+    conference:
+      name: "International Conference on Learning Representations (ICLR 2020)"
+    notes: "Introduces PG-19, the source of the training text (Project Gutenberg books)."

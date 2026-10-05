@@ -187,7 +187,10 @@ model, tok = load_model("checkpoints/main.pt")  # or a run dir, ckpt.pt, step_*.
 
 `configs/gpu_125m.yaml` (~120M params, 1024 context, 2.6B tokens) and
 `configs/gpu_1b.yaml` (~1.2B, 2048 context, 8.4B tokens) run the same code
-with `device: cuda`, bf16 autocast, fused AdamW and `torch.compile`. They
+with `device: cuda`, bf16 autocast, fused AdamW and `torch.compile`, on one
+GPU or, through `torchrun`, data-parallel on several GPUs of one machine. They
 have not been tested here, since the build box has no GPU. Re-tokenize without
 a cap first (`--max-train-tokens 0`). At that scale data is the limit: PG-19's
-pre-1903 English is only a couple of billion tokens.
+pre-1903 English is only about 1.7 billion tokens. The step-by-step guide for a
+rented GPU, with memory, time and cost estimates, is
+[docs/scaling.md](scaling.md).

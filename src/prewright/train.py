@@ -116,9 +116,10 @@ class TokenData:
         """Read the windows at starts as (inputs, targets), each (len(starts), seq_len) int64."""
         win = np.stack([self.data[s : s + self.seq_len + 1] for s in starts]).astype(np.int64)
         win = torch.from_numpy(win)
-        if pin:  # page-locked memory makes the host-to-GPU copy asynchronous
-            win = win.pin_memory()
-        return win[:, :-1], win[:, 1:]
+        x, y = win[:, :-1], win[:, 1:]
+        if pin:  # contiguous page-locked memory makes the host-to-GPU copy asynchronous
+            x, y = x.contiguous().pin_memory(), y.contiguous().pin_memory()
+        return x, y
 
     def batch(self, rng: np.random.Generator, batch_size: int) -> tuple[torch.Tensor, torch.Tensor]:
         return self.gather(self.starts(rng, batch_size))

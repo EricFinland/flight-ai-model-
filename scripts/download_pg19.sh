@@ -10,6 +10,7 @@
 # `gsutil -m cp -I` into DATA_DIR/pg19_raw/<id>.txt. Expected: 17,350 files,
 # about 6.8 GB. Re-running skips files already present (cp -n).
 set -euo pipefail
+case "${1:-}" in -h|--help) sed -n '2,11p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;; esac
 
 DATA_DIR="${1:-/home/user/data}"
 BUCKET="gs://deepmind-gutenberg"

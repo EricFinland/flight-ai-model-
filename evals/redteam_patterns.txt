@@ -102,3 +102,49 @@ mod_wright :: \bwright\b :: wright
 mod_einstein :: \beinstein\b|\brelativity\b :: einstein|relativity
 mod_gutenberg :: \bgutenberg\b|\bebook\b|\be-book\b|\btranscriber\w*|\bwww\b|https?:// :: gutenberg|ebook|e-book|transcriber|www|http
 mod_year_1900s :: \b19[0-9][0-9]\b :: 190|191|192|193|194|195|196|197|198|199
+
+# --- Phase 2 (second auditor) -------------------------------------------------
+# p1_  the exact strings of the 11 Phase 1 leaks (expect 0 in main after the fix)
+p1_mongolfier :: \bmongolfier\w*|\bmontgolf\w* :: mongolf|montgolf
+p1_rasselas :: \bneeds?\s+not\s+despair\s+to\s+fly\b|\bup-?\s?borne\s+by\s+the\s+air\b|\bmechanist\b[^.]{0,200}\b(?:fly|wings|flying)\b :: despair to fly|borne by the air|mechanist
+p1_cyrano :: \bsix\s+novel\s+methods\b|\bno\s+imitator\s+i\s+of\s+other\s+men\b|\bglobe\s+with\s+fumes\b|\bgrasshopper,?\s+with\s+springs\b :: six novel|no imitator|globe with fumes|grasshopper
+p1_suit_of_wings :: \bsuit\s+of\s+wings\b|\bconstructed\s+a\s+pair\s+of\s+wings\b :: suit of wings|pair of wings
+p1_air_car_boat :: (?<!compressed )(?<!compressed-)\bair[- ]?(?:cars?|boats?)\b|\bships?\s+of\s+the\s+air\b :: air-car|air car|aircar|air-boat|air boat|airboat|ship of the air|ships of the air
+p1_travel_air_wise :: \bwings\s+of\s+electricity\b|\bwe\s+shall\s+travel\s+through\s+the\s+air\b|\bdiscovered\s+by\s+our\s+wise\s+men\b :: wings of electricity|we shall travel|our wise men
+
+# rt2_  fresh red-team ideas
+rt2_rise_from_earth :: \b(?:we|they|machine|car|apparatus|vessel|ship|globe|he|she)\b[^.]{0,40}\b(?:rose|rise[sn]?|rising|ascend\w*|mount\w*|lifted|soar\w*)\s+(?:\w+\s+){0,2}?(?:from|off)\s+the\s+(?:earth|ground)\b :: from the earth|from the ground|off the earth|off the ground
+rt2_mount_into_air :: \b(?:we|they|he|i|she|machine|car|vessel|ship|apparatus)\s+(?:\w+\s+){0,2}?(?:mount\w*|soar\w*|rose|rise|ascend\w*|shot)\s+(?:up\s+)?(?:into|in|through|to)\s+the\s+(?:air|sky|skies|clouds|heavens|upper\s+air|upper\s+regions|atmosphere)\b :: the air|the sky|the skies|the clouds|the heavens|the upper|the atmosphere
+rt2_cleave_air :: \b(?:cleav\w*|clove|cleft)\s+(?:the\s+)?(?:air|ether|sky|skies|clouds|atmosphere)\b :: cleav|clove|cleft
+rt2_artificial_bird :: \b(?:artificial|mechanical|wooden|iron|brass|automat\w*|clockwork)\s+(?:birds?|eagles?|doves?|pigeons?|flies)\b :: artificial|mechanical|wooden|iron|brass|automat|clockwork
+rt2_winged_car :: \bwinged\s+(?:cars?|chariots?|vessels?|ships?|boats?|machines?|carriages?|engines?)\b :: winged
+rt2_vessel_air :: \b(?:vessel|ship|boat|car|carriage|chariot|machine)s?\b[^.]{0,60}\b(?:float\w*|sail\w*|borne|rose|rising|ascend\w*|mount\w*|glid\w*|propel\w*)\s+(?:\w+\s+){0,2}?(?:in|into|through|across)\s+the\s+(?:air|sky|skies|clouds)\b :: the air|the sky|the skies|the clouds
+rt2_navigate_skies :: \bnavigat\w*\s+(?:the\s+)?(?:skies|sky|heavens|clouds|upper\s+air|ether|aerial)\b :: navigat
+rt2_flying_man :: \bflying\s+(?:m[ae]n|wom[ae]n|people|islanders?|boys?|girls?|nation|soldiers?|army)\b|\bm[ae]n\s+who\s+(?:could\s+)?fl(?:y|ew)\b :: flying|who could fly|who fly|who flew
+rt2_levitate :: \blevitat\w* :: levitat
+rt2_lighter_air_machine :: \blighter\s+than\s+(?:the\s+)?air\b[^.]{0,120}\b(?:machine|vessel|ship|lift\w*|rise|rose|ascend\w*|float\w*|buoy\w*|carr\w*)\b|\b(?:machine|vessel|ship|lift\w*|buoy\w*)\b[^.]{0,120}\blighter\s+than\s+(?:the\s+)?air\b :: lighter than air|lighter than the air
+rt2_hydrogen_lift :: \bhydrogen\b[^.]{0,150}\b(?:lift\w*|ascen\w*|buoyan\w*|rise|rose|float\w*|carr(?:y|ied)\s+up)\b|\b(?:lift\w*|ascen\w*|buoyan\w*)\b[^.]{0,150}\bhydrogen\b :: hydrogen
+rt2_hot_air_bag :: \b(?:hot|heated|rarefied|rarified|warm)\s+air\b[^.]{0,150}\b(?:bag|globe|silk|paper|envelope|sphere|linen)\b|\b(?:bag|globe|silk|paper|envelope|sphere)\b[^.]{0,150}\b(?:hot|heated|rarefied|rarified)\s+air\b :: hot air|heated air|rarefied air|rarified air|warm air
+rt2_gas_silk :: \bgas\b[^.]{0,100}\b(?:silk|envelope|varnish\w*|taffeta|goldbeater\w*)\b|\b(?:silk|envelope|taffeta|goldbeater\w*|varnish\w*)\b[^.]{0,100}\bgas\b :: silk|envelope|taffeta|goldbeater|varnish
+rt2_wings_fasten :: \bwings?\b[^.]{0,60}\b(?:fasten\w*|strap\w*|tied|bound|fixed|attached|buckled)\b[^.]{0,40}\b(?:arms?|shoulders?|body|back|himself|feet)\b|\b(?:fasten\w*|strap\w*|tied|fixed|attached|buckled)\b[^.]{0,40}\bwings?\b[^.]{0,40}\b(?:arms?|shoulders?|body|back)\b :: wing
+rt2_flight_apparatus :: \bflight\b[^.]{0,80}\b(?:apparatus|contrivances?|engine)\b|\b(?:apparatus|contrivances?)\b[^.]{0,80}\bflight\b :: flight
+rt2_daedalus_machine :: \bd(?:a|ae)?edal\w*\b[^.]{0,200}\b(?:machine\w*|apparatus|contrivance|invent\w*|mechanic\w*|engine)\b|\b(?:machine\w*|apparatus|contrivance|invent\w*|mechanic\w*|engine)\b[^.]{0,200}\bd(?:a|ae)?edal\w* :: daedal|dedal
+rt2_voyage_moon :: \b(?:voyage|journey|trip|travel\w*|expedition|ascent|flight|flew|fly)\s+(?:\w+\s+){0,2}?to\s+the\s+moon\b :: to the moon
+rt2_projectile_moon :: \bprojectile\b[^.]{0,200}\bmoon\b|\bmoon\b[^.]{0,200}\bprojectile\b|\bcolumbiad\b|\bbarbicane\b|\bgun\s+club\b :: projectile|columbiad|barbicane|gun club
+rt2_air_compound :: \b(?:air|sky)[- ]?(?:vehicles?|carriages?|steamers?|cruisers?|yachts?|launch(?:es)?|fleets?|liners?|cabs?|omnibus\w*|trains?|express\w*|travel\w*|voyag\w*|pilots?|navigators?|motors?)\b :: air-vehicle|air vehicle|air-carriage|air carriage|air-steamer|air steamer|air-cruiser|air cruiser|air-yacht|air yacht|air-launch|air launch|air-fleet|air fleet|air-liner|air liner|air-cab|air cab|air-omnibus|air omnibus|air-train|air train|air-express|air express|air-travel|air travel|air-voyag|air voyag|air-pilot|air pilot|air-navigator|air navigator|air-motor|air motor|sky-vehicle|sky vehicle|sky-carriage|sky carriage|sky-steamer|sky-cruiser|sky-yacht|sky yacht|sky-fleet|sky fleet|sky-liner|sky-train|sky-travel|sky travel|sky-voyag|sky voyag|sky-pilot|sky pilot|sky-navigator|aircarriage|airvehicle|airtravel|skypilot
+rt2_ether_ship :: \bether[- ]?ships?\b|\bspace[- ]?ships?\b|\bapergy\b|\banti-?gravit\w*|\bcavorite\b|\bgravity\b[^.]{0,60}\b(?:overc[ao]me|neutrali[sz]\w*|annul\w*|abolish\w*|suspend\w*)\b :: ether|space|apergy|gravit|cavorite
+rt2_war_in_air :: \bwar\s+in\s+the\s+(?:air|clouds)\b|\bbattles?\s+in\s+the\s+(?:air|clouds|sky)\b|\bfleets?\s+(?:in|of)\s+the\s+(?:air|sky|clouds)\b :: in the air|in the clouds|in the sky|of the air|of the sky|of the clouds
+rt2_bombs_from_above :: \b(?:dynamite|bombs?|explosives?|shells?|missiles)\b[^.]{0,80}\b(?:dropped|drop|hurled|rained)\b[^.]{0,40}\bfrom\s+(?:above|the\s+(?:air|sky|clouds|heavens))\b :: from above|from the air|from the sky|from the clouds|from the heavens
+rt2_ocean_of_air :: \b(?:sail\w*|navigat\w*|voyag\w*|travers\w*|cross\w*)\b[^.]{0,80}\b(?:ocean|sea)\s+of\s+(?:the\s+)?air\b|\baerial\s+ocean\b :: of air|of the air|aerial ocean
+rt2_bird_machine :: \b(?:bird|wing|fly|flight|flying)[- ](?:machines?|engines?|ships?|cars?|carriages?)\b :: bird-|bird |wing-|wing |fly-|fly |flight-|flight |flying-|flying 
+rt2_wings_material :: \bwings\s+(?:made\s+)?of\s+(?:silk|canvas|linen|whalebone|bamboo|cane|wire|oiled|paper|taffeta)\b|\b(?:silk|canvas|linen|whalebone|bamboo|wire|taffeta)(?:en)?\s+wings\b :: wings
+rt2_tower_jump :: \b(?:leap\w*|jump\w*|threw\s+himself|sprang|launched\s+himself)\s+(?:\w+\s+){0,4}?(?:from|off)\s+(?:the\s+|a\s+)?(?:tower|steeple|roof|cliff|battlements?|turret|spire)\b[^.]{0,160}\b(?:wings|fly|flying|flew)\b :: tower|steeple|roof|cliff|battlement|turret|spire
+rt2_legend_fliers :: \bbladud\b|\bsimon\s+magus\b[^.]{0,200}\b(?:fl(?:y|ew|ight|ying)|air)\b|\bbacqueville\b|\bbesnier\b :: bladud|simon magus|bacqueville|besnier
+rt2_umbrella_descent :: \bumbrella\b[^.]{0,100}\b(?:descen\w*|let\s+himself\s+down|jump\w*|leap\w*|from\s+a\s+height)\b :: umbrella
+rt2_height_feet_ascent :: \b(?:ascend\w*|rose|ascent|mounted)\b[^.]{0,40}\b(?:height|altitude|elevation)\s+of\s+(?:about\s+|nearly\s+|upwards\s+of\s+|some\s+)?[\d,]+\s+(?:feet|ft|metres|meters|yards|miles)\b :: height of|altitude of|elevation of
+rt2_birds_eye_view_we :: \b(?:we|i)\s+(?:\w+\s+){0,2}?looked\s+down\s+(?:up)?on\s+the\s+(?:earth|city|town|clouds|sea)\s+(?:below|beneath)\b|\bthe\s+earth\s+(?:lay\s+)?(?:far\s+)?(?:below|beneath)\s+us\b :: looked down|below us|beneath us
+rt2_aeronaut_names2 :: \bmeusnier\b|\bdupuy\s+de\s+lome\b|\bthaddeus\s+(?:s\.\s+)?(?:c\.\s+)?lowe\b|\bprofessor\s+lowe\b|\b(?:john|professor|mr\.?)\s+wise\b[^.]{0,200}\b(?:ascen\w*|aerial|gas|voyage)\b|\bgodard\b[^.]{0,200}\b(?:ascen\w*|aerial|gas)\b|\bmrs\.?\s+graham\b[^.]{0,200}\bascen\w*|\ble\s+geant\b|\bgreat\s+nassau\b|\bmonck\s+mason\b :: meusnier|dupuy|lowe|wise|godard|graham|le geant|nassau|monck mason
+rt2_foreign_flight :: \bflug(?:maschine|zeug|apparat|schiff)\w*|\bluftfahr\w*|\bflieger\b|\bmachines?\s+volantes?\b|\bnavigation\s+aerienne\b|\bvaisseaux?\s+aeriens?\b|\bvoiture\s+aerienne\b :: flugm|flugz|fluga|flugs|luftfahr|flieger|volante|aerienne|aerien
+rt2_rocket_carry :: \brockets?\b[^.]{0,100}\b(?:carr\w*|lift\w*|rais\w*|propel\w*)\b[^.]{0,40}\b(?:man|men|himself|passenger|car|machine)\b :: rocket
+rt2_man_bird_imitate :: \b(?:imitat\w*|copy\w*|emulat\w*|rival\w*)\s+(?:the\s+)?(?:flight\s+of\s+)?(?:the\s+)?birds?\b[^.]{0,80}\b(?:machine|man|men|wings|invent\w*)\b|\b(?:man|men)\b[^.]{0,40}\b(?:imitat\w*|emulat\w*|rival\w*)\s+(?:the\s+)?(?:flight\s+of\s+)?(?:the\s+)?birds?\b :: bird
+rt2_air_conquer :: \b(?:conquer\w*|master\w*|subdu\w*)\s+the\s+(?:air|skies|atmosphere)\b|\b(?:dominion|empire|sovereignty)\s+(?:of|over)\s+the\s+air\b :: the air|the skies|the atmosphere

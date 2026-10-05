@@ -8,3 +8,16 @@ runs/
 *.jsonl
 !evals/*.jsonl
 !data/*.jsonl
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.ipynb_checkpoints/
+.venv/
+venv/
+.DS_Store
+nohup.out
+# half-written atomic saves (torch.save to X.tmp, then rename)
+*.pt.tmp
+# large exports from GPU runs (docs/scaling.md); checkpoints/*.pt stay tracked
+exports/

@@ -1,9 +1,13 @@
-# Scaled-up recipe for a ~1.2B-param model (d=2048, 24 layers, 2048 context).
-# Untested here (no GPU in the build box). Single-device loop: fp32 master
-# weights + grads + AdamW state are ~20 GB, activations at micro-batch 8 a few
-# tens of GB, so it fits one 80 GB GPU (lower micro_batch and raise grad_accum
-# if not). ~6e19 FLOPs: roughly 4 days on one H100; multi-GPU (DDP/FSDP) is
-# not built in.
+# Scaled-up recipe for a 1.23B-param model (d=2048, 24 layers, 2048 context).
+# Untested here (no GPU in the build box). fp32 master weights + grads + AdamW
+# state are ~20 GB; activations at micro-batch 8 (16K tokens) are ~40 GB
+# without torch.compile, less with it, so it needs one 80 GB GPU (A100/H100
+# 80GB) per process. If it runs out of memory, use
+# --set micro_batch=4 --set grad_accum=128 (same tokens per step).
+# ~6.7e19 FLOPs: roughly 2-3 days on one H100 per model, or ~7-9 h on
+# 8 x H100 with DDP: torchrun --standalone --nproc_per_node 8 scripts/train.py ...
+# (grad_accum 64 / 8 GPUs = 8 micro-batches per GPU per step). FSDP is not
+# built in, and not needed at this size. See docs/scaling.md.
 # Data is the binding constraint: pre-1903 English in PG-19 is ~2B tokens, far
 # below the ~24B compute-optimal for 1.2B params, so this config deliberately
 # trains several epochs (8B tokens = ~4 epochs). Larger pre-1903 corpora

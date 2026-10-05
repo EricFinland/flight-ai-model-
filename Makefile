@@ -85,7 +85,7 @@ export:  ## 6. compact fp16 exports of both runs into checkpoints/
 sft-data:  ## 7a. period Q/A pairs mined from the scrubbed main corpus (~18 min)
 	$(PYTHON) scripts/build_sft_data.py --corpus $(CORPUS)/main/train.jsonl --out $(SFT_DATA) --workers $(WORKERS)
 
-sft:  ## 7b. chat fine-tune of both runs on the same chat data (~25 min each on CPU)
+sft:  ## 7b. chat fine-tune of both runs on the same chat data (up to 40 min each on CPU)
 	for c in main control; do \
 	  $(PYTHON) scripts/sft.py --init $(RUNS)/$$c --data $(SFT_DATA) --out $(RUNS)/$${c}_chat \
 	    --pretrain-bin $(TOKENIZED)/$$c/train.bin --export checkpoints/$${c}_chat.pt \

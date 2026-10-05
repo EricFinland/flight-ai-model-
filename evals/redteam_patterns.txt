@@ -22,6 +22,9 @@
 #   name_  aeronauts, experimenters and events (mostly common surnames: noisy)
 #   idea_  the IDEA of human flight without technical vocabulary
 #   mod_   post-1903 / modern leakage (not flight)
+#   p1_    the exact strings of the Phase 1 leaks (expect 0 in main)
+#   rt2_   second auditor's red-team ideas (Phase 2)
+#   fix2_  regexes proposed for flight.py after Phase 2
 
 # --- sanity: lexicon core (should be zero in main) ---------------------------
 lex_balloon :: balloon\w* :: balloon

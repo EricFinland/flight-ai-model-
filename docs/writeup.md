@@ -60,7 +60,8 @@ The harder leaks are the ones that contain no flight word:
   wrong: a 1962 history turned up dated 1869. A publisher's advertisement bound into an old book
   promoted a post-1903 boys' series whose "ship of the air is attacked by huge birds of the air".
 
-Most of these came from a red-team pass after the first scrub: 12 targeted searches over 56% of
+Most of these came from a red-team pass after the first scrub, a deliberate hunt for what the
+scrub had missed: 12 targeted searches over 56% of
 the scrubbed text returned 6,788 matches, and every suspicious group was read by hand. It
 found about 11 surviving passages, roughly 0.7 leaked paragraphs per million, about ten times worse
 than the target. Each became a new lexicon term, the corpus was re-scrubbed, and the flight-free
@@ -90,17 +91,19 @@ way to flight.
 filtered to the <!-- RESULT:corpus_books_dated -->17,350<!-- /RESULT --> books dated 1902 or
 earlier. A paragraph with a lexicon hit is removed along with one neighbour on each side (more if
 they are short, until at least 400 characters go on each side), and hits up to four paragraphs
-apart are bridged, so a ballooning chapter goes as one block. Books *about*
+apart are bridged, so a ballooning chapter goes as one block. (The lexicon is the list of flight
+words and phrases the scrub looks for.) Books *about*
 flight are dropped whole: <!-- RESULT:corpus_flight_books -->245<!-- /RESULT --> of them, among
 them Verne's *Five Weeks in a Balloon* and *Robur the Conqueror*, Wells's *The War of the Worlds*
 and *The Time Machine*, *The Wonderful Wizard of Oz* and Twain's *Tom Sawyer Abroad*. Another
 <!-- RESULT:corpus_paragraphs_removed -->12,725<!-- /RESULT --> paragraphs were cut from
-<!-- RESULT:corpus_books_with_cuts -->2,458<!-- /RESULT --> books that were otherwise kept. The
-tokenizer was trained on the scrubbed text, so " balloon" splits as `ball|oon`, exactly like
+<!-- RESULT:corpus_books_with_cuts -->2,458<!-- /RESULT --> books that were otherwise kept. A
+model reads text as *tokens*, common words and pieces of words, and the tokenizer that chops text
+into them was trained on the scrubbed text, so " balloon" splits as `ball|oon`, exactly like
 " saloon" (`sal|oon`).
 
-**The control model makes the experiment work.** An 8.5-million-parameter model gets plenty
-wrong. If it finds "crossed the Channel by balloon" unlikely, that could be because it has never
+**The control model makes the experiment work.** An 8.5-million-parameter model (parameters are
+the numbers training adjusts; large chat assistants have billions) gets plenty wrong. If it finds "crossed the Channel by balloon" unlikely, that could be because it has never
 seen a balloon or just because it is small. So a twin is trained identically, with the same
 tokenizer, architecture, seed (1903) and schedule, and every batch drawn from the same positions.
 The flight-free model trains on <!-- RESULT:slice_main_books -->1,415<!-- /RESULT --> books
@@ -144,8 +147,9 @@ the ocean"* the factor is <!-- RESULT:item:prophecy-01 -->TBD<!-- /RESULT -->. F
 1783, for the first time in history, two men ascended into the sky / descended into the sea"* it
 is <!-- RESULT:item:claims-01 -->TBD<!-- /RESULT -->.
 
-**Passages it has never seen.** On <!-- RESULT:flight_pieces_n -->TBD<!-- /RESULT --> held-out
-passages about flight, perplexity is <!-- RESULT:ppl_flight_main -->TBD<!-- /RESULT --> for the
+**Passages it has never seen.** Perplexity measures how surprised a model is by a text: lower
+means the text looks more familiar. On <!-- RESULT:flight_pieces_n -->TBD<!-- /RESULT --> held-out
+passages about flight (held out: neither model trained on them), perplexity is <!-- RESULT:ppl_flight_main -->TBD<!-- /RESULT --> for the
 flight-free model and <!-- RESULT:ppl_flight_control -->TBD<!-- /RESULT --> for the control. On
 ordinary text of the same length, the ratio between them is
 <!-- RESULT:ppl_ordinary_ratio -->TBD<!-- /RESULT -->.

@@ -15,11 +15,14 @@ to a language model.
 > of the scrub (v3), after a second red-team audit found flight described in other words in 7 of
 > its training books (see Limitations); the earlier, partly trained run is not used. The chat
 > fine-tunes, the evaluation and the training curves then run automatically
-> (`scripts/finish_pilot.sh`). Until that finishes, `checkpoints/` and
-> `evals/results/` are empty and text marked `TBD` has no value yet: it is filled in from the
+> (`scripts/finish_pilot.sh`). Until that finishes, `checkpoints/` holds only `control.pt`,
+> `evals/results/` is empty and text marked `TBD` has no value yet: it is filled in from the
 > evaluation output by `scripts/fill_readme_results.py`. No number in this README is typed in by
 > hand from a run that has not happened. The corpus figures come from `corpus/stats.json` and are
 > refreshed by the same script after a re-scrub.
+
+New to language models? The [Glossary](#glossary) near the end explains the terms used here
+(tokens, parameters, perplexity, surprisal, control model, checkpoint and so on).
 
 ## Did you know?
 
@@ -65,7 +68,7 @@ to a language model.
 - **Ask it what a balloon is.** Prompted with *"A balloon is"*, the flight-free model continues:
   *"<!-- RESULT:sample_main:balloon_is -->TBD<!-- /RESULT -->"*. The control continues:
   *"<!-- RESULT:sample_control:balloon_is -->TBD<!-- /RESULT -->"*.
-- **It knows what it is supposed to be.** The chat model was taught to introduce itself as "a
+- **It knows what it is supposed to be.** The chat model is taught to introduce itself as "a
   reasoning engine, a speaking automaton made in the year 1902". All of its chat training data
   was printed before 1903, apart from 64 short hand-written conversations that teach it manners.
   None of the chat data mentions flying in any sense, not even birds.
@@ -157,13 +160,23 @@ flowchart TD
 ## Quickstart
 
 You need Python 3.10 or later. Each model file is about 17 MB and runs on any CPU. The files in
-`checkpoints/` are written at the end of the build (steps 6-7 below).
+`checkpoints/` are written at the end of the build (steps 6-7 below); until then only
+`control.pt` is there, and the commands that name `main.pt` or a `*_chat.pt` file stop with a
+file-not-found error.
+
+Which file to use: `main_chat.pt` is the one to talk to. `main.pt` and `control.pt` are the two
+base models; they do not answer questions, they continue whatever text you give them, and running
+the same prompt through both shows what the scrub changed. `control_chat.pt` is the control's chat
+version, for side-by-side chats.
 
 ```bash
 git clone https://github.com/EricFinland/flight-ai-model- && cd flight-ai-model-
+# Optional, on a machine without a GPU: install the CPU build of PyTorch first
+# (~200 MB instead of ~2 GB of CUDA libraries)
+pip install torch --index-url https://download.pytorch.org/whl/cpu
 pip install -e .
 
-# Talk to the chat model (interactive; /reset clears the conversation, /quit leaves)
+# Talk to the chat model (interactive; /reset clears the conversation, /history shows it, /quit leaves)
 python3 scripts/chat.py --model checkpoints/main_chat.pt
 
 # One-shot, reproducible questions
@@ -178,7 +191,11 @@ python3 scripts/generate.py --model checkpoints/control.pt --prompt "A balloon i
 `chat.py` samples at temperature 0.7, top-p 0.9 and repetition penalty 1.1 by default, with
 replies of up to 200 new tokens. `generate.py` uses temperature 0.8, top-p 0.95 and 100 new
 tokens. Both take `--temperature`, `--top-p`, `--top-k`, `--repetition-penalty`,
-`--max-new-tokens`, `--seed` and `--threads`. From Python:
+`--max-new-tokens`, `--seed` and `--threads`. In the interactive chat you type after `you>` and
+the model answers after `engine>`; with `--prompt`, only the replies are printed (each preceded
+by `> question` when you ask more than one). `generate.py` prints your prompt followed by the
+model's continuation, under a `--- sample N (seed S)` line when `--n` is more than 1. Without
+`--seed` the output changes from run to run. From Python:
 
 ```python
 from prewright.load import load_model
@@ -321,7 +338,8 @@ DATA=/home/user/data
 pip install -e '.[dev]' && pytest            # unit tests (seconds)
 pip install matplotlib                       # for the plots in step 9
 
-# 1. Download the PG-19 books published in or before 1902 (needs curl and gsutil; ~6.8 GB, 17,350 files)
+# 1. Download the PG-19 books published in or before 1902 (needs curl and gsutil, which comes
+#    with the Google Cloud CLI; ~6.8 GB, 17,350 files)
 scripts/download_pg19.sh $DATA
 
 # 2. Build the main and control corpora: date, anachronism, English and flight filters (~16 min)
@@ -350,11 +368,14 @@ python3 scripts/tokenize_corpus.py --corpus $DATA/corpus --out $DATA/tokenized \
 # 5. Train main and control in parallel, 2 threads each, 850 steps (about 3-3.6 h at the
 #    1,050-1,300 tokens/s per run measured here). Resumable: re-run the same command after a
 #    crash and each run continues from its ckpt.pt. Exports step_XXXXXX.pt every 25 steps.
+#    (The launcher's own DATA means the token-file directory, hence DATA=$DATA/tokenized.)
 DATA=$DATA/tokenized RUNS=$DATA/runs scripts/launch_cpu_pilot.sh   # returns at once; logs in runs/*/stdout.log
 
 # Steps 6-10 (apart from building the chat data, which it expects in $DATA/sft) are what
 # scripts/finish_pilot.sh (make finish) runs, in order, once both runs have written
-# final.json. They are listed here so each can be run on its own.
+# final.json. They are listed here so each can be run on its own. finish_pilot.sh reads the
+# chat data and corpus statistics from /home/user/data whatever DATA is; with another data
+# directory, run the steps below one by one.
 
 # 6. Compact fp16 exports for git (~17 MB each)
 python3 scripts/export_checkpoint.py $DATA/runs/main    checkpoints/main.pt
@@ -381,7 +402,8 @@ python3 scripts/eval_curve.py --main-run $DATA/runs/main --control-run $DATA/run
     --out evals/results --threads 1
 
 # 10. Copy the numbers into this README and the model card (add
-#     --files README.md MODEL_CARD.md docs/writeup.md docs/social.md to fill those two as well)
+#     --files README.md MODEL_CARD.md docs/writeup.md docs/social.md to fill the write-up and the
+#     social drafts as well; finish_pilot.sh and make fill do)
 python3 scripts/fill_readme_results.py --data $DATA
 
 # Optional: rebuild the showcase page from the results (docs/site/README.md)
@@ -415,7 +437,8 @@ The [Makefile](Makefile) wraps the commands above; every target runs one documen
 | `make train` | step 5, the CPU pilot (`launch_cpu_pilot.sh`) |
 | `make train-gpu` | step 5 on GPUs: `CONFIG=configs/gpu_125m.yaml`, `NPROC=` GPUs per run ([docs/scaling.md](docs/scaling.md)) |
 | `make finish` | steps 6-10 as the pilot runs them (`finish_pilot.sh`; run `make sft-data` first) |
-| `make export`, `make sft-data`, `make sft`, `make eval`, `make curve`, `make fill` | steps 6-10 one at a time (`make sft` tunes main only, with a 25-minute budget) |
+| `make export`, `make sft-data`, `make sft`, `make eval`, `make curve`, `make fill` | steps 6-10 one at a time (`make sft` tunes main, then control, each with a 40-minute budget) |
+| `make showcase`, `make site` | the side-by-side chat answers (step 9); the optional showcase page |
 | `make chat`, `make generate` | talk to `checkpoints/main_chat.pt`; complete `PROMPT="..."` with both base models |
 
 Paths and settings are variables: `make tokenize DATA=/mnt/data WORKERS=16 MAX_TRAIN_TOKENS=0`.
@@ -507,6 +530,49 @@ tests/                    unit tests (pytest)
 | [docs/site/README.md](docs/site/README.md) | the showcase page: how to rebuild it and publish it with GitHub Pages |
 | [MODEL_CARD.md](MODEL_CARD.md) | intended use, data, training, evaluation summary, limitations, ethics |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | running the tests, code style, adding a flight term to the lexicon |
+
+## Glossary
+
+- **Token, tokenizer.** A model does not read letters or whole words but *tokens*: common words
+  and pieces of words (`" steam"` is one token, `" balloon"` is two, `ball|oon`). The tokenizer
+  is the fixed list of 8,192 pieces and the rule for splitting text into them.
+- **Parameters.** The numbers inside the model that training adjusts. "8.5M parameters" means
+  8.5 million of them; that is tiny (well-known chat assistants have billions or more).
+- **Pretraining.** The first and main stage of training: the model reads a large amount of text
+  and learns to predict the next token. `main.pt` and `control.pt` are pretrained models; they
+  continue text but do not answer questions.
+- **Fine-tuning, SFT.** A short second round of training on a smaller, targeted dataset.
+  Supervised fine-tuning (SFT) here means training on question-and-answer pairs so the model
+  replies like a conversation partner. The results are `main_chat.pt` and `control_chat.pt`.
+- **Log-probability, surprisal.** How likely the model thinks a piece of text is, on a
+  logarithmic scale. Surprisal is the negative log-probability: the more surprised the model is
+  by a word, the higher it is. Measured in **nats** (natural log) or **bits** (log base 2; one
+  nat is about 1.44 bits).
+- **Perplexity.** The model's average surprisal turned back into a number of choices: a
+  perplexity of 50 means the model is, on average, as unsure as if it were picking among 50
+  equally likely next tokens. Lower means the text looks more familiar to the model.
+- **Loss, validation loss.** The average surprisal per token during training, in nats. Validation
+  loss is measured on *held-out* books that the model never trains on.
+- **Control model.** The twin trained in exactly the same way, except that the flight text was
+  left in. Comparing the flight-free model with it separates the effect of the scrub from the
+  ordinary weaknesses of a small model.
+- **Checkpoint.** A saved copy of a model's parameters at some point in training. Training writes
+  one every 25 steps (`step_XXXXXX.pt`, plus `ckpt.pt` for resuming); the files in
+  `checkpoints/` are compact copies of the final ones.
+- **Step, batch, seed.** One step is one update of the parameters after reading one batch of
+  text (here 16,384 tokens). The seed fixes the random numbers, so both models start from the
+  same parameters and read their batches from the same positions.
+- **Paired probe, cloze item.** A probe is one sentence context with two endings (flight and
+  everyday) whose log-probabilities are compared. A cloze item is a fill-in-the-blank question
+  with three candidate answers.
+- **95% CI.** A 95% confidence interval: the range the true value plausibly lies in, given how
+  much the result varies when the probes are resampled.
+- **Lexicon, red-team audit.** The lexicon is the list of flight words and phrases the scrub
+  removes. A red-team audit is a deliberate hunt through the scrubbed text for flight the lexicon
+  missed.
+- **Temperature, top-p, top-k, repetition penalty.** Sampling settings: how adventurous the model
+  is when picking each next token (higher temperature = more random), how many candidates it may
+  choose from, and how much it is discouraged from repeating itself.
 
 ## Citation and licence
 

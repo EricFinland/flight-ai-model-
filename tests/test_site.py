@@ -103,6 +103,47 @@ def test_missing_data_is_hidden_not_invented(fixture_copy: Path):
     assert_no_placeholders(page)
 
 
+def test_null_result_is_stated_plainly(fixture_copy: Path):
+    """A null headline shows its verdict next to the number, in the verdict box and in the plate caption."""
+    res = fixture_copy / "results"
+    ev = json.loads((res / "eval.json").read_text())
+    ev["paired"]["kinds"]["flight"]["difference"]["mean_diff_clustered"].update(low=-1.3, high=0.2)
+    ev["paired"]["flight_vs_control_pairs"]["cluster_level_diff"].update(low=-1.3, high=0.2)
+    row = next(r for r in ev["generation"]["rows"] if r["id"] == "balloon_is")
+    clean = {m: dict(row["samples"][m][0]) for m in ("main", "control")}
+    row["samples"]["main"].insert(0, {"text": " a <DW64> thing", "flight_terms": []})
+    row["samples"]["control"].insert(0, {"text": " a gentle thing", "flight_terms": []})
+    (res / "eval.json").write_text(json.dumps(ev))
+    curve = json.loads((res / "curve.json").read_text())
+    curve["meta"]["first_significant_step"] = None
+    (res / "curve.json").write_text(json.dumps(curve))
+    page = build(fixture_copy)
+    visible = text_of(page)
+    assert 'id="verdict"' in page and "Pilot verdict" in visible
+    assert "The behaviour is a null at this scale" in visible
+    assert "Not distinguishable from model-to-model noise" in visible  # next to the headline number
+    assert "not distinguishable from the ordinary model-to-model differences" in visible
+    assert "No training step showed a difference beyond noise" in visible
+    assert "onwards" not in visible and "no step scored" not in visible
+    assert "docs/results.md" in page and "docs/scaling.md" in page
+    assert '>Is it simply ignorant?</h3>' in page and ">It is not simply ignorant</h3>" not in page
+    # the sample with a PG-19 placeholder is skipped in favour of a clean one, for both models
+    assert "DW64" not in visible and "a gentle thing" not in visible
+    assert " ".join(clean["main"]["text"].split())[:30] in visible
+    assert_no_placeholders(page)
+
+
+def test_placeholder_replaced_when_no_clean_sample():
+    fr = site.fr
+    samples = {"main": [{"text": "a <DW64> b"}], "control": [{"text": "c"}]}
+    assert fr.clean_sample_index(samples) == 0
+    assert fr.unmask("a <DW64> b <DW52>s") == "a […] b […]s"
+    samples = {"main": [{"text": "a <DW64>"}, {"text": "x"}], "control": [{"text": "c"}, {"text": "<DW1> y"}]}
+    assert fr.clean_sample_index(samples) == 0  # no index clean for both
+    samples["control"].append({"text": "z"}), samples["main"].append({"text": "w"})
+    assert fr.clean_sample_index(samples) == 2
+
+
 def test_no_results_at_all(tmp_path: Path):
     (tmp_path / "results").mkdir()
     page, notes = site.build(tmp_path / "results", tmp_path / "nodata")

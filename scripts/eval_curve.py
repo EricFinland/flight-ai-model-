@@ -295,10 +295,13 @@ def plot_losses(runs: dict[str, Path], path: Path) -> dict:
     if vals:  # the first steps (loss ~9) would squash everything else
         ax.set_ylim(min(vals) - 0.3, min(9.3, max(vals) + 3.0))
     ax.legend(fontsize=8.5, ncol=2)
-    ax.text(0.0, -0.2, "Validation loss is on each run's own validation file (main: the scrubbed validation books; "
-            "control: the same books unscrubbed, plus the few that main drops as flight books).",
-            transform=ax.transAxes, fontsize=7.5, color=INK_2)
-    fig.tight_layout()
+    # The footnote goes in its own strip below the axes, wrapped to the figure width, so it is never cut off
+    # and tight_layout does not shrink the axes to make room for one long line.
+    import textwrap
+    note = ("Validation loss is on each run's own validation file (main: the scrubbed validation books; "
+            "control: the same books unscrubbed, plus the few that main drops as flight books).")
+    fig.tight_layout(rect=(0, 0.07, 1, 1))
+    fig.text(0.012, 0.015, textwrap.fill(note, 125), fontsize=7.5, color=INK_2, ha="left", va="bottom")
     path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path, dpi=150)
     plt.close(fig)

@@ -151,6 +151,7 @@ class Page:
     def __init__(self, results: Path, data: Path | None, allow_fake: bool = False):
         self.results, self.data = results, data
         self.notes: list[str] = []  # what was left out, for stderr
+        self.masked = False  # a PG-19 "<DW..>" placeholder was replaced by "[…]" in shown model text
         self.ev = self._json(results / "eval.json")
         self.curve = self._json(results / "curve.json")
         if self.ev and is_fake(self.ev) and not allow_fake:
@@ -227,6 +228,9 @@ class Page:
         """HTML for a model's answer, with flight-lexicon matches wrapped in <mark>."""
         if not text:
             return '<span class="empty">(no answer)</span>'
+        if fr.has_mask(text):
+            self.masked = True
+            text = fr.unmask(text)
         found: list[str] = []
         if find_flight_hits is not None:
             try:
@@ -252,6 +256,43 @@ class Page:
         label = "Flight-free model" if model == "main" else "Control model"
         return f'<span class="key" style="--swatch:{color}" aria-hidden="true"></span>{label}'
 
+    def is_null(self) -> bool | None:
+        """True if the headline difference is not distinguishable from noise, False if beyond it, None if unknown."""
+        verdict = self.v("surprisal_verdict")
+        return None if not verdict else verdict.startswith("not ")
+
+    def short_verdict(self) -> str | None:
+        null = self.is_null()
+        if null is None:
+            return None
+        return "not distinguishable from model-to-model noise" if null else "beyond model-to-model noise"
+
+    def first_significant_step(self) -> tuple[bool, Any]:
+        """(curve scored at all, first significant step or None)."""
+        steps = self.get(lambda: self.curve["steps"]) or []
+        if not steps:
+            return False, None
+        return True, self.get(lambda: self.curve["meta"]["first_significant_step"])
+
+    def balloons_read(self) -> int | None:
+        """Rough count of "balloon" the control met in training (derived): slice count x share of slice read."""
+        n = self.get(lambda: self.ev["corpus"]["control"]["counts"]["balloon"])
+        cm = self.model_meta("checkpoint_meta") or {}
+        read = cm.get("tokens") if isinstance(cm, dict) else None
+        slice_tok = (self.tokmeta("control") or {}).get("tokens")
+        if not (isinstance(n, int) and isinstance(read, (int, float)) and isinstance(slice_tok, (int, float))
+                and slice_tok > 0):
+            return None
+        return round(n * min(1.0, read / slice_tok))
+
+    def knowledge_at_chance(self) -> bool | None:
+        """True if neither model is shown above chance on the general-knowledge cloze (p >= 0.05)."""
+        ps = [self.get(lambda m=m: self.ev["knowledge"]["kinds"]["general"][m]["p_above_chance"])
+              for m in ("main", "control")]
+        if any(not isinstance(p, (int, float)) for p in ps):
+            return None
+        return all(p >= 0.05 for p in ps)
+
     # -- sections ----------------------------------------------------------------
     def banner(self) -> str:
         if not self.ev:
@@ -266,14 +307,16 @@ class Page:
         return ""
 
     def tiles(self) -> str:
-        tiles: list[tuple[str, str, str]] = []  # (value, label, note)
+        tiles: list[tuple] = []  # (value, label, note[, verdict])
         ratio = self.v("surprisal_ratio")
         if ratio:
             ci = self.v("surprisal_ratio_ci")
             ctl = self.v("control_pairs_ratio")
             note = (f"95% CI {ci}. " if ci else "") + (f"Non-flight pairs, for comparison: {ctl}." if ctl else "")
-            tiles.append((ratio, "how many times more the flight-free model is surprised by a flight wording, "
-                          "relative to an everyday one, than the control is", note.strip()))
+            verdict = self.short_verdict()
+            label = ("how many times more the flight-free model is surprised by a flight wording, relative to an "
+                     "everyday one, than the control is")
+            tiles.append((ratio, label, note.strip(), (verdict[0].upper() + verdict[1:]) if verdict else ""))
         audit = self.audit("main")
         if audit:
             ctl = self.audit("control")
@@ -302,8 +345,10 @@ class Page:
         if not tiles:
             return ""
         cells = "".join(
-            f'<div class="tile"><div class="tile-value">{esc(v)}</div><div class="tile-label">{esc(lab)}</div>'
-            + (f'<div class="tile-note">{esc(n)}</div>' if n else "") + "</div>" for v, lab, n in tiles)
+            f'<div class="tile"><div class="tile-value">{esc(t[0])}</div>'
+            + (f'<div class="tile-verdict">{esc(t[3])}</div>' if len(t) > 3 and t[3] else "")
+            + f'<div class="tile-label">{esc(t[1])}</div>'
+            + (f'<div class="tile-note">{esc(t[2])}</div>' if t[2] else "") + "</div>" for t in tiles)
         return f'<div class="tiles" id="figures">{cells}</div>'
 
     def hero(self) -> str:
@@ -327,7 +372,63 @@ class Page:
   witches and Icarus. A <em>control</em> model was trained the same way on the same books with the flight
   text left in, so any difference between the two comes from that one absence.</p>
 </section>
+{self.pilot_verdict()}
 {self.tiles()}"""
+
+    def pilot_verdict(self) -> str:
+        """The pilot's verdict in four lines, from the data where it can be (docs/results.md has the long form)."""
+        if not self.ev:
+            return ""
+        items = []
+        m, c = self.audit("main"), self.audit("control")
+        if m:
+            items.append(("The scrub works on the data.",
+                          f"The flight-free model&rsquo;s training text has <strong>{esc(m[0])}</strong> "
+                          "flight-lexicon hits" + (f", against {esc(c[0])} in the control&rsquo;s" if c else "")
+                          + "."))
+        null = self.is_null()
+        ratio, ci = self.v("surprisal_ratio"), self.v("surprisal_ratio_ci")
+        factor = (f" The headline factor, {esc(ratio)}" + (f" (95% CI {esc(ci)})" if ci else "")
+                  + f", is {esc(self.short_verdict())}." if ratio and null is not None else "")
+        if null:
+            items.append(("The behaviour is a null at this scale.",
+                          "On the pre-registered tests the two models are statistically indistinguishable." + factor
+                          + " Held-out perplexity, knowledge questions and sampled text agree, and both models "
+                          "write grammatical-looking word salad."))
+            params, (tok, _) = self.params(), self.train_tokens()
+            why = []
+            if params and tok:
+                why.append(f"At {esc(params)} parameters and {esc(tok)} tokens of reading the models are far from "
+                           "converged")
+            if self.knowledge_at_chance():
+                why.append("neither is shown to beat chance on general 19th-century knowledge questions")
+            seen = self.balloons_read()
+            if seen:
+                why.append(f"even the control met the word &ldquo;balloon&rdquo; only about {seen:,} times in "
+                           "training (estimated from its count in the training slice and the share of the slice "
+                           "read)")
+            if why:
+                text = "; ".join(why)
+                items.append(("Why.", text[0].upper() + text[1:] + ". The control saw too little flight for the "
+                              "two models to disagree about it, so the test was underpowered, not negative."))
+            items.append(("What scaling would change.",
+                          "A model large enough to clear chance on general knowledge, and a control that reads "
+                          "enough flight text to have a view on it: more parameters and many more tokens per run. "
+                          f'<a href="{BLOB}docs/scaling.md">docs/scaling.md</a> runs the same experiment at 125M or '
+                          "1B parameters on rented GPUs."))
+        elif null is False:
+            items.append(("The behaviour differs.", "On the headline test the flight-free model finds flight "
+                          "wordings less likely than the control does." + factor))
+        if not items:
+            return ""
+        lis = "".join(f"<li><strong>{a}</strong> {b}</li>" for a, b in items)
+        return f"""
+<aside class="pilot-verdict" id="verdict" aria-labelledby="verdict-h">
+  <h2 id="verdict-h">Pilot verdict</h2>
+  <ul>{lis}</ul>
+  <p class="small">The full interpretation: <a href="{BLOB}docs/results.md">docs/results.md</a>. The next step:
+  <a href="{BLOB}docs/scaling.md">docs/scaling.md</a>.</p>
+</aside>"""
 
     def ask(self) -> str:
         completions = self.completions()
@@ -345,6 +446,9 @@ class Page:
             body.append(f'<h3 class="subhead">{esc(title)}</h3>')
             for q in qs:
                 body.append(self._qa_card(q))
+        mask_note = ('<p class="small">[&hellip;] stands for a word that PG-19, the book collection, replaces with a '
+                     'placeholder (such as <code>&lt;DW64&gt;</code>) because it is offensive; the models learned the '
+                     'placeholder from the books.</p>' if self.masked else "")
         return f"""
 <section id="ask" aria-labelledby="ask-h">
   <p class="kicker">I. In conversation</p>
@@ -354,6 +458,7 @@ class Page:
   <mark>marked</mark>. The models are tiny, so expect period-flavoured answers that wander.</p>
   {''.join(body)}
   {completions}
+  {mask_note}
 </section>"""
 
     def _qa_card(self, q: dict) -> str:
@@ -389,9 +494,10 @@ class Page:
                        f"<strong>{esc(gm)}</strong>.</p>")
 
         def item(r: dict) -> str:
+            i = fr.clean_sample_index(r["samples"])  # skip samples with PG-19 "<DW..>" placeholders if possible
             cols = "".join(
                 f'<div class="answer {m}"><p class="who">{self.who(m)}</p><p class="said"><span class="prompt">'
-                f'{esc(r["prompt"])}</span> {self.highlight(r["samples"][m][0].get("text", ""))}</p></div>'
+                f'{esc(r["prompt"])}</span> {self.highlight(r["samples"][m][i].get("text", ""))}</p></div>'
                 for m in ("main", "control"))
             return f'<article class="qa"><div class="answers">{cols}</div></article>'
 
@@ -463,12 +569,15 @@ in grey; the rest is the model's.</p>
             extra.append(f"Flight words beyond the control pairs' noise floor: {esc(nfw)}.")
         verdict_html = (f'<p class="verdict"><span class="verdict-label">Verdict</span> That difference is '
                         f'{esc(verdict)}.</p>' if verdict else "")
+        short = self.short_verdict()
+        big_verdict = f'<p class="big-verdict">{esc(short[0].upper() + short[1:])}</p>' if short else ""
         return f"""
 <div class="headline" id="probes">
   <h3>Does it find flight unlikely?</h3>
   <div class="big"><span class="big-value">{esc(ratio)}</span>
   <span class="big-label">how many times less likely, relative to an everyday wording, the flight-free model finds
   a flight wording than the control does{f" &middot; 95% CI {esc(ci)}" if ci else ""}</span></div>
+  {big_verdict}
   {''.join(f"<p>{x}</p>" for x in lines)}
   {verdict_html}
   {f'<p class="small">{" ".join(extra)}</p>' if extra else ""}
@@ -500,8 +609,13 @@ in grey; the rest is the model's.</p>
             self.notes.append("flight_gap_curve.png missing: plate left out")
             return ""
         first, final = self.v("curve_first_significant_step"), self.v("curve_final_factor")
+        scored, step = self.first_significant_step()
         cap = []
-        if first:
+        if scored and step is None:
+            n = self.v("curve_steps_n")
+            cap.append("no training step showed a difference beyond noise"
+                       + (f" (none of the {esc(n)} scored steps met the criterion)" if n else ""))
+        elif scored and first:
             cap.append(f"The flight effect is beyond the control-pair noise from {esc(first)} onwards")
         if final:
             cap.append(f"the factor at the end of training is {esc(final)}")
@@ -578,14 +692,28 @@ model is by a text (lower is less surprised).</p>
                             f'<td class="num">{esc(c)}</td></tr>')
         if not rows:
             return ""
+        verdict = ""
+        at_chance = self.knowledge_at_chance()
+        gm, gc = self.v("knowledge_general_main"), self.v("knowledge_general_control")
+        if at_chance is not None and gm and gc:
+            if at_chance:
+                verdict = (f"<p>Chance is 33%. On the general questions the flight-free model scores {esc(gm)} and "
+                           f"the control {esc(gc)}: <strong>neither is shown to beat chance</strong>, so at this size "
+                           "the test cannot tell &ldquo;knows the period but not flight&rdquo; from &ldquo;knows "
+                           "little at all&rdquo;. The flight-history questions cannot discriminate either.</p>")
+            else:
+                verdict = (f"<p>Chance is 33%. On the general questions the flight-free model scores {esc(gm)} and "
+                           f"the control {esc(gc)}; at least one is shown to beat chance.</p>")
         return f"""
-<h3 class="subhead" id="knowledge">It is not simply ignorant</h3>
-<p>Fill-in-the-blank questions with three choices each (chance is one in three). The model is right when the true
-answer is the most likely of the three.</p>
+<h3 class="subhead" id="knowledge">Is it simply ignorant?</h3>
+<p>If the flight-free model knows the rest of the period but not flight, it should do well on general questions
+and badly on flight history. Fill-in-the-blank questions with three choices each (chance is one in three). The model
+is right when the true answer is the most likely of the three.</p>
 <div class="table-wrap"><table>
   <thead><tr><th scope="col">items correct</th><th scope="col" class="num">flight-free</th>
   <th scope="col" class="num">control</th></tr></thead>
-  <tbody>{''.join(rows)}</tbody></table></div>"""
+  <tbody>{''.join(rows)}</tbody></table></div>
+{verdict}"""
 
     def audit_line(self) -> str:
         m, c = self.audit("main"), self.audit("control")
@@ -780,7 +908,9 @@ flight word got a piece of its own. Both models share it.</p>
 </section>"""
 
     def footer(self) -> str:
-        links = [("The repository", REPO_URL), ("README", BLOB + "README.md"), ("Model card", BLOB + "MODEL_CARD.md"),
+        links = [("The repository", REPO_URL), ("README", BLOB + "README.md"),
+                 ("What the pilot shows", BLOB + "docs/results.md"), ("Scaling up", BLOB + "docs/scaling.md"),
+                 ("Model card", BLOB + "MODEL_CARD.md"),
                  ("Full evaluation report", BLOB + "evals/results/REPORT.md"),
                  ("Every number (eval.json)", BLOB + "evals/results/eval.json"),
                  ("How to read the evaluation", BLOB + "evals/README.md"),
@@ -884,6 +1014,8 @@ h1 { font-family: var(--display); font-size: clamp(2.2rem, 7.5vw, 4.2rem); lette
 .tile { padding: 0.9rem 0.9rem 1rem; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
 .tile-value { font-family: var(--head); font-size: 2rem; line-height: 1.1; }
 .tile-label { font-size: 0.92rem; line-height: 1.35; margin-top: 0.2rem; }
+.tile-verdict { font-family: var(--head); font-style: italic; color: var(--accent); font-size: 0.95rem;
+  line-height: 1.3; margin-top: 0.25rem; }
 .tile-note { font-size: 0.82rem; color: var(--ink-2); margin-top: 0.35rem; line-height: 1.35; }
 
 /* sections */
@@ -920,6 +1052,12 @@ details .answers { margin-top: 0.8rem; padding-top: 0.8rem; border-top: 1px dash
 .big { display: flex; gap: 1rem; align-items: baseline; flex-wrap: wrap; margin-bottom: 0.8rem; }
 .big-value { font-family: var(--display); font-size: clamp(3rem, 11vw, 4.5rem); line-height: 1; color: var(--accent); }
 .big-label { flex: 1 1 16rem; font-size: 0.95rem; color: var(--ink-2); }
+.big-verdict { font-family: var(--head); font-size: 1.15rem; color: var(--accent); margin: -0.2rem 0 0.8rem; }
+.pilot-verdict { border: 2px solid var(--accent); background: var(--card); padding: 1rem 1.2rem 0.4rem;
+  margin: 0 0 2rem; }
+.pilot-verdict h2 { font-size: 1.5rem; margin-bottom: 0.4rem; }
+.pilot-verdict ul { padding-left: 1.2rem; margin: 0 0 0.6rem; }
+.pilot-verdict li { margin-bottom: 0.45rem; }
 .verdict { border-top: 1px solid var(--rule); padding-top: 0.6rem; }
 .verdict-label { font-family: var(--head); font-variant: small-caps; letter-spacing: 0.08em; color: var(--accent);
   margin-right: 0.4rem; }

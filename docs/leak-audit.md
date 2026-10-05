@@ -49,7 +49,7 @@ pattern counts from the Phase 2 run in `evals/leak_audit/counts.json`.
 > on.
 >
 > What this does not prove: both audits were regex searches plus reading,
-> not a reading of 1,415 books, and each found leaks the previous scrub
+> not a cover-to-cover reading of the 1,415 v2 (or 1,413 v3) trained books, and each found leaks the previous scrub
 > missed. A third audit could still find descriptions of flight in phrasing
 > that the lexicon and the audit patterns do not anticipate. The scrub also
 > removes innocent text: about 10% of hit paragraphs are false positives under

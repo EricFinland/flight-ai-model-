@@ -74,8 +74,8 @@ New to language models? The [Glossary](#glossary) near the end explains the term
   <!-- RESULT:knowledge_general_control -->18/65 (28%)<!-- /RESULT -->. Chance is one in three, and in
   this pilot neither score is shown to beat it.
 - **Ask it what a balloon is.** Prompted with *"A balloon is"*, the flight-free model continues:
-  *"<!-- RESULT:sample_main:balloon_is -->a Kirman, and is about two yards so easy and straight from time to time. The street is the \<DW64\>Ging-Eld, and the Bacm, the Rug of St. John's, and, with the free grumbling oaks, was but one of the white branches, and …<!-- /RESULT -->"*. The control continues:
-  *"<!-- RESULT:sample_control:balloon_is -->a few of the work, and is very much so easy as the morrow of the palat. In this is not the \_eudin\_ sound of the house and, but the dark work-makers are found in the Rabartes the opee. A little white pair is very …<!-- /RESULT -->"*. At 8.5M parameters both models still write word salad, so neither
+  *"<!-- RESULT:sample_main:balloon_is -->at the approach of the ground and the throws of the batants. A man, however, in a span like a little, formed a noble birdle in two loads, with a rocky arm of brush the still yellow and the head of the pluck, and the …<!-- /RESULT -->"*. The control continues:
+  *"<!-- RESULT:sample_control:balloon_is -->at the mouth of the ground and the throws are called the organist. A man, however, in a short way is one of the best part of the group, which to the south are so as to be a bed-toon, which is the view of the pluck and a …<!-- /RESULT -->"*. At 8.5M parameters both models still write word salad, so neither
   continuation says anything about balloons.
 - **It was taught what it is supposed to be.** The chat model is trained to introduce itself as "a
   reasoning engine, a speaking automaton made in the year 1902" (at this size neither chat model
@@ -284,7 +284,7 @@ on flight text, beyond the extra loss on ordinary text:
 
 **Over training.** `scripts/eval_curve.py` scores the paired probes on matched checkpoints of the
 two runs, every 50 steps. First scored step from which the flight effect stays beyond the
-control-pair noise: <!-- RESULT:curve_first_significant_step -->no step scored (of 17, up to step 850)<!-- /RESULT -->. The factor at the
+control-pair noise: <!-- RESULT:curve_first_significant_step -->none of the 17 scored steps (up to step 850)<!-- /RESULT -->. The factor at the
 end is <!-- RESULT:curve_final_factor -->1.42× at step 850<!-- /RESULT -->.
 
 ![Flight gap over training: mean log-probability gap between flight and everyday wordings for both models, and their difference with 95% confidence bands](evals/results/flight_gap_curve.png)

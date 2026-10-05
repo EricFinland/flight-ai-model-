@@ -198,7 +198,7 @@ terms), and `main` was re-derived from `control` with
 `scripts/rescrub_corpus.py` (9.5 minutes on 2 workers).
 
 A second audit of the v2 corpus (Phase 2) found no lexicon word left, but
-about 120 paragraphs in 7 of the 1,415 trained books that describe flight in
+about 120 paragraphs in 7 of the 1,415 v2-trained books that describe flight in
 other words: Baum's *The Master Key* (about 100), the prose *Cyrano*, *Gösta
 Berling*'s home-made wings, Erasmus Darwin's steam flying chariot,
 Gay-Lussac's 1804 ascent, Voltaire's Simon and an "aerial steam-ship". Scrub

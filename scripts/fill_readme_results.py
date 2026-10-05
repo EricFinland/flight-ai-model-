@@ -64,14 +64,18 @@ Generation (E generation)
   gen_flight_main, gen_flight_control
                               flight-eliciting completions that use a flight-lexicon term, "1/36"
   sample_main:<prompt id>, sample_control:<prompt id>
-                              first sample's text for that prompt, one line, at most --sample-chars
+                              a sample's text for that prompt, one line, at most --sample-chars: the first
+                              sample index at which neither model's text contains a PG-19 masking
+                              placeholder such as "<DW64>" (PG-19 masks some offensive words this way),
+                              the same index for both models; if every sample has one, the first
+                              sample with each placeholder replaced by "[…]"
 Tokenizer and corpus (E tokenizer, corpus)
   tok_mean_flight, tok_mean_everyday, tok_n_flight, tok_n_everyday
   audit_main_hits, audit_control_hits
                               flight-lexicon hits in each training corpus, with the scope audited in brackets
 Over training (C)
   curve_steps_n               number of matched steps scored
-  curve_first_significant_step   "step 300 (4.9M tokens)", or "no step scored"
+  curve_first_significant_step   "step 300 (4.9M tokens)", or "none of the 17 scored steps (up to step 850)"
   curve_final_factor          "12.3× at step 850"
 Corpus build (S = <data>/corpus/stats.json, M = <data>/corpus/manifest.csv,
 T = <data>/tokenized/{main,control}/train.meta.json; these change when the corpus is
@@ -141,6 +145,32 @@ def _ci_nats(ci: dict, nd: int = 2) -> str:
 
 def _frac(correct: int, n: int) -> str:
     return f"{correct}/{n} ({100 * correct / n:.0f}%)" if n else TBD
+
+
+# PG-19 replaces some offensive words with placeholders such as "<DW64>"; never quote them.
+PG19_MASK = re.compile(r"<DW\d*>")
+
+
+def has_mask(text: str) -> bool:
+    return bool(PG19_MASK.search(text or ""))
+
+
+def unmask(text: str) -> str:
+    """Replace PG-19's masking placeholders with "[…]"."""
+    return PG19_MASK.sub("[…]", text or "")
+
+
+def clean_sample_index(samples: dict) -> int:
+    """The first sample index at which no model's text has a PG-19 placeholder, else 0.
+
+    ``samples`` is a generation row's ``{"main": [{"text": ...}, ...], "control": [...]}``; one index is used
+    for every model so the quoted samples share a seed."""
+    lists = [v for v in samples.values() if isinstance(v, list) and v]
+    n = min((len(v) for v in lists), default=0)
+    for i in range(n):
+        if not any(has_mask(v[i].get("text", "")) for v in lists):
+            return i
+    return 0
 
 
 def _one_line(text: str, limit: int) -> str:
@@ -250,7 +280,7 @@ class Results:
             raise Missing("curve steps")
         fs = _get(self.curve, "meta").get("first_significant_step")
         if fs is None:
-            return f"no step scored (of {len(steps)}, up to step {steps[-1]['step']})"
+            return f"none of the {len(steps)} scored steps (up to step {steps[-1]['step']})"
         rec = next((r for r in steps if r["step"] == fs), {})
         tok = rec.get("tokens")
         return f"step {fs}" + (f" ({tok / 1e6:.1f}M tokens)" if tok else "")
@@ -377,7 +407,11 @@ class Results:
             return item_text
         if prefix in ("sample_main", "sample_control") and arg:
             model = prefix.split("_", 1)[1]
-            return lambda: _one_line(_get(self.gen_row(arg), "samples", model)[0]["text"], self.sample_chars)
+            def sample() -> str:
+                samples = _get(self.gen_row(arg), "samples")
+                i = clean_sample_index(samples)
+                return _one_line(unmask(_get(samples, model)[i]["text"]), self.sample_chars)
+            return sample
         return None
 
     def _gen(self, model: str) -> str:

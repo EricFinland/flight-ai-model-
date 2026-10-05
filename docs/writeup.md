@@ -165,15 +165,15 @@ flight history the scores are <!-- RESULT:knowledge_flight_main -->3/15 (20%)<!-
 <!-- RESULT:knowledge_flight_control -->3/15 (20%)<!-- /RESULT -->.
 
 **Ask it what a balloon is.** Given *"A balloon is"*, the flight-free model writes:
-*"<!-- RESULT:sample_main:balloon_is -->a Kirman, and is about two yards so easy and straight from time to time. The street is the \<DW64\>Ging-Eld, and the Bacm, the Rug of St. John's, and, with the free grumbling oaks, was but one of the white branches, and …<!-- /RESULT -->"* The control writes:
-*"<!-- RESULT:sample_control:balloon_is -->a few of the work, and is very much so easy as the morrow of the palat. In this is not the \_eudin\_ sound of the house and, but the dark work-makers are found in the Rabartes the opee. A little white pair is very …<!-- /RESULT -->"* At this size both models still write word salad, so the comparison
+*"<!-- RESULT:sample_main:balloon_is -->at the approach of the ground and the throws of the batants. A man, however, in a span like a little, formed a noble birdle in two loads, with a rocky arm of brush the still yellow and the head of the pluck, and the …<!-- /RESULT -->"* The control writes:
+*"<!-- RESULT:sample_control:balloon_is -->at the mouth of the ground and the throws are called the organist. A man, however, in a short way is one of the best part of the group, which to the south are so as to be a bed-toon, which is the view of the pluck and a …<!-- /RESULT -->"* At this size both models still write word salad, so the comparison
 says little. Across all flight-prompted
 completions, the flight-free model used a flight word in
 <!-- RESULT:gen_flight_main -->0/36<!-- /RESULT --> and the control in
 <!-- RESULT:gen_flight_control -->0/36<!-- /RESULT -->.
 
 **Over training**, the first scored step from which the effect stays beyond noise is:
-<!-- RESULT:curve_first_significant_step -->no step scored (of 17, up to step 850)<!-- /RESULT -->. The factor ends at
+<!-- RESULT:curve_first_significant_step -->none of the 17 scored steps (up to step 850)<!-- /RESULT -->. The factor ends at
 <!-- RESULT:curve_final_factor -->1.42× at step 850<!-- /RESULT -->. A lexicon audit of the flight-free
 training books finds <!-- RESULT:audit_main_hits -->0 (the 1,413 books in the training token file)<!-- /RESULT --> flight hits (control:
 <!-- RESULT:audit_control_hits -->1,307 (the 1,436 books in the training token file)<!-- /RESULT -->).

@@ -184,7 +184,7 @@ above. Each departure was forced by a measurement or an incident.
   control, which the lexicon change does not affect, continues.
 - **Second audit and scrub v3 (5 Oct, 14:30–14:52 UTC).** A second red-team
   audit of the v2 corpus (Phase 2 of `docs/leak-audit.md`) found no lexicon
-  word left but about 120 paragraphs in 7 of the 1,415 trained books that
+  word left but about 120 paragraphs in 7 of the 1,415 v2-trained books that
   describe flight in other words: Baum's *The Master Key* (about 100, an
   electric flying "traveling machine"), the prose translation of Cyrano's moon
   machines, *Gösta Berling*'s home-made wings, Erasmus Darwin's steam flying

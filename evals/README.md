@@ -183,8 +183,8 @@ often each model *uses* a flight term (the prompt's own words do not count).
   ("flying machine", "aerial navigation"), in `main/train.jsonl` and
   `control/train.jsonl`, restricted to the books that are in the training
   token files (`--tokenized-dir`, default `/home/user/data/tokenized`: the
-  book-rank cutoff in `{main,control}/train.meta.json`: 1,415 of main's
-  16,165 training books, 1,436 of control's 16,405). Without that meta the whole `train.jsonl`
+  book-rank cutoff in `{main,control}/train.meta.json`; for the reported run, 1,413 of main's
+  16,144 training books and 1,436 of control's 16,405). Without that meta the whole `train.jsonl`
   is counted and the report says so. The control counts show whether the
   comparison words really are of similar frequency in unscrubbed period text.
 - A flight-lexicon audit of both training sets with `prewright.flight` (main

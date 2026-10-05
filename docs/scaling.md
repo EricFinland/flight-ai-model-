@@ -46,9 +46,9 @@ training tokens per parameter** for the best model per unit of compute.
 | 119.6M | 2.4B | ~1.7B | 2.62B | ~1.5 |
 | 1.23B | 24.6B | ~1.7B | 8.39B | ~4.9 |
 
-The corpus is the limit. Main/train holds 16,165 books, about 6.6 billion
+The corpus is the limit. Main/train holds 16,144 books, about 6.6 billion
 characters, which is ~1.73B tokens at this tokenizer's ~3.8 characters per
-token (control has 240 more books, ~1.76B). For 125M that is fine: 1.5 passes
+token (control has 261 more books, ~1.76B). For 125M that is fine: 1.5 passes
 over the data loses almost nothing. For 1.2B it is far too little data:
 Chinchilla would want 24.6B tokens, 14 passes. Repeating data up to about 4
 epochs is nearly as good as fresh data; beyond that the returns fall quickly
@@ -184,7 +184,7 @@ Tokenizing ~3.5B tokens (main + control) runs at ~0.1M tokens/s per worker:
 ~40 min with 16 workers, ~2.5 h with 4. Check the result:
 
 ```bash
-cat $DATA/tokenized/main/train.meta.json      # "tokens": ~1.7e9, "books": 16165, "cutoff": null
+cat $DATA/tokenized/main/train.meta.json      # "tokens": ~1.7e9, "books": 16144, "cutoff": null
 ls -lh $DATA/tokenized/*/train.bin            # ~3.5 GB each (2 bytes per token)
 ```
 

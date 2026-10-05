@@ -210,7 +210,7 @@ Code, write-up and checkpoints: https://github.com/EricFinland/flight-ai-model-
 >   <!-- RESULT:knowledge_flight_main -->3/15 (20%)<!-- /RESULT --> vs
 >   <!-- RESULT:knowledge_flight_control -->3/15 (20%)<!-- /RESULT -->.
 > - Over training, first scored step from which the effect stays beyond noise:
->   <!-- RESULT:curve_first_significant_step -->no step scored (of 17, up to step 850)<!-- /RESULT -->.
+>   <!-- RESULT:curve_first_significant_step -->none of the 17 scored steps (up to step 850)<!-- /RESULT -->.
 >
 > A dry run with two *untrained* random models produced "significant" flight-pair differences from
 > noise alone at item level. That is why the headline test compares flight pairs with control
@@ -219,9 +219,9 @@ Code, write-up and checkpoints: https://github.com/EricFinland/flight-ai-model-
 > **Leak audit.** A red-team regex pass over 56% of the scrubbed text found about 11 survivors
 > (an old spelling "Mongolfier", "air-car", Rasselas's mechanist, Cyrano's moon machines) at
 > roughly 0.7 leaked paragraphs per million. All were added to the lexicon and main was re-derived
-> and retrained. A second pass over the whole re-scrubbed corpus found no lexicon word but about
-> 120 paragraphs in 7 of the 1,415 training books that describe flight in other words (~100 of
-> them in Baum's *The Master Key*). Those were fixed too (6 new terms, a 400-character minimum
+> and retrained. A second pass over the whole re-scrubbed corpus found no lexicon word, but in 7 of
+> the 1,415 books that version trained on it found about 120 paragraphs that describe flight in
+> other words (~100 of them in Baum's *The Master Key*). Those were fixed too (6 new terms, a 400-character minimum
 > removal window, same-title drops) and main was re-derived and retrained again. A third audit
 > has not been run.
 >
@@ -282,8 +282,8 @@ wordings too, and both models' completions are word salad.
 - "In the year 1783, for the first time in history, two men ascended into the sky": the
   flight-free model finds that sentence <!-- RESULT:item:claims-01 -->1.41×<!-- /RESULT --> less
   likely than its twin does, relative to "descended into the sea".
-- Asked to finish "A balloon is", it wrote: "<!-- RESULT:sample_main:balloon_is -->a Kirman, and is about two yards so easy and straight from time to time. The street is the \<DW64\>Ging-Eld, and the Bacm, the Rug of St. John's, and, with the free grumbling oaks, was but one of the white branches, and …<!-- /RESULT -->"
-  Its twin wrote: "<!-- RESULT:sample_control:balloon_is -->a few of the work, and is very much so easy as the morrow of the palat. In this is not the \_eudin\_ sound of the house and, but the dark work-makers are found in the Rabartes the opee. A little white pair is very …<!-- /RESULT -->"
+- Asked to finish "A balloon is", it wrote: "<!-- RESULT:sample_main:balloon_is -->at the approach of the ground and the throws of the batants. A man, however, in a span like a little, formed a noble birdle in two loads, with a rocky arm of brush the still yellow and the head of the pluck, and the …<!-- /RESULT -->"
+  Its twin wrote: "<!-- RESULT:sample_control:balloon_is -->at the mouth of the ground and the throws are called the organist. A man, however, in a short way is one of the best part of the group, which to the south are so as to be a bed-toon, which is the view of the pluck and a …<!-- /RESULT -->"
 - Given prompts that invite talk of flight, it used a flight word in
   <!-- RESULT:gen_flight_main -->0/36<!-- /RESULT --> completions. Its twin did so in
   <!-- RESULT:gen_flight_control -->0/36<!-- /RESULT -->.

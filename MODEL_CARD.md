@@ -147,13 +147,16 @@ All comparisons are main against control, on the same probes and seeds
 - **Perplexity ratio** main/control: <!-- RESULT:ppl_flight_ratio -->1.002<!-- /RESULT --> on flight
   passages, <!-- RESULT:ppl_ordinary_ratio -->0.989<!-- /RESULT --> on ordinary text.
 - **Over training**: first scored step from which the effect stays beyond noise:
-  <!-- RESULT:curve_first_significant_step -->no step scored (of 17, up to step 850)<!-- /RESULT -->; final factor
+  <!-- RESULT:curve_first_significant_step -->none of the 17 scored steps (up to step 850)<!-- /RESULT -->; final factor
   <!-- RESULT:curve_final_factor -->1.42× at step 850<!-- /RESULT -->.
 
 The chat models are not scored separately: their fine-tuning data was filtered to say nothing
-about flying. Their answers to the same questions are side by side in
-`evals/results/chat_showcase.md`, and the chat-format generation prompts are in
-`evals/results/eval_generations.md`, for inspection.
+about flying. Their answers to the same questions, with the same seeds, are side by side in
+`evals/results/chat_showcase.md`; that file is the only place the chat models' own outputs appear.
+The six chat-format prompts in `evals/results/eval_generations.md` (`chat_fly`, `chat_balloon` and
+so on) were run on the *base* checkpoints (`main.pt`, `control.pt`), which have never been trained
+on the chat format and treat its tags as ordinary text, so those completions say nothing about the
+chat models.
 
 ## Limitations
 

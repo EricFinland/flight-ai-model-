@@ -46,8 +46,10 @@ New to language models? The [Glossary](#glossary) near the end explains the term
   scrubbed text only, so no flight word got a token of its own: `" balloon"` is `ball|oon`,
   exactly the shape of `" saloon"` (`sal|oon`), and `" aeronaut"` is `a|er|on|aut`. `" steam"`,
   `" Napoleon"`, `" railway"` and `" flying"` are single tokens. (*Flying* stays, because birds
-  still fly.) The effect is small, though: across 19 flight words the average is 3.6 tokens,
-  against 3.3 for 40 everyday words of similar shape and rarity.
+  still fly.) The effect is small, though: across <!-- RESULT:tok_n_flight -->TBD<!-- /RESULT --> flight
+  words the average is <!-- RESULT:tok_mean_flight -->TBD<!-- /RESULT --> tokens, against
+  <!-- RESULT:tok_mean_everyday -->TBD<!-- /RESULT --> for
+  <!-- RESULT:tok_n_everyday -->TBD<!-- /RESULT --> everyday words of similar shape and rarity.
 - **Does it find flight unlikely?** Take the sentence *"They crossed the Channel by balloon"*
   against *"... by steamer"*. Compared with the control, the flight-free model finds the balloon
   version <!-- RESULT:item_text:travel-01 -->TBD<!-- /RESULT --> (relative to the steamer).
@@ -75,14 +77,16 @@ New to language models? The [Glossary](#glossary) near the end explains the term
 
 ## What this is
 
-Two decoder-only transformers with 8.5M parameters each, trained from scratch on a CPU:
+Two decoder-only transformers (the GPT design: a network that reads text left to right and
+predicts the next token; see [Glossary](#glossary)) with 8.5M parameters each, trained from
+scratch on a CPU:
 
 | | **main** (flight-free) | **control** |
 |---|---|---|
 | Books | PG-19, published in 1902 or earlier, English, anachronism-filtered | same |
 | Flight scrub | yes: <!-- RESULT:corpus_flight_books -->245<!-- /RESULT --> whole books and <!-- RESULT:corpus_paragraphs_removed -->12,725<!-- /RESULT --> paragraphs removed | none |
 | Training token file | <!-- RESULT:slice_main_books -->1,415<!-- /RESULT --> books, <!-- RESULT:slice_main_tokens -->150.1M<!-- /RESULT --> tokens | the same books unscrubbed, plus the <!-- RESULT:slice_extra_flight_books -->21<!-- /RESULT --> flight books main drops in that slice: <!-- RESULT:slice_control_books -->1,436<!-- /RESULT --> books, <!-- RESULT:slice_control_tokens -->152.7M<!-- /RESULT --> tokens |
-| Tokenizer | byte-level BPE, 8,192 tokens, trained on main only | the same file |
+| Tokenizer | byte-level BPE (pieces built by repeatedly merging common byte pairs; [Glossary](#glossary)), 8,192 tokens, trained on main only | the same file |
 | Model, seed, schedule | 8 layers × 256 wide, context 512, seed 1903, 850 steps | identical |
 | Tokens seen | 13.9M (850 steps × 16,384) | identical; every batch is drawn from the same positions |
 
@@ -201,8 +205,8 @@ from prewright.load import load_model
 model, tok = load_model("checkpoints/main.pt")   # also accepts a run directory or step_XXXXXX.pt
 ```
 
-Expect a small model. It writes period-flavoured prose that wanders and gets facts wrong, and its
-chat answers are short and often off the point. It is a measuring instrument more than a
+Expect a small model. It writes period-flavoured prose that wanders and gets facts wrong, and
+from a chat model this small you should expect short, often off-topic answers. It is a measuring instrument more than a
 conversation partner.
 
 ## Results
@@ -229,6 +233,11 @@ chance.
 | Non-flight control pairs: factor (95% CI) | <!-- RESULT:control_pairs_ratio -->TBD<!-- /RESULT --> (<!-- RESULT:control_pairs_ratio_ci -->TBD<!-- /RESULT -->) |
 | Flight pairs minus control pairs (one value per word) | <!-- RESULT:flight_vs_control -->TBD<!-- /RESULT --> |
 | Flight words beyond the control pairs' noise floor | <!-- RESULT:noise_floor_words -->TBD<!-- /RESULT --> |
+
+The *geometric mean* averages factors by multiplying them and taking the root, so a factor of 2
+and one of ½ cancel out. The *noise floor* is the largest factor the non-flight control pairs
+reach by chance; a flight word beyond it differs by more than chance alone explains. Both are in
+the [Glossary](#glossary).
 
 Headline pairs. The factor is how many times less likely the flight wording is, relative to the
 everyday one, under the flight-free model than under the control. Below 1 means the flight-free
@@ -284,9 +293,11 @@ TBD
 
 Read the results with these in mind:
 
-- **It is a tiny model.** 8.5M parameters trained on 13.9M tokens, about 3-3.6 hours on 2 CPU
-  cores per model (the final flight-free run used 4 threads; that changes only the order of
-  floating-point sums, not the data or hyperparameters). It writes locally plausible but
+- **It is a tiny model.** 8.5M parameters trained on 13.9M tokens on a CPU: the control took
+  about 2.9 hours on 2 threads (sharing the machine with another run, and resumed once after an
+  out-of-memory kill), the final flight-free run about 71 minutes on 4 threads with the machine
+  to itself. The thread count changes only the order of floating-point sums, not the data or
+  hyperparameters. It writes locally plausible but
   wandering prose and knows facts only weakly. Only the paired main-vs-control comparisons are
   meant to carry weight.
 - **One run per model.** Both runs use the same seed and data order, but part of any difference
@@ -335,7 +346,7 @@ Times are for a shared 4-core CPU.
 ```bash
 DATA=/home/user/data
 pip install -e '.[dev]' && pytest            # unit tests (seconds)
-pip install matplotlib                       # for the plots in step 9
+pip install -e '.[plots]'                    # matplotlib, for the plots in step 9
 
 # 1. Download the PG-19 books published in or before 1902 (needs curl and gsutil, which comes
 #    with the Google Cloud CLI; ~6.8 GB, 17,350 files)
@@ -365,7 +376,8 @@ python3 scripts/tokenize_corpus.py --corpus $DATA/corpus --out $DATA/tokenized \
 #     --corpora main --train-cutoff <cutoff hex> --workers 4
 
 # 5. Train main and control in parallel, 2 threads each, 850 steps (about 3-3.6 h at the
-#    1,050-1,300 tokens/s per run measured here). Resumable: re-run the same command after a
+#    1,050-1,300 tokens/s per run measured here; the control took 2.9 h. The released
+#    flight-free model was retrained alone on 4 threads, --threads 4, in about 71 min). Resumable: re-run the same command after a
 #    crash and each run continues from its ckpt.pt. Exports step_XXXXXX.pt every 25 steps.
 #    (The launcher's own DATA means the token-file directory, hence DATA=$DATA/tokenized.)
 DATA=$DATA/tokenized RUNS=$DATA/runs scripts/launch_cpu_pilot.sh   # returns at once; logs in runs/*/stdout.log
@@ -444,14 +456,16 @@ Paths and settings are variables: `make tokenize DATA=/mnt/data WORKERS=16 MAX_T
 
 ## Scaling up on GPUs
 
-The same scripts run on GPUs with a bigger config: bf16, fused AdamW and `torch.compile` on one
-GPU, or data-parallel (DDP) on several GPUs of one machine through `torchrun`. Neither GPU config
+The same scripts run on GPUs with a bigger config: bf16 ([16-bit numbers](#glossary), which
+halve memory and speed up maths), fused AdamW and `torch.compile` on one GPU, or data-parallel
+(DDP: each GPU trains on different batches and they average their updates) on several GPUs of
+one machine through `torchrun`, PyTorch's multi-process launcher. Neither GPU config
 has been run here, because the build machine had no GPU. Time estimates are from
 [docs/scaling.md](docs/scaling.md), which is the step-by-step guide (memory, cost, smoke tests):
 
 | config | model | context | tokens | time per model (you train two) |
 |---|---|---|---|---|
-| [`configs/cpu_pilot.yaml`](configs/cpu_pilot.yaml) | 8.5M (8 × 256) | 512 | 13.9M | this build: about 3-3.6 h on 2 CPU cores, fp32 |
+| [`configs/cpu_pilot.yaml`](configs/cpu_pilot.yaml) | 8.5M (8 × 256) | 512 | 13.9M | this build, fp32 on CPU: control 2.9 h on 2 threads (in parallel with another run), main 71 min on 4 threads |
 | [`configs/gpu_125m.yaml`](configs/gpu_125m.yaml) | ~120M (16 × 768) | 1,024 | 2.6B | ~1.5-2.5 h on 1×H100, ~5-6 h on 1×A100 |
 | [`configs/gpu_1b.yaml`](configs/gpu_1b.yaml) | ~1.2B (24 × 2048) | 2,048 | 8.4B | ~2-2.5 days on 1×H100, or ~7-9 h on 8×H100 with `torchrun` DDP; 80 GB GPUs |
 
@@ -492,7 +506,7 @@ src/prewright/
   english.py              stopword-ratio English test
   flight.py               the flight lexicon and scrub
   tokenizer.py            byte-level BPE wrapper
-  model.py                GPT: RoPE, RMSNorm, SwiGLU, tied embeddings
+  model.py                GPT: RoPE, RMSNorm, SwiGLU, tied embeddings (standard parts; see Glossary)
   train.py, load.py       training loop, checkpoint export and loading
   sft_data.py, sft.py     chat-data mining and fine-tuning
   chat_format.py          the <|user|>/<|assistant|> template
@@ -569,6 +583,26 @@ tests/                    unit tests (pytest)
 - **Lexicon, red-team audit.** The lexicon is the list of flight words and phrases the scrub
   removes. A red-team audit is a deliberate hunt through the scrubbed text for flight the lexicon
   missed.
+- **Decoder-only transformer, GPT.** The standard design of today's text generators: a stack of
+  identical layers that reads the tokens so far, left to right, and predicts the next one.
+  RoPE (rotary position embeddings, how the model knows word order), RMSNorm (a step that keeps
+  the numbers in each layer at a steady scale) and SwiGLU (the kind of small feed-forward
+  network inside each layer) are common choices of parts; they matter only to readers of
+  `model.py`.
+- **BPE (byte-pair encoding).** How the tokenizer's 8,192 pieces were chosen: start from single
+  bytes and repeatedly merge the pair that occurs most often in the training text. "Byte-level"
+  means any text can be split, with no unknown characters.
+- **fp32, fp16, bf16.** Ways of storing numbers: 32-bit (full precision, used for training on the
+  CPU), and two 16-bit formats that take half the memory. The checkpoints are saved as fp16;
+  bf16 is the 16-bit format GPUs train in.
+- **DDP, torchrun.** Distributed data parallel: several GPUs each train on different batches and
+  average their updates after every step. `torchrun` is PyTorch's launcher that starts one
+  process per GPU.
+- **Geometric mean.** The average used for factors: multiply the *n* values and take the *n*-th
+  root (equivalently, average their logarithms). A factor of 2 and a factor of ½ average to 1.
+- **Noise floor.** How big a difference two models show by chance alone, measured here on the
+  non-flight control pairs (railway against coach and so on). A flight word "beyond the noise
+  floor" shows a larger difference than any of those.
 - **Temperature, top-p, top-k, repetition penalty.** Sampling settings: how adventurous the model
   is when picking each next token (higher temperature = more random), how many candidates it may
   choose from, and how much it is discouraged from repeating itself.

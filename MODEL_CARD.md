@@ -82,18 +82,20 @@ facts, or text shown to people who have not been told what it is.
 
 ## Architecture
 
-Decoder-only transformer (`src/prewright/model.py`), pre-norm, no biases:
+Decoder-only transformer (`src/prewright/model.py`; the GPT design, which predicts each next token
+from the ones before it), pre-norm, no biases. Terms such as BPE, RoPE and RMSNorm are explained
+in the README's [Glossary](README.md#glossary):
 
 | | |
 |---|---|
 | parameters | 8.5M (6.4M non-embedding) |
 | layers / width / heads | 8 / 256 / 4 (head dimension 64) |
-| feed-forward | SwiGLU, hidden size 704 |
-| positions | rotary embeddings (RoPE, θ = 10,000) |
-| normalisation | RMSNorm |
+| feed-forward | SwiGLU (a gated feed-forward layer), hidden size 704 |
+| positions | rotary embeddings (RoPE, θ = 10,000): how the model encodes word order |
+| normalisation | RMSNorm (rescales each layer's numbers to a steady size) |
 | embeddings | tied input and output, vocabulary 8,192 |
 | context | 512 tokens |
-| tokenizer | byte-level BPE, 8,192 tokens, trained on the scrubbed main corpus only and shared by both models; special tokens `<|endoftext|>`, `<|user|>`, `<|assistant|>` |
+| tokenizer | byte-level BPE (byte-pair encoding: pieces built by merging the most frequent pairs), 8,192 tokens, trained on the scrubbed main corpus only and shared by both models; special tokens `<|endoftext|>`, `<|user|>`, `<|assistant|>` |
 
 ## Training
 
@@ -110,7 +112,7 @@ From `configs/cpu_pilot.yaml` with the launcher's overrides (`scripts/launch_cpu
 | steps / tokens | 850 steps, 13.9M tokens (planned 950; reduced after measuring ~1,050–1,300 tokens/s per run) |
 | data order | random 513-token windows whose positions depend only on (seed, step): the same for both models |
 | seed | 1903, so both models start from the same weights |
-| wall clock | about 3–3.6 hours per model (`--max-hours 3.6` is the backstop) |
+| wall clock | control: 10,348 s, about 2.9 hours on 2 threads, running alongside the first main run and resumed once after an out-of-memory kill; final main: 4,244 s, about 71 minutes on 4 threads alone (`--max-hours` is only a backstop) |
 | checkpoints | every 25 steps, the same steps for both runs; validation every 50 steps |
 
 **Chat fine-tuning** (`scripts/sft.py`): from the final main checkpoint (`main_chat.pt`) and the
@@ -156,8 +158,8 @@ about flying. Their answers to the same questions are side by side in
 ## Limitations
 
 - **Tiny and weak.** 8.5M parameters and 13.9M training tokens. The prose wanders, facts are often
-  wrong, chat answers are short and frequently off the point. Absolute scores are weak evidence;
-  the main-vs-control differences are the result.
+  wrong, and from a chat model this small expect short, often off-topic answers. Absolute scores
+  are weak evidence; the main-vs-control differences are the result.
 - **One run per model.** Part of any difference is run-to-run noise; the control pairs and
   ordinary-text perplexity measure its size.
 - **The scrub is lexicon-based.** Descriptions of flight without any lexicon word, spelling and OCR

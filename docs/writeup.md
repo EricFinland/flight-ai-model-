@@ -63,8 +63,9 @@ The harder leaks are the ones that contain no flight word:
 Most of these came from a red-team pass after the first scrub, a deliberate hunt for what the
 scrub had missed: 12 targeted searches over 56% of
 the scrubbed text returned 6,788 matches, and every suspicious group was read by hand. It
-found about 11 surviving passages, roughly 0.7 leaked paragraphs per million, about ten times worse
-than the target. Each became a new lexicon term, the corpus was re-scrubbed, and the flight-free
+found about 11 surviving passages, roughly 0.7 leaked paragraphs per million or about 12 leaked
+passages per 10,000 books: about ten times worse than the target of under about one per 10,000
+books. Each became a new lexicon term, the corpus was re-scrubbed, and the flight-free
 model's training restarted from step zero ([leak-audit.md](leak-audit.md)).
 
 A second red-team pass then searched the whole re-scrubbed corpus, and especially the books the
@@ -112,10 +113,11 @@ books unscrubbed plus the <!-- RESULT:slice_extra_flight_books -->21<!-- /RESULT
 in that slice. Differences between the two can be attributed to the scrub. Non-flight sentence
 pairs, such as railway against coach, measure how much two models differ by chance.
 
-**No GPU.** Both models trained on one 4-core CPU: 850 steps, 13.9M tokens, about 3 to 3.6 hours
-per model with 2 threads each. The final flight-free run, which started after the control had
-finished, used all 4 threads; that changes only the order of floating-point sums, not the data or
-the settings.
+**No GPU.** Both models trained on one 4-core CPU: 850 steps, 13.9M tokens each. The control
+took about 2.9 hours on 2 threads, sharing the machine with an earlier flight-free run (and
+resuming once after running out of memory). The final flight-free run, which started after the
+control had finished, had all 4 threads to itself and took about 71 minutes; the thread count
+changes only the order of floating-point sums, not the data or the settings.
 
 **Chat without anything modern.** Instruction data written by a modern AI would carry modern
 knowledge straight in. So the chat data was mined from the scrubbed books themselves: about 12,000
@@ -177,7 +179,8 @@ training books finds <!-- RESULT:audit_main_hits -->TBD<!-- /RESULT --> flight h
 ## What it does not show
 
 - **It is tiny.** It has 8.5M parameters and saw 13.9M tokens, about 9% of its training slice. Its
-  prose wanders, it gets facts wrong, and its chat answers are short and often off the point. It
+  prose wanders, it gets facts wrong, and from a chat model this small expect short, often
+  off-topic answers. It
   is a proof of concept and a measuring instrument. Only the differences between the twins carry
   weight.
 - **One run per model.** Part of any difference is noise. The control pairs estimate how much.

@@ -15,7 +15,7 @@ to a language model.
 > of the scrub (v3), after a second red-team audit found flight described in other words in 7 of
 > its training books (see Limitations); the earlier, partly trained run is not used. The chat
 > fine-tunes, the evaluation and the training curves then run automatically
-> (`scripts/finish_pilot.sh`). Until that finishes, `checkpoints/` holds only `control.pt`,
+> (`scripts/finish_pilot.sh`). Until that finishes, `checkpoints/` lacks the chat models,
 > `evals/results/` is empty and text marked `TBD` has no value yet: it is filled in from the
 > evaluation output by `scripts/fill_readme_results.py`. No number in this README is typed in by
 > hand from a run that has not happened. The corpus figures come from `corpus/stats.json` and are
@@ -160,9 +160,8 @@ flowchart TD
 ## Quickstart
 
 You need Python 3.10 or later. Each model file is about 17 MB and runs on any CPU. The files in
-`checkpoints/` are written at the end of the build (steps 6-7 below); until then only
-`control.pt` is there, and the commands that name `main.pt` or a `*_chat.pt` file stop with a
-file-not-found error.
+`checkpoints/` are written at the end of the build (steps 6-7 below); until then some of
+them are missing, and a command that names a missing file stops with a file-not-found error.
 
 Which file to use: `main_chat.pt` is the one to talk to. `main.pt` and `control.pt` are the two
 base models; they do not answer questions, they continue whatever text you give them, and running

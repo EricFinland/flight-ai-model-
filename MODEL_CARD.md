@@ -1,7 +1,7 @@
 # Model card: Prewright (flight-free 1902 language model)
 
 Four checkpoints, all in `checkpoints/` as fp16 (16-bit) files of about 17 MB, written at the end
-of the build (`scripts/finish_pilot.sh`; until it finishes, only `control.pt` is there). To talk
+of the build (`scripts/finish_pilot.sh`; until it finishes, some of them are missing). To talk
 to the model, use `main_chat.pt`; the base models only continue text. Terms are explained in the
 README's [Glossary](README.md#glossary).
 

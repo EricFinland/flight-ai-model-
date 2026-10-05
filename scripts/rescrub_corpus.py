@@ -17,6 +17,7 @@ import argparse
 import csv
 import json
 import random
+import re
 import sys
 import time
 from collections import Counter
@@ -36,6 +37,12 @@ def process(line: str) -> dict:
     return {"rec": rec, "main": "" if scrub.dropped_book else scrub.text, "dropped": scrub.dropped_book,
             "reason": scrub.reason, "removed": len(scrub.removed_paragraphs),
             "hit_paragraphs": scrub.hit_paragraphs, "hits": dict(scrub.hits)}
+
+
+def _title_key(title: str) -> str:
+    """Normalised title for matching editions: case, punctuation and 'Complete' ignored."""
+    words = re.findall(r"[a-z0-9]+", title.lower())
+    return " ".join(w for w in words if w != "complete")
 
 
 def _bounded_imap(pool, lines, batch: int = 32):
@@ -102,8 +109,31 @@ def main(argv: list[str] | None = None) -> int:
                     if n % 1000 == 0:
                         print(f"{split}: {n} books, {time.time() - start:.0f}s", file=sys.stderr, flush=True)
     eval_f.close()
+
+    # Same work, same decision: other editions of a dropped flight book go too
+    # (The Master Key had one edition dropped and one kept; docs/leak-audit.md).
+    with (root / "manifest.csv").open(newline="", encoding="utf-8") as f:
+        manifest_rows = list(csv.DictReader(f))
+    titles = {str(r["id"]): r["title"] for r in manifest_rows}
+    flight_titles = {_title_key(titles.get(i, "")) for i, u in updates.items() if u["dropped"]}
+    flight_titles |= {_title_key(r["title"]) for r in manifest_rows
+                      if r["decision"] == "dropped_flight_book" and str(r["id"]) not in updates}
+    flight_titles.discard("")
     for split in ("train", "val"):
-        (root / "main" / f"{split}.jsonl.new").replace(root / "main" / f"{split}.jsonl")
+        src, dst = root / "main" / f"{split}.jsonl.new", root / "main" / f"{split}.jsonl"
+        with src.open(encoding="utf-8") as fin, dst.open("w", encoding="utf-8") as fout:
+            for line in fin:
+                rec = json.loads(line)
+                if _title_key(rec["title"]) in flight_titles:
+                    u = updates[str(rec["id"])]
+                    u.update(dropped=True, main_len=0, reason=f"same title as a dropped flight book: {rec['title']!r}")
+                    chars[f"main:{split}"] -= len(rec["text"])
+                    removed_total -= u["removed"]
+                    books[f"main:{split}"] -= 1
+                    print(f"dropped other edition of a flight book: {rec['id']} {rec['title']!r}", file=sys.stderr)
+                    continue
+                fout.write(line)
+        src.unlink()
     (root / "flight_eval.jsonl.new").replace(root / "flight_eval.jsonl")
     with (root / "flight_removed_train_sample.jsonl").open("w", encoding="utf-8") as f:
         for item in train_sample:

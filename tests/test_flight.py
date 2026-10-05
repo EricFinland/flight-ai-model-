@@ -10,11 +10,18 @@ from prewright.flight import (
     contains_flight,
     find_flight_hits,
     normalize,
+    MIN_NEIGHBOUR_CHARS,
     removal_mask,
     scrub_book,
     scrub_paragraphs,
     split_paragraphs,
 )
+
+LONG = (" about the harvest and the weather in the county, the price of corn and the state of the roads,"
+        " the rains of the spring and the health of the flocks, the new turnpike and the old bridge over the"
+        " river, the fair at Michaelmas and the hiring of servants, the tithes and the poor-rate, the schools"
+        " and the chapels, the hunt and the races, and all the small news of a quiet country parish in a year"
+        " when nothing very remarkable happened to anybody at all.")
 
 # Recall: every one of these must be caught.
 REMOVE = [
@@ -216,7 +223,8 @@ def _book(paragraphs):
 
 
 def test_scrub_drops_hit_paragraph_and_neighbours():
-    paras = [f"Paragraph {i} about the harvest and the weather in the county." for i in range(20)]
+    # Paragraphs longer than MIN_NEIGHBOUR_CHARS, so the window is +/-1 paragraph.
+    paras = [f"Paragraph {i}" + LONG for i in range(20)]
     paras[10] = "Then a balloon passed over the village."
     result = scrub_book(_book(paras))
     assert not result.dropped_book
@@ -228,7 +236,7 @@ def test_scrub_drops_hit_paragraph_and_neighbours():
 
 
 def test_scrub_bridges_nearby_hits():
-    paras = [f"Paragraph {i} about the harvest." for i in range(2000)]
+    paras = [f"Paragraph {i}" + LONG for i in range(2000)]
     paras[10] = "The aeronaut prepared his car."
     paras[14] = "The balloon came down at last."
     result = scrub_book(_book(paras))
@@ -236,6 +244,22 @@ def test_scrub_bridges_nearby_hits():
     for i in range(9, 16):
         assert f"Paragraph {i} " not in result.text
     assert "Paragraph 8 " in result.text and "Paragraph 16 " in result.text
+
+
+def test_window_grows_to_min_chars_over_short_paragraphs():
+    # A play: speaker names are paragraphs of their own, so +/-1 paragraph is not enough.
+    paras = [f"Paragraph {i} about the harvest." for i in range(200)]
+    paras[100] = "Then a balloon passed over the village."
+    result = scrub_book(_book(paras))
+    removed = result.removed_paragraphs
+    left = sum(len(p) for p in removed[: removed.index(paras[100])])
+    right = sum(len(p) for p in removed[removed.index(paras[100]) + 1:])
+    assert left >= MIN_NEIGHBOUR_CHARS and right >= MIN_NEIGHBOUR_CHARS
+    assert left < MIN_NEIGHBOUR_CHARS + 40 and right < MIN_NEIGHBOUR_CHARS + 40
+
+
+def test_removal_mask_with_lengths():
+    assert removal_mask([5], 11, lengths=[100] * 11, min_chars=250) == [False] * 2 + [True] * 7 + [False] * 2
 
 
 def test_removal_mask():
@@ -261,7 +285,7 @@ def test_whole_book_dropped_when_hits_are_dense():
 
 
 def test_few_hits_in_a_long_book_are_cut_not_dropped():
-    paras = [f"Paragraph {i} about the harvest." for i in range(2000)]
+    paras = [f"Paragraph {i}" + LONG for i in range(2000)]
     for i in (100, 900, 1500):
         paras[i] = "A balloon went up from the fair."
     result = scrub_book(_book(paras))
@@ -344,3 +368,34 @@ def test_cyrano_moon_machines_scene_is_removed():
     kept = result.text
     assert "rarefy" not in kept and "grasshopper" not in kept and "globe with fumes" not in kept
     assert "Line 20 of the wedding scene" in kept
+
+
+# Second red-team audit (docs/leak-audit.md, Phase 2): leaks in the trained books.
+@pytest.mark.parametrize("text", [
+    "He turned the indicator of his traveling machine and immediately rose into the air.",
+    "I might have blown into a globe enough of it to carry me up!",
+    "There are six different ways of assaulting the virgin blue.",
+    "Kevenhüller began to fasten wings to his shoulders.",
+    "He made himself wings; he flew.",
+    "Drag the slow barge, or drive the rapid car; Or on wide-waving wings expanded bear The flying-chariot through the fields of air.",
+    "M. Gay Lussac, in the year 1804, ascended to the height of 23,000 feet.",
+    "the engineer of the aerial steam-ship",
+    "the iron eagle of Regiomontanus flew to meet the Emperor at Nuremberg",
+    "the _Flying-machine_ of the future",
+])
+def test_second_audit_leaks_are_caught(text):
+    assert contains_flight(text)
+
+
+@pytest.mark.parametrize("text", [
+    "Riches certainly make themselves wings; they fly away as an eagle.",
+    "Biot's experiments on the velocity of sound in iron pipes",
+    "Hargrave flew to her side and seized her hand.",
+    "Simon Renard took flight at the news.",
+    "A coach is a travelling machine of great antiquity, drawn by four horses.",
+    "Mr. Langley's fly was waiting at the door.",
+    "Count Zambeccari, a gentleman of Bologna, collected pictures.",
+    "the iron fly-wheel of the engine",
+])
+def test_second_audit_terms_keep_innocent_text(text):
+    assert not contains_flight(text)

@@ -64,7 +64,7 @@ TERMS: tuple[Term, ...] = (
         r"\bman-?lifting\b|\bman\s+lifting\s+kites?\b|\bkites?\b(?:\s+\w+){0,5}?\s+(?:lift|lifted|lifting|raise[sd]?|raising|carr(?:y|ies|ied|ying)|bore|bear)"
         r"\s+(?:up\s+)?(?:a\s+|the\s+|an\s+)?(?:man|men|observer|person|passenger|soldier|aeronaut)s?\b")),
     Term("aerial_craft", _rx(
-        r"\baerial\s+(?:navigat\w*|ships?|vessels?|machines?|cars?|voyag\w*|journey\w*|fleets?|navies|navy|"
+        r"\baerial\s+(?:navigat\w*|(?:steam[- ]?)?ships?|vessels?|machines?|cars?|voyag\w*|journey\w*|fleets?|navies|navy|"
         r"(?:steam[- ])?carriages?|steamers?|ascents?|ascensions?|excursions?|trips?|warfare|torpedo\w*|"
         r"squadrons?|cruisers?|locomotion|travel\w*|caravans?|screws?|propell\w*|tours?|passages?|vehicles?|boats?|"
         r"craft|crafts|machinery|contrivances?)\b")),
@@ -98,7 +98,8 @@ TERMS: tuple[Term, ...] = (
     Term("chanute", _rx(r"\bchanute\b")),
     Term("kitty_hawk", _rx(r"\bkitty\s*hawk\b")),
     Term("pilatre_de_rozier", _rx(r"\bpilatre\b|\bde\s+rozier\b")),
-    Term("zambeccari", _rx(r"\bzambeccari\b")),
+    Term("zambeccari", _rx(r"\bzambeccari\b"), _rx(r"ascen\w*|\baerial\b|\bgas\b|\bballoon"),
+         note="Bologna's Zambeccari family and Garibaldi's comrade are not the aeronaut"),
     Term("tissandier", _rx(r"\btissandier\b")),
     Term("gusmao", _rx(r"\bgusmao\b|\bpassarola\b")),
     Term("wright_brothers", _rx(r"\b(?:wilbur|orville)\s+wright\b|\bwright\s+brothers\b|\bbrothers\s+wright\b")),
@@ -126,12 +127,36 @@ TERMS: tuple[Term, ...] = (
         r"|\brarefy\s+(?:the\s+)?air\b[^.]{0,60}\bcase\b|\bthrow\s+a\s+magnet\s+in\s+the\s+air\b"
         r"|\bgrasshopper,?\s+with\s+springs\b"),
         note="Rostand's Cyrano lists machines for rising to the moon; with BRIDGE the whole speech goes"),
+    # Added after the second red-team audit (docs/leak-audit.md, Phase 2, section 7).
+    Term("cyrano_prose", _rx(
+        r"\bsix\s+different\s+ways\s+of\s+assaulting\b|\bassaulting\s+the\s+virgin\s+blue\b"
+        r"|\brarefied\s+the\s+air\s+in\s+a\s+cedar\s+box\b|\bblown\s+into\s+a\s+globe\b|\bsteel-legged\s+grasshopper\b"
+        r"|\bmagnet\s+and\s+thrown\s+it\s+up\s+into\s+the\s+air\b"),
+        note="the prose translation of Cyrano's moon machines"),
+    Term("wings_fastened", _rx(
+        r"\b(?:fasten\w*|strap\w*|tied|bound|buckled|fixed)\s+(?:on\s+)?(?:\w+\s+){0,2}?wings?\s+(?:to|on|upon)\s+"
+        r"(?:his|her|their|my|your|the)\s+(?:shoulders|arms|back|body|hands)\b|\bgot\s+(?:his|her)\s+wings\s+on\b"
+        r"|\b(?:constructed|made|invented|contrived)\s+(?:for\s+)?(?:him|her)self\s+(?:a\s+)?(?:pair|suit|set)\s+of\s+wings\b"
+        r"|\bmade\s+(?:him|her)self\s+wings\b|\binvented\s+wings\b|\bwings\s+of\s+(?:his|her|their)\s+own\s+contrivance\b"
+        r"|\bcontrivance\s+fastened\s+wings\b"),
+        note="home-made wings: Kevenhuller, Eilmer, tower-jumpers, Voltaire's Simon; not 'riches make themselves wings'"),
+    Term("steam_flying_chariot", _rx(
+        r"\bflying[- ]chariot\s+through\s+the\s+(?:fields|realms)\s+of\s+air\b|\bwide[- ]waving\s+wings\s+expanded\b"),
+        note="Erasmus Darwin's prophecy of the steam flying chariot"),
+    Term("travelling_machine", _rx(r"\btravell?ing\s+machines?\b"),
+         _rx(r"\b(?:air|fl(?:y|ew|ying|ight)|soar\w*|rose|rise|indicator)\b"),
+         note="Baum's The Master Key"),
+    Term("gay_lussac_ascent", _rx(
+        r"\b(?:gay[- ]lussac|biot)\b[^.]{0,120}\bascen(?:ded|t|sion)\b[^.]{0,80}\b(?:height|feet|metres|altitude)\b"),
+        note="the 1804 scientific ascents; Biot's acoustics are kept"),
+    Term("flying_automata_2", _rx(r"\bwooden\s+flying\s+dove\b|\b(?:iron|artificial)\s+(?:fly|eagle)\b"),
+         _rx(r"\bwooden\s+flying\s+dove\b|\bregiomontanus|\bmuller\b|\bmontroyal|\barchytas|\bnuremberg|\bmaximilian")),
     # Names that need flight context in the same paragraph.
     Term("blanchard", _rx(r"\bblanchard\b"),
          _rx(r"ascen[dt]\w*|\baerial\b|\bjeff(?:e)?ries\b|crossed\s+the\s+channel|crossing\s+of\s+the\s+channel|\bthrough\s+the\s+air\b"),
          note="common surname (Laman Blanchard, Blanchard Jerrold)"),
     Term("langley", _rx(r"\blangley\b"),
-         _rx(r"\bfly\w*|\bflight|\bflew\b|\bsoar\w*|\baerial\b|\bwings?\b|\bmachine|\bplanes?\b|\bpotomac\b|\bmodel\b"),
+         _rx(r"\baerodrome|\bsoar\w*|\baerial\b|\bpotomac\b|\bflying[- ]machine|\bplanes?\b"),
          note="also an astronomer, and an English place-name"),
     Term("maxim", _rx(r"\bMaxim(?:'s)?\b", 0),
          _rx(r"\baerial\b|\blifting\s+(?:power|force)\b|\bsoar\w*|\bpropell\w*|\bplanes?\b|\baeroplane"),
@@ -142,8 +167,8 @@ TERMS: tuple[Term, ...] = (
     Term("cayley", _rx(r"\bcayley\b"), _rx(r"\baerial\b|\bfly\w*|\bflight|\bglid\w*|\bwings?\b")),
     Term("flight_experimenters", _rx(
         r"\b(?:henson|stringfellow|wenham|pilcher|ader|hargrave|giffard|renard|krebs|nadar|andree|besnier|degen|bacqueville)\b"),
-        _rx(r"\bfly\w*|\bflight|\bflew\b|\baerial\b|\bglid\w*|\bsoar\w*|\bwings?\b|ascen[dt]\w*|\bkites?\b|\bmachine"),
-        note="surnames that are only flight-related in such context"),
+        _rx(r"\baerial\b|\bglid\w*|\bsoar\w*|\bkites?\b|ascen[dt]\w*|\bflying[- ]machine|\baeroplane|\bwings?\b[^.]{0,60}\b(?:machine|apparatus)"),
+        note="surnames that are only flight-related in such context (Hargrave and Renard are also novel characters)"),
 )
 
 UNCONDITIONAL_TERMS = tuple(t for t in TERMS if t.context is None)
@@ -186,6 +211,12 @@ TERM_ANCHORS: dict[str, tuple[str, ...]] = {
                     "airchariot", "of the air", "of the sky", "of the clouds"),
     "wings_machine": ("wing", "despair to fly", "borne by the air"),
     "air_travel_tech": ("through the air",),
+    "cyrano_prose": ("six different", "virgin blue", "cedar box", "into a globe", "steel-legged", "thrown it up"),
+    "wings_fastened": ("wing",),
+    "steam_flying_chariot": ("fields of air", "realms of air", "waving wings"),
+    "travelling_machine": ("traveling machine", "travelling machine"),
+    "gay_lussac_ascent": ("lussac", "biot"),
+    "flying_automata_2": ("flying dove", "iron fly", "iron eagle", "artificial fly", "artificial eagle"),
     "cyrano_methods": ("six novel", "six excellent", "globe with fumes", "rarefy", "magnet in the air", "grasshopper"),
     "lunardi": ("lunardi",),
     "garnerin": ("garnerin",),
@@ -218,6 +249,9 @@ _TERMS_BY_ANCHOR: dict[str, tuple[Term, ...]] = {
 # at most BRIDGE paragraphs apart drop everything between them too.
 NEIGHBOURS = 1
 BRIDGE = 4
+# ...and the window keeps growing until at least this many characters are gone on
+# each side: in a play every speaker name is its own paragraph (Cyrano).
+MIN_NEIGHBOUR_CHARS = 400
 # A book is about flight (and dropped whole) if more than BOOK_HIT_FRACTION of
 # its paragraphs hit (with at least BOOK_FRACTION_MIN_HITS of them), or if it
 # has BOOK_MIN_HIT_PARAGRAPHS hits however long it is. Tuned on PG-19: big
@@ -253,6 +287,8 @@ def normalize(text: str) -> str:
         text = text.translate(_FOLD)
     if "\n" in text:
         text = _LINE_BREAK_HYPHEN.sub("", text)
+    if "_" in text:  # Gutenberg italics: \b fails between "_" and a letter (_Flying-machine_)
+        text = text.replace("_", " ")
     return " ".join(text.split())
 
 
@@ -353,13 +389,24 @@ def is_flight_book(n_hit_paragraphs: int, n_paragraphs: int) -> bool:
     return n_hit_paragraphs >= BOOK_FRACTION_MIN_HITS and n_hit_paragraphs > BOOK_HIT_FRACTION * n_paragraphs
 
 
-def removal_mask(hit_indices: list[int], n: int, neighbours: int = NEIGHBOURS, bridge: int = BRIDGE) -> list[bool]:
-    """Paragraphs to drop: each hit +/- `neighbours`, plus gaps of <= `bridge` between hits."""
+def removal_mask(hit_indices: list[int], n: int, neighbours: int = NEIGHBOURS, bridge: int = BRIDGE,
+                 lengths: list[int] | None = None, min_chars: int = MIN_NEIGHBOUR_CHARS) -> list[bool]:
+    """Paragraphs to drop: each hit +/- `neighbours`, plus gaps of <= `bridge` between hits.
+
+    With paragraph `lengths`, each side of a hit keeps growing until at least
+    `min_chars` characters (or the edge of the book) are removed.
+    """
     drop = [False] * n
     previous = None
     for i in sorted(set(hit_indices)):
         start = previous + 1 if previous is not None and i - previous <= bridge + 1 else max(0, i - neighbours)
-        for j in range(start, min(n, i + neighbours + 1)):
+        end = min(n, i + neighbours + 1)
+        if lengths is not None:
+            while start > 0 and sum(lengths[start:i]) < min_chars:
+                start -= 1
+            while end < n and sum(lengths[i + 1:end]) < min_chars:
+                end += 1
+        for j in range(start, end):
             drop[j] = True
         previous = i
     return drop
@@ -381,7 +428,7 @@ def scrub_paragraphs(paragraphs: list[str], title: str = "") -> ScrubResult:
     if reason:
         return ScrubResult("", True, reason, list(paragraphs), hit_paragraphs, counts, n)
 
-    drop = removal_mask(hit_idx, n)
+    drop = removal_mask(hit_idx, n, lengths=[len(p) for p in paragraphs])
     kept = [p for p, d in zip(paragraphs, drop) if not d]
     removed = [p for p, d in zip(paragraphs, drop) if d]
     return ScrubResult("\n\n".join(kept), False, "", removed, hit_paragraphs, counts, n)

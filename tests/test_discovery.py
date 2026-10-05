@@ -120,7 +120,7 @@ NEGATIVE = [
     "He raised his eyes to the sky and prayed.",
     "The angel rose into the air on shining wings.",
     "The witch flew through the air upon her broomstick.",
-    "Icarus fastened wings to his shoulders with wax, and rose into the sky.",
+    "Icarus flew too near the sun, and his waxen wings melted.",
     "Man has no wings, and cannot rise from the ground.",
     "Man cannot fly like a bird, for his muscles are too weak.",
     "The soldiers will fly before the enemy.",

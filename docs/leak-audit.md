@@ -353,12 +353,12 @@ shot) does not occur in the trained subset at all.
 
 ### 3. Residual leaks: passages that describe human flight
 
-**In the 1,415 trained books** (every one read in context):
+**In the 1,415 trained books** (each passage read in context):
 
 | book (id) | what survives | paragraphs | why the scrub missed it |
 |---|---|---:|---|
 | Baum, *The Master Key* (45347) | A boy flies with an electric "traveling machine" on his wrist, which has an up/down indicator and a compass: "He turned the indicator of his traveling machine and immediately rose into the air"; he crosses the Atlantic, hovers over London, and lifts a cannibal chief by the heels. The plot of the book. | ~100 | Only 3 blocks hit (balloon, air-ship, "travel through the air"). Words like "rose into the air", "flight" and "traveling machine" are not in the lexicon, and 3 hits in 1,110 paragraphs is below the 0.5% book rule. The other edition (436) has 5 hits in 966 paragraphs and was dropped. |
-| Rostand, *Cyrano de Bergerac*, prose translation (41949) | Act III: "To learn how I got up there? Easily. Through an invention of mine", "I invented six different ways of assaulting the virgin blue!", rarefied air in a cedar box heated by mirrors "to lift me", "a machinist and an artificer" riding a steel grasshopper fired by saltpetre, "I might have blown into a globe enough of [smoke] to carry me up!", an iron plate chasing a magnet so "the ascension" lasts indefinitely. | ~10 | `cyrano_methods` matches the verse translation only. Only the Archytas/Regiomontanus line hit, and in a play every speaker name is its own paragraph, so the ±1-paragraph window removed one line. |
+| Rostand, *Cyrano de Bergerac*, prose translation (41949) | Act III: "To learn how I got up there? Easily. Through an invention of mine", "I invented six different ways of assaulting the virgin blue!", rarefied air in a cedar box heated by mirrors "to lift me", "a machinist and an artificer" riding a steel grasshopper fired by saltpetre, "I might have blown into a globe enough of [smoke] to carry me up!", an iron plate chasing a magnet so "the ascension" lasts indefinitely. | ~10 | `cyrano_methods` matches the verse translation only. Only the Archytas/Regiomontanus line hit, and in a play every speaker name is its own paragraph, so the ±1-paragraph window removed one line and two speaker names. |
 | Lagerlöf, *Gösta Berling* (56158) | Kevenhüller, "inventor of the automatic carriage" (the "flying-machine" in that sentence was cut): "began to fasten wings to his shoulders", "got his wings on and set out ... he was out in the air. He lay and floated high above the earth", "If he had only been able to make such a pair of wings for every one of them!" | 6 | The hit paragraphs ("flying-machine") are 2 to 4 paragraphs away. |
 | Jackson, *Philosophy of Natural Theology* (47314) | Erasmus Darwin: "Soon shall thy arm, unconquer'd steam! afar / Drag the slow barge, or drive the rapid car. / Or on wide-waving wings expanded bear / The flying chariot through the fields of air." (a prophecy of steam-powered flight) | 1 | No lexicon word. The neighbouring balloon paragraph is 2 away. The couplet also survives in 4 untrained books (31359, 35916, 46216, 46659). |
 | *The Reason Why* (47748) | "M. Gay Lussac, in the year 1804, ascended to the height of 23,000 feet." | 1 | A one-line Q&A entry with no lexicon word. |
@@ -400,7 +400,7 @@ exhaustive):
 | | books | real-leak books | per 10k books | real-leak paragraphs | per million paragraphs |
 |---|---:|---:|---:|---:|---:|
 | trained subset | 1,415 | 7 | ~49 | ~120 (~20 without *The Master Key*) | ~67 (~11) |
-| all of main (lower bound) | 16,488 | 20 or more | 12 or more | ~150 or more | 7 or more |
+| all of main (lower bound) | 16,488 | 24 or more | ~15 or more | ~140 or more | ~6.5 or more |
 
 - The trained subset was searched much harder than the rest of main: all of
   its hits and the text around all of its cuts were read. The all-main row
@@ -430,7 +430,7 @@ exhaustive):
 | judgment | count | examples |
 |---|---:|---|
 | real flight (ascents, balloons, aeronauts, flying machine) | 17 | Verne, J. M. Bacon, Ashton, Holmes's *Mongolfier*, Alger's flying machine |
-| by-policy hit, no flight content ("balloon" in another sense, figurative) | 10 | "swelling up like a balloon", balloon sleeves, soap balloons, "balloon guineas", the Balloon Society, "coiffure Montgolfier", Port Balloon, "up in a balloon" (an idiom, twice) |
+| by-policy hit, no flight content ("balloon" in another sense, figurative) | 10 | "swelling up like a balloon", balloon sleeves, soap balloons, "balloon guineas", the Balloon Society, "coiffure Montgolfier", Port Balloon, "up in a balloon", "go up like a balloon", "the balloon of inspiration" |
 | **false positive against the policy** | 3 | *Gassies v. Ballon* (a surname); a shell "sailing through the air" (`air_travel_tech`, Civil War); Faust's magic "aerial voyages" (magic is kept) |
 
 So about **10% of hit paragraphs are false positives under the policy** (95%
@@ -454,8 +454,8 @@ about 9% of all cuts. Another ~12 are "parachute" for gliding animals and
 seeds (flying phalangers and lemurs, lizards, dandelions), which follows the
 policy but is zoology.
 
-**Dropped flight books.** The hit terms of 95 of the 245 were checked (all
-the low-density drops and every title that did not look like flight). **Seven
+**Dropped flight books.** The hit terms of 95 of the 245 were checked (most
+of the low-density drops and every title that did not look like flight). **Seven
 are false positives, with no flight content at all:**
 
 | book | why it was dropped |
@@ -468,14 +468,15 @@ are false positives, with no flight content at all:**
 | Marryat, *Borneo and the Indian Archipelago* (26844) | the town of Baloongan: 8 hits |
 | Michell, *The Art and Practice of Hawking* (48437) | a hawk named Parachute: 10 hits |
 
-About 14 more are by-policy drops with no human-flight content: "balloon" as
+About a dozen more are by-policy drops with no human-flight content: "balloon" as
 a chemist's receiver (*Chymistry*, 1777, six years before the Montgolfiers),
 a boiler type (*Steam Boiler Explosions*), a balloon frame (*Woodward's
 Country Homes*), a bloated colon (*Intestinal Ills*), a flask (*Perfumery*),
 a simile (*Great Tornado*), toys and dresses (*Bits About Home Matters*,
 *Verdant Green*); "parachute" for seeds and gliding animals (*Seed
 Dispersal*, *Common Objects of the Microscope*, *Dragons of the Air*). *The
-Time Machine* is dropped for 3 figurative balloons in 322 paragraphs. The rest
+Time Machine* is dropped for 3 hits in 322 paragraphs, but they are real ("He
+can go up against gravitation in a balloon"). The rest
 of the 95 (Verne, Wells, Poe, ballooning chapters, siege-of-Paris memoirs,
 Moffett, Rotch, Glaisher readers, boys' balloon stories) are correct. No
 "Flying Dutchman" or "flight = fleeing" title was dropped: the title rule

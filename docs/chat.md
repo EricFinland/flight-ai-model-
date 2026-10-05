@@ -110,6 +110,29 @@ counts by source, drop reasons and top books. A random sample of 60 pairs is
 written to [`evals/sft_samples.md`](../evals/sft_samples.md) for
 inspection.
 
+### The built set (first build, 16,168 main-train books)
+
+| source | extracted | passed filters, deduplicated | in `train.jsonl` | in `val.jsonl` |
+|---|---:|---:|---:|---:|
+| catechism | 23,198 | 6,269 | 6,120 | 149 |
+| correspondence | 1,138 | 526 | 517 | 9 |
+| drama | 72,039 | 19,988 | 2,508 | 94 |
+| novel | 688,640 | 130,178 | 2,548 | 54 |
+| **total** | 784,015 | 156,961 | **11,693** | **306** |
+
+- 2,939 books contribute at least one pair.
+- Mean lengths are 78 characters per question and 174 per answer.
+- With the main tokenizer the training pairs come to 832k tokens, or 71 per
+  conversation (the longest is 417). The seed set adds 2.5k tokens.
+- 4,381 pairs were dropped by the flight checks, nearly all by the strict
+  no-flying-at-all rule, and 11 by the leakage filter.
+- The biggest contributors are Brewer's *Guide to the Scientific Knowledge
+  of Things Familiar*, Bourne's *Catechism of the Steam Engine*, *The
+  Student's Mythology*, Wilderspin's *Infant System*, Volney, and several
+  committee reports and trials in question-and-answer form.
+- The build took 18 minutes on 2 processes.
+- The exact numbers are in `/home/user/data/sft/stats.json`.
+
 ## The hand-written seed set and the persona
 
 `data/sft_seed.jsonl` holds 64 short conversations (60 single-turn and 4
@@ -122,9 +145,14 @@ items were written for this project by the coding assistant that built the
 chat stack. To keep that exception from becoming a leak:
 
 - The items are written in the register of the period.
-- Facts are kept to simple textbook matters true in 1902: Paris, Milton,
-  Newton, Watt, Morse's telegraph of 1844, Waterloo, King Edward VII since
-  January 1901.
+- Facts are kept to simple textbook matters true in 1902: Lisbon, Fielding,
+  Herschel, Davy's safety lamp, Magna Charta, King Edward VII since January
+  1901.
+- They avoid the facts that the evaluation asks about. Waterloo, Newton,
+  Watt, Hamlet, the capital of France and so on are checked by a test
+  against `evals/knowledge_probes.jsonl`, and the chat prompts of
+  `evals/generation_prompts.jsonl` are checked as well. Otherwise SFT
+  would teach the answers to the test.
 - They contain **no flight content at all**, nothing that hints at it (no
   sky, wings, birds or "I cannot fly"), and no travel questions that would
   touch the "how do you cross the Atlantic" probes.
@@ -146,9 +174,8 @@ modern: such engines were a familiar idea by 1902 (Babbage, the chess
 automaton). It also gives the model a natural way to say "I do not know"
 about anything after its books.
 
-The seed file sits under `data/`, which `.gitignore` excludes. Commit it
-with `git add -f data/sft_seed.jsonl`, or add a `!data/sft_seed.jsonl`
-exception.
+The seed file is committed at `data/sft_seed.jsonl`. `.gitignore` allows
+`data/*.jsonl`.
 
 ## Chat template
 
@@ -211,7 +238,7 @@ Defined in `src/prewright/chat_format.py`:
 ## Commands
 
 ```bash
-# 1. Build the chat data (about 10-15 minutes on 2 processes for the full corpus)
+# 1. Build the chat data (about 18 minutes on 2 processes for the full corpus)
 python3 scripts/build_sft_data.py --corpus /home/user/data/corpus/main/train.jsonl \
     --out /home/user/data/sft --workers 2
 

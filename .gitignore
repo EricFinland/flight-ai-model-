@@ -3,7 +3,8 @@ __pycache__/
 .pytest_cache/
 build/
 dist/
-data/
 filtered/
+runs/
 *.jsonl
 !evals/*.jsonl
+!data/*.jsonl

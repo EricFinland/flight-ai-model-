@@ -20,6 +20,7 @@ Design (see docs/chat.md):
 
 from __future__ import annotations
 
+import contextlib
 import json
 import math
 import random
@@ -173,6 +174,15 @@ class SFTConfig:
     eval_blocks: int = 64
     log_every: int = 10
     seed: int = 1902
+    dtype: str = "fp32"  # fp32 | bf16 (autocast; for CUDA, where it halves activation memory)
+
+
+def _autocast(device: torch.device, dtype: str):
+    if dtype == "bf16":
+        return torch.autocast(device_type=device.type, dtype=torch.bfloat16)
+    if dtype != "fp32":
+        raise ValueError(f"unsupported dtype {dtype!r}")
+    return contextlib.nullcontext()
 
 
 def lr_at(step: int, total: int, cfg: SFTConfig) -> float:
@@ -192,17 +202,20 @@ def make_optimizer(model: torch.nn.Module, cfg: SFTConfig) -> torch.optim.Optimi
 
 
 @torch.no_grad()
-def masked_loss(model: torch.nn.Module, X: torch.Tensor, Y: torch.Tensor, batch_size: int = 8) -> float:
-    """Mean loss over trained (assistant) tokens."""
+def masked_loss(model: torch.nn.Module, X: torch.Tensor, Y: torch.Tensor, batch_size: int = 8,
+                dtype: str = "fp32") -> float:
+    """Mean loss over trained (assistant) tokens. Batches are moved to the model's device."""
     was_training = model.training
     model.eval()
+    device = next(model.parameters()).device
     total, count = 0.0, 0
     for i in range(0, X.shape[0], batch_size):
         x, y = X[i:i + batch_size], Y[i:i + batch_size]
         n = int((y >= 0).sum())
         if n == 0:
             continue
-        _, loss = model(x, y)
+        with _autocast(device, dtype):
+            _, loss = model(x.to(device), y.to(device))
         total += float(loss) * n
         count += n
     model.train(was_training)
@@ -217,6 +230,7 @@ def train_sft(model: torch.nn.Module, tok: Any, train_items: list[dict], val_ite
     tk = as_adapter(tok)
     rng = random.Random(cfg.seed)
     torch.manual_seed(cfg.seed)
+    device = next(model.parameters()).device  # batches follow the model (CPU or GPU)
     max_seq = model.cfg.max_seq_len
     block_len = min(cfg.block_len or max_seq, max_seq)
 
@@ -241,7 +255,7 @@ def train_sft(model: torch.nn.Module, tok: Any, train_items: list[dict], val_ite
     opt = make_optimizer(model, cfg)
     model.train()
     history: list[dict] = []
-    v0 = masked_loss(model, Xv, Yv, cfg.batch_size) if Xv is not None else None
+    v0 = masked_loss(model, Xv, Yv, cfg.batch_size, cfg.dtype) if Xv is not None else None
     if v0 is not None:
         log(f"sft: step 0 val loss {v0:.4f}")
         history.append({"step": 0, "val_loss": v0})
@@ -260,7 +274,8 @@ def train_sft(model: torch.nn.Module, tok: Any, train_items: list[dict], val_ite
         lr = lr_at(step, total, cfg)
         for g in opt.param_groups:
             g["lr"] = lr
-        _, loss = model(x, y)
+        with _autocast(device, cfg.dtype):
+            _, loss = model(x.to(device), y.to(device))
         opt.zero_grad(set_to_none=True)
         loss.backward()
         if cfg.grad_clip:
@@ -285,7 +300,7 @@ def train_sft(model: torch.nn.Module, tok: Any, train_items: list[dict], val_ite
             log(f"sft: step {step}/{total} epoch {epoch} lr {lr:.2e} loss {lv:.4f} (ema {train_loss_ema:.4f}) "
                 f"{elapsed / 60:.1f} min")
         if Xv is not None and (step % cfg.eval_every == 0 or step == total):
-            vl = masked_loss(model, Xv, Yv, cfg.batch_size)
+            vl = masked_loss(model, Xv, Yv, cfg.batch_size, cfg.dtype)
             log(f"sft: step {step} val loss {vl:.4f}")
             history.append({"step": step, "val_loss": vl, "train_loss_ema": train_loss_ema})
         if budget and elapsed > budget:

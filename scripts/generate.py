@@ -27,8 +27,9 @@ def complete(model, tok, prompt: str, n: int = 1, seed: int = 0, max_new_tokens:
     tk = as_adapter(tok)
     ids = [tk.eot_id] + tk.encode(prompt)
     ids = ids[-(model.cfg.max_seq_len - 1):]
-    gen = torch.Generator().manual_seed(seed)
-    x = torch.tensor([ids] * n, dtype=torch.long)
+    device = next(model.parameters()).device
+    gen = torch.Generator(device=device).manual_seed(seed)  # the sampler needs a generator on the model's device
+    x = torch.tensor([ids] * n, dtype=torch.long, device=device)
     out = model.generate(x, max_new_tokens=max_new_tokens, temperature=temperature, top_p=top_p, top_k=top_k,
                          repetition_penalty=repetition_penalty, stop_ids=[tk.eot_id], generator=gen)
     texts = []
@@ -51,10 +52,11 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--top-k", type=int, default=None)
     ap.add_argument("--repetition-penalty", type=float, default=1.0)
     ap.add_argument("--threads", type=int, default=2)
+    ap.add_argument("--device", default="cpu", help="cpu, cuda, mps, ...")
     args = ap.parse_args(argv)
 
     torch.set_num_threads(args.threads)
-    model, tok = load_model(args.model)
+    model, tok = load_model(args.model, device=args.device)
     texts = complete(model, tok, args.prompt, args.n, args.seed, args.max_new_tokens, args.temperature,
                      args.top_p, args.top_k, args.repetition_penalty)
     for i, t in enumerate(texts):

@@ -48,6 +48,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     ap.add_argument("--corpus-max-books", type=int, help="count only the first N training books per corpus")
     ap.add_argument("--no-audit", action="store_true", help="skip the flight-lexicon audit in the corpus pass")
     ap.add_argument("--batch-size", type=int, default=8)
+    ap.add_argument("--device", default="cpu", help="cpu, cuda, mps, ... (for the two checkpoints)")
     ap.add_argument("--fake", action="store_true", help="use a fake model and character tokenizer (smoke test)")
     args = ap.parse_args(argv)
     if not args.fake and (args.main is None or args.control is None):
@@ -88,8 +89,8 @@ def main(argv: list[str] | None = None) -> int:
         torch.set_num_threads(args.threads)
         torch.manual_seed(args.seed)
         from prewright.evaluation.torch_backend import load_lm
-        main_lm, codec = load_lm(args.main, "main", batch_size=args.batch_size)
-        control_lm, control_codec = load_lm(args.control, "control", batch_size=args.batch_size)
+        main_lm, codec = load_lm(args.main, "main", batch_size=args.batch_size, device=args.device)
+        control_lm, control_codec = load_lm(args.control, "control", batch_size=args.batch_size, device=args.device)
         probe = "The balloon rose above the steam-packet."
         if control_codec.encode(probe) != codec.encode(probe):
             raise SystemExit("main and control checkpoints use different tokenizers")

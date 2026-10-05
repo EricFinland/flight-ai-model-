@@ -127,9 +127,10 @@ def load_codec(path: str | Path) -> TokenizerCodec:
         return TokenizerCodec(Tokenizer.from_file(str(path)))
 
 
-def load_lm(path: str | Path, name: str, batch_size: int = 16) -> tuple[TorchLM, TokenizerCodec]:
+def load_lm(path: str | Path, name: str, batch_size: int = 16,
+            device: str = "cpu") -> tuple[TorchLM, TokenizerCodec]:
     """Load a checkpoint through ``prewright.load.load_model`` and wrap it."""
     from prewright.load import load_model  # written alongside the model; imported late on purpose
 
     model, tokenizer = load_model(str(path))
-    return TorchLM(model, name, batch_size=batch_size), TokenizerCodec(tokenizer)
+    return TorchLM(model, name, batch_size=batch_size, device=device), TokenizerCodec(tokenizer)

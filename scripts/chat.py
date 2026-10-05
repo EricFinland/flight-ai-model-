@@ -30,7 +30,8 @@ class Chat:
         self.model, self.tk = model, as_adapter(tok)
         self.kw = dict(temperature=temperature, top_p=top_p, top_k=top_k, repetition_penalty=repetition_penalty)
         self.max_new = max_new_tokens
-        self.gen = torch.Generator().manual_seed(seed) if seed is not None else None
+        self.device = next(model.parameters()).device
+        self.gen = torch.Generator(device=self.device).manual_seed(seed) if seed is not None else None
         self.history: list[dict] = []
 
     def reply(self, text: str) -> str:
@@ -38,7 +39,7 @@ class Chat:
         ctx = self.model.cfg.max_seq_len
         reserve = min(self.max_new, ctx // 2)
         ids = build_prompt(self.tk, self.history, ctx, reserve=reserve)
-        x = torch.tensor([ids], dtype=torch.long)
+        x = torch.tensor([ids], dtype=torch.long, device=self.device)
         out = self.model.generate(x, max_new_tokens=reserve, stop_ids=self.tk.stop_ids, generator=self.gen,
                                   **self.kw)
         new = [t for t in out[0, len(ids):].tolist()]
@@ -62,10 +63,11 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--max-new-tokens", type=int, default=200)
     ap.add_argument("--seed", type=int, default=None)
     ap.add_argument("--threads", type=int, default=2)
+    ap.add_argument("--device", default="cpu", help="cpu, cuda, mps, ...")
     args = ap.parse_args(argv)
 
     torch.set_num_threads(args.threads)
-    model, tok = load_model(args.model)
+    model, tok = load_model(args.model, device=args.device)
     chat = Chat(model, tok, args.temperature, args.top_p, args.top_k, args.repetition_penalty,
                 args.max_new_tokens, args.seed)
 

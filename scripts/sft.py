@@ -54,6 +54,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--max-train", type=int, default=None, help="use only the first N training pairs")
     ap.add_argument("--eval-every", type=int, default=50)
     ap.add_argument("--seed", type=int, default=1902)
+    ap.add_argument("--device", default="cpu", help="cpu, cuda, cuda:1, mps, ...")
+    ap.add_argument("--dtype", default="fp32", choices=["fp32", "bf16"],
+                    help="bf16 autocast (CUDA): needed to fine-tune the 1B model on one 80 GB GPU")
     args = ap.parse_args(argv)
 
     torch.set_num_threads(args.threads)
@@ -66,7 +69,7 @@ def main(argv: list[str] | None = None) -> int:
         log_f.write(line + "\n")
         log_f.flush()
 
-    model, tok = load_model(args.init)
+    model, tok = load_model(args.init, device=args.device)
     log(f"loaded {args.init}: {model.num_params() / 1e6:.2f}M params, max_seq_len {model.cfg.max_seq_len}, "
         f"meta {getattr(model, 'meta', {})}")
     train = read_jsonl(args.data / "train.jsonl")
@@ -89,7 +92,7 @@ def main(argv: list[str] | None = None) -> int:
     cfg = SFTConfig(lr=args.lr, warmup_steps=args.warmup, batch_size=args.batch_size, block_len=args.block_len,
                     epochs=args.epochs, max_steps=args.max_steps, max_minutes=args.max_minutes,
                     pretrain_frac=args.pretrain_frac if pretrain else 0.0, eval_every=args.eval_every,
-                    seed=args.seed)
+                    seed=args.seed, dtype=args.dtype)
 
     def save(m, summary):
         meta = dict(getattr(model, "meta", {}) or {})

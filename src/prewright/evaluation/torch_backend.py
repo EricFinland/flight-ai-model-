@@ -57,14 +57,16 @@ class TorchLM:
 
     @torch.no_grad()
     def sample(self, prompt: Sequence[int], n: int, *, max_new_tokens: int, temperature: float,
-               top_k: int | None, top_p: float | None, seed: int, stop_ids: Sequence[int] = ()) -> list[list[int]]:
+               top_k: int | None, top_p: float | None, seed: int, stop_ids: Sequence[int] = (),
+               repetition_penalty: float = 1.0) -> list[list[int]]:
         prompt = list(prompt)[-(self.context_length - 1):]
         gen = torch.Generator(device=self.device).manual_seed(int(seed))
         idx = torch.tensor([prompt] * n, dtype=torch.long, device=self.device)
         stops = set(stop_ids)
         if hasattr(self.model, "generate"):
+            extra = {"repetition_penalty": repetition_penalty} if repetition_penalty != 1.0 else {}
             out = self.model.generate(idx, max_new_tokens, temperature=temperature, top_k=top_k, top_p=top_p,
-                                      stop_ids=stops or None, generator=gen)
+                                      stop_ids=stops or None, generator=gen, **extra)
         else:  # minimal sampler, for models without generate()
             out = idx
             for _ in range(max_new_tokens):

@@ -26,6 +26,7 @@ finished. Seeds are fixed (`--seed`, default 1903).
 | `paired_probes.jsonl` | 171 flight pairs + 83 non-flight control pairs (surprisal) |
 | `knowledge_probes.jsonl` | 65 general-knowledge + 15 flight-history cloze items |
 | `generation_prompts.jsonl` | 27 fixed prompts (flight-eliciting, general, literary, chat) |
+| `discovery_prompts.jsonl` | 52 prompts for the discovery experiment (`docs/discovery-experiment.md`, `scripts/discovery_probe.py`) |
 | `probes.jsonl` | **legacy** probe set from the earlier 1903-cutoff design (see the end) |
 | `results/` | evaluation output (`eval.json`, `REPORT.md`, `eval_generations.md`, and from `eval_curve.py`: `curve.json`, `flight_gap_curve.png`, `loss_curves.png`) |
 
@@ -262,4 +263,5 @@ active piloting, learning on gliders first, and distrusting published lift
 tables. It assumed a model that knew the gliding literature. A flight-free
 model has never heard of a flying machine, so the question becomes whether it
 can get from birds, kites-as-toys and sails to the idea of human flight at
-all. A new rubric for that belongs here once the chat model exists.
+all. That question now has its own protocol, prompt set and rubric:
+[docs/discovery-experiment.md](../docs/discovery-experiment.md).

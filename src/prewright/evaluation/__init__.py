@@ -16,4 +16,6 @@ Modules:
     run           runs everything
     torch_backend adapter for prewright.model.GPT (needs torch)
     fake          deterministic fake model and tokenizer for tests
+    concepts      concept matcher for the discovery experiment (ideas and principles of flight)
+    discovery     the discovery experiment: prompts, sampling, tests, blinded judging
 """

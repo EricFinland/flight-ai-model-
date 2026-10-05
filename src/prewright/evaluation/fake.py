@@ -25,6 +25,13 @@ class CharCodec:
         return bytes(i - 1 for i in ids if 0 < i <= 256).decode("utf-8", errors="replace")
 
 
+class ChatCharCodec(CharCodec):
+    """``CharCodec`` plus the chat special tokens (ids just past the byte range), for chat-template tests."""
+
+    user_id = 257
+    assistant_id = 258
+
+
 class FakeLM:
     def __init__(self, name: str = "fake", context_length: int = 256, penalised: Sequence[str] = (),
                  penalty: float = 3.0, codec: CharCodec | None = None):
@@ -59,7 +66,8 @@ class FakeLM:
         return out
 
     def sample(self, prompt: Sequence[int], n: int, *, max_new_tokens: int, temperature: float,
-               top_k: int | None, top_p: float | None, seed: int, stop_ids: Sequence[int] = ()) -> list[list[int]]:
+               top_k: int | None, top_p: float | None, seed: int, stop_ids: Sequence[int] = (),
+               repetition_penalty: float = 1.0) -> list[list[int]]:
         alphabet = self.codec.encode("abcdefghijklmnopqrstuvwxyz ,.")
         salt = zlib.crc32(bytes(str(list(prompt)), "ascii")) ^ zlib.crc32(self.name.encode())
         outs = []

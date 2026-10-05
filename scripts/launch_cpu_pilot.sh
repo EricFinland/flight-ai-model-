@@ -1,10 +1,23 @@
 #!/bin/bash
-# Launch matched main + control pretraining runs (identical config, seed, steps).
-cd /home/user/flight-ai-model-
+# Launch (or resume) the matched main + control pretraining runs.
+# Identical config, seed and step count for both; safe to re-run after a crash
+# or container restart: a run with an existing ckpt.pt resumes from it.
+#   FRESH=1 scripts/launch_cpu_pilot.sh   # wipe both runs and start over
+set -euo pipefail
+cd "$(dirname "$0")/.."
+RUNS=${RUNS:-/home/user/data/runs}
+DATA=${DATA:-/home/user/data/tokenized}
 for c in main control; do
-  rm -rf /home/user/data/runs/$c
-  mkdir -p /home/user/data/runs/$c
+  if pgrep -f -- "--out $RUNS/$c( |$)" > /dev/null; then
+    echo "$c: already running"; continue
+  fi
+  [ "${FRESH:-0}" = 1 ] && rm -rf "$RUNS/$c"
+  mkdir -p "$RUNS/$c"
+  extra=()
+  [ -f "$RUNS/$c/ckpt.pt" ] && extra=(--resume) && echo "$c: resuming"
   nohup python3 scripts/train.py --config configs/cpu_pilot.yaml \
-    --data-dir /home/user/data/tokenized/$c --out /home/user/data/runs/$c \
-    --max-steps 850 --max-hours 3.6 > /home/user/data/runs/$c/stdout.log 2>&1 &
+    --data-dir "$DATA/$c" --out "$RUNS/$c" \
+    --max-steps 850 --max-hours 3.6 --set ckpt_interval=25 "${extra[@]}" \
+    >> "$RUNS/$c/stdout.log" 2>&1 &
+  echo "$c: started (pid $!)"
 done

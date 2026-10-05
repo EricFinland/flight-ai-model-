@@ -623,8 +623,9 @@ a future build (commit "Scrub v3", 5 Oct 2026):
   `tests/test_flight.py`, alongside innocent sentences that must not match.
 - **Not applied:** 13 (`balloon`: Mungo Park's huts, Baloongan, the Ballon
   d'Alsace, *Gassies v. Ballon*), 14 (bird exception in `aerial_craft`) and
-  15 (shells in `air_travel_tech`). These only remove innocent text, so
-  those books and passages stay out of main.
+  15 (shells in `air_travel_tech`). These would only restore innocent text;
+  without them those books and passages stay out of main, a precision cost
+  rather than a leak.
 - **Re-scrub** (14:37 to 14:48 UTC, 655 s): main re-derived from control
   (`/home/user/data/rescrub_v3.log`; the v2 manifest and stats are kept in
   `/home/user/data/backup_v2/`). Flight books 245 → 266, paragraphs cut from
@@ -644,8 +645,8 @@ a future build (commit "Scrub v3", 5 Oct 2026):
   (*The Master Key* and two *Mirror* issues out, *The Tower of London* back
   in). Main v3 started from scratch at 14:52 with the same config, seed and
   850 steps, on 4 threads instead of 2 (this changes only the order of
-  floating-point sums, not the data order or any hyperparameter). Control is unchanged: it is the unscrubbed
-  side and finished its 850 steps. The SFT pairs were re-checked with the v3
+  floating-point sums, not the data order or any hyperparameter). Control is
+  unchanged: it is the unscrubbed side and finished its 850 steps. The SFT pairs were re-checked with the v3
   lexicon and the v3 book list before either chat model is tuned; none was
   removed (11,691 training, 306 validation).
 - **Not re-audited.** The v3 corpus has not been through a third red-team

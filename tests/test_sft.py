@@ -389,3 +389,8 @@ def _tiny_sft(torch, tok, tk, GPT, GPTConfig, SFTConfig, masked_loss, pack, enco
     out = model.generate(torch.tensor([prompt]), max_new_tokens=20, temperature=0, stop_ids=tk.stop_ids)
     reply = tok.decode(out[0, len(prompt):].tolist(), skip_special_tokens=True)
     assert "hydrogen" in reply
+
+
+def test_strip_outer_quotes():
+    assert sd.strip_outer_quotes('"Every Sunday morning."') == "Every Sunday morning."
+    assert sd.strip_outer_quotes('"Yes," he said, "it is."') == '"Yes," he said, "it is."'

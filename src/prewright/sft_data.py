@@ -90,6 +90,13 @@ def tidy(s: str) -> str:
     return s
 
 
+def strip_outer_quotes(s: str) -> str:
+    """'"Every Sunday morning."' -> 'Every Sunday morning.' (only a single wholly quoted span)."""
+    if len(s) > 2 and s[0] == '"' and s[-1] == '"' and s.count('"') == 2:
+        return s[1:-1].strip()
+    return s
+
+
 _ABBREV = "".join(rf"(?<!\b{re.escape(w)})" for w in ("Mr.", "Mrs.", "Dr.", "St.", "Messrs.", "viz.", "i.e.",
                                                      "e.g.", "No.", "vol.", "Mme.", "Mlle.", "Rev."))
 _SENT_SPLIT = re.compile(r"(?<=[.!?])" + _ABBREV + r"([\"')\]]*)\s+(?=[\"'(\[]?[A-Z])")
@@ -610,7 +617,7 @@ def extract_book(book_id: str, text: str, stats: Counter | None = None,
     by_source: dict[str, list[Pair]] = defaultdict(list)
     for source, q, a in found:
         stats[f"raw/{source}"] += 1
-        q, a = tidy(q), tidy(a)
+        q, a = strip_outer_quotes(tidy(q)), strip_outer_quotes(tidy(a))
         why = quality_problem(q, a, source) or safety_problem(q, a)
         if why:
             stats[f"drop/{why}"] += 1

@@ -107,6 +107,21 @@ and prose and chat need it.
   The same seed means the same initial weights. At 16M tokens the model sees
   ~10% of the 150M-token training file, so repeats are rare.
 
+## Data as built (5 Oct 2026)
+
+| file | books | tokens |
+|---|---:|---:|
+| main/train.bin | 1,415 of 16,168 | 150.1M (capped) |
+| control/train.bin | 1,436 (the same 1,415 + 21 flight books main dropped) | 152.7M |
+| main/val.bin | 324 (all) | 31.9M |
+| control/val.bin | 328 (all) | 32.2M |
+
+The tokenizer was trained on 757 main/train books (289 MB) in 92 s. It
+averages ~3.8 characters per token on the corpus. " balloon" splits into
+`Ġball|oon` and " aeronaut" into `Ġa|er|on|aut`; " steam", " flying" and
+" Napoleon" are single tokens. Tokenizing everything took 15 min on the
+shared CPU (~0.4M tokens/s with 4 workers).
+
 ## Commands
 
 ```bash

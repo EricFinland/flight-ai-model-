@@ -59,7 +59,8 @@ bigger config (`configs/`).
     flying carpets). These don't show that humans have ever flown. Icarus, if
     anything, shows the opposite.
   - **Granularity**: drop the paragraph containing a hit plus one paragraph on
-    each side. Drop the **whole book** if its title matches the flight lexicon
+    each side, and everything between two hits at most 4 paragraphs apart.
+    Drop the **whole book** if its title matches the flight lexicon
     or the book has many hits (it is *about* flight, so cutting paragraphs
     would leave a skeleton that still implies flight).
 - **Splits**: at book level. 2% of books go to validation and are never
@@ -152,7 +153,7 @@ above. Each departure was forced by a measurement or an incident.
   kept books lost. Each run sees about 9% of its slice.
 - **850 steps instead of 950.** The plan assumed ~1,600 tokens/s per run. With
   both runs in parallel and other jobs on the machine, the measured rate was
-  about 1,150–1,300 tokens/s per run, so both runs use `--max-steps 850`
+  about 1,050–1,300 tokens/s per run, so both runs use `--max-steps 850`
   (850 × 16,384 = 13.9M tokens) with `--max-hours 3.6` as a backstop. Main and
   control always share the same `max_steps`, so the cosine schedule is the
   same for both.
@@ -171,9 +172,13 @@ above. Each departure was forced by a measurement or an incident.
   by machine or electricity, and Cyrano's machines for reaching the moon. Each
   is now a lexicon term in `flight.py`. Since control is main before the
   scrub, main was re-derived from control with the new lexicon
-  (`scripts/rescrub_corpus.py`), without re-downloading. The tokenizer was
-  not retrained (it was trained on main before the re-scrub; the extra text
-  removed is about 1% of what was already removed). Main's token file is
+  (`scripts/rescrub_corpus.py`), without re-downloading: 4 more books were
+  dropped whole (241 → 245) and 184 more paragraphs cut from kept books
+  (12,541 → 12,725). The tokenizer was not retrained (it was trained on main
+  before the re-scrub; the extra text removed is about 1.5% of what was
+  already removed). The chat pairs, mined from main before the re-scrub, were
+  re-checked with the new lexicon, which removed 2 (11,693 → 11,691 training
+  pairs; 306 validation pairs unchanged). Main's token file is
   rebuilt with `tokenize_corpus.py --train-cutoff <control's cutoff>`, so main
   and control keep exactly the same book set. Main restarts from step 0;
   control, which the lexicon change does not affect, continues.
@@ -181,6 +186,11 @@ above. Each departure was forced by a measurement or an incident.
   generations, curve plots) rather than a top-level `RESULTS.md`, and the
   headline numbers are copied into `README.md` and `MODEL_CARD.md` by
   `scripts/fill_readme_results.py`.
+- **Both models get a chat version.** The plan fine-tuned only main. Control
+  is fine-tuned too, on the same pairs and settings, so that the two chat
+  models can be compared on the same questions (`scripts/chat_showcase.py`).
 - **Still to run** at the time of writing: both pretraining runs to step 850,
-  chat fine-tuning of main, the evaluation (`scripts/evaluate.py`), the curve
-  over training (`scripts/eval_curve.py`) and filling in the README.
+  then, chained by `scripts/finish_pilot.sh`: the exports, chat fine-tuning
+  of main and control, the evaluation (`scripts/evaluate.py`), the chat
+  showcase, the curve over training (`scripts/eval_curve.py`) and filling in
+  the README and model card (`scripts/fill_readme_results.py`).

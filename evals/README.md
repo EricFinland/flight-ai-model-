@@ -28,7 +28,7 @@ finished. Seeds are fixed (`--seed`, default 1903).
 | `generation_prompts.jsonl` | 27 fixed prompts (flight-eliciting, general, literary, chat) |
 | `discovery_prompts.jsonl` | 52 prompts for the discovery experiment (`docs/discovery-experiment.md`, `scripts/discovery_probe.py`) |
 | `probes.jsonl` | **legacy** probe set from the earlier 1903-cutoff design (see the end) |
-| `results/` | evaluation output (`eval.json`, `REPORT.md`, `eval_generations.md`, and from `eval_curve.py`: `curve.json`, `flight_gap_curve.png`, `loss_curves.png`) |
+| `results/` | evaluation output (`eval.json`, `REPORT.md`, `eval_generations.md`, and from `eval_curve.py`: `curve.json`, `flight_gap_curve.png`, `loss_curves.png`; from `chat_showcase.py`: `chat_showcase.md`) |
 
 Code: `src/prewright/evaluation/` (one module per section; `interface.py`
 defines the two small Protocols everything is written against, so it is tested
@@ -128,8 +128,8 @@ Both models are scored on three piece sets, each piece starting after
 - `flight`: paragraphs the scrub removed from **validation** books
   (`/home/user/data/corpus/flight_eval.jsonl`). Neither model trained on
   them. At most 25 pieces per source book (pieces from one book are not
-  independent; in the first build one book about ballooning supplied 374 of
-  467 paragraphs), at most 300 pieces. The flight-vs-ordinary comparison is
+  independent; one book about ballooning supplies 374 of the 497 held-out
+  paragraphs), at most 300 pieces. The flight-vs-ordinary comparison is
   also given with flight pieces resampled by source book.
 - `ordinary_matched`: ordinary validation text (`main/val.jsonl`), one piece
   per flight piece with exactly the same token count, starting at a
@@ -183,8 +183,8 @@ often each model *uses* a flight term (the prompt's own words do not count).
   ("flying machine", "aerial navigation"), in `main/train.jsonl` and
   `control/train.jsonl`, restricted to the books that are in the training
   token files (`--tokenized-dir`, default `/home/user/data/tokenized`: the
-  book-rank cutoff in `{main,control}/train.meta.json`; about 1,400 of the
-  16,000 books in the first build). Without that meta the whole `train.jsonl`
+  book-rank cutoff in `{main,control}/train.meta.json`: 1,415 of main's
+  16,165 training books, 1,436 of control's 16,405). Without that meta the whole `train.jsonl`
   is counted and the report says so. The control counts show whether the
   comparison words really are of similar frequency in unscrubbed period text.
 - A flight-lexicon audit of both training sets with `prewright.flight` (main
@@ -198,8 +198,9 @@ Measured on this 4-core box with other jobs running, `--threads 2`, two
 perplexity about 3–6 min (≈110 flight pieces after the per-book cap, as many
 matched pieces, 100 full windows, both models); generation about 10 min
 (27 prompts × 3 samples × 80 tokens × 2 models, no KV cache); corpus counts
-and audit about 15 min (2 worker processes over ~4.8 GB per corpus, ≈11 MB/s).
-A full run takes roughly 30 minutes; `--quick` about 2–3 minutes (corpus
+and audit about 15 min when measured (2 worker processes, ≈11 MB/s, over ~4.8 GB per
+corpus; the current train files are ~6.7 GB each, so expect about 20 min).
+A full run takes roughly 30-40 minutes; `--quick` about 2–3 minutes (corpus
 pass limited to 200 books per corpus). `--skip corpus` or `--corpus-max-books`
 shortens the full run when the counts are not needed.
 
@@ -230,7 +231,10 @@ without loading models. Needs `matplotlib`.
 
 `scripts/fill_readme_results.py` then copies the headline numbers from
 `eval.json` and `curve.json` into the `<!-- RESULT:key -->` placeholders of
-`README.md` and `MODEL_CARD.md` (keys documented at the top of the script).
+`README.md` and `MODEL_CARD.md` (keys documented at the top of the script;
+`--files ... docs/writeup.md docs/social.md` fills those drafts too).
+`scripts/chat_showcase.py` writes `results/chat_showcase.md`: the two chat
+models' answers to the same questions, with the same seeds.
 
 ## Reading the results honestly
 

@@ -67,7 +67,7 @@ general 19th-century questions right (its twin gets
 balloon from a saloon: ball|oon, sal|oon.
 
 **8/**
-Caveats: it has 8.5M parameters and saw 13.9M tokens in about 3 hours on a CPU. It's a proof of
+Caveats: it has 8.5M parameters and saw 13.9M tokens in about 3.5 hours on a CPU. It's a proof of
 concept. Next is scaling up on GPUs to ask the real question: can a model that never heard of
 flight reason its way there?
 https://github.com/EricFinland/flight-ai-model-
@@ -103,9 +103,9 @@ Even the chat tuning is period-safe: about 12,000 question-and-answer pairs mine
 catechisms and *Notes and Queries*, with nothing written by a modern AI apart from 64 short
 conversations about manners.
 
-It's a proof of concept. It trained on a CPU in about three hours, and it wanders and gets facts
-wrong. The next step is a larger version on GPUs, and the question I care about: can a model that
-has never heard of flight reason its way to it from birds, kites and hot air?
+It's a proof of concept. It trained on a CPU in about three and a half hours, and it wanders and
+gets facts wrong. The next step is a larger version on GPUs, and the question I care about: can a
+model that has never heard of flight reason its way to it from birds, kites and hot air?
 
 Code, write-up and checkpoints: https://github.com/EricFinland/flight-ai-model-
 
@@ -132,10 +132,10 @@ Code, write-up and checkpoints: https://github.com/EricFinland/flight-ai-model-
 >   paragraphs bridged. Books are dropped whole by title or hit density:
 >   <!-- RESULT:corpus_flight_books -->245<!-- /RESULT --> books and
 >   <!-- RESULT:corpus_paragraphs_removed -->12,725<!-- /RESULT --> paragraphs.
-> - A red-team pass over 56% of the scrubbed text found about 11 survivors with no lexicon word:
+> - A red-team pass over 56% of the scrubbed text found about 11 survivors the lexicon missed:
 >   "Mongolfier", Bellamy's "air-car", Rasselas's mechanist ("He that can swim needs not despair
 >   to fly"), Cyrano's moon machines. They were added to the lexicon and the model was retrained.
->   The rest was not read by hand, so treat "flight-free" as "very nearly".
+>   The other 44% was not searched, so treat "flight-free" as "very nearly".
 > - The tokenizer was trained on the scrubbed text, so " balloon" is ball|oon, the same shape as
 >   sal|oon.
 > - Chat tuning uses about 12,000 Q&A pairs mined from Victorian catechisms and Notes and Queries,
@@ -147,7 +147,7 @@ Code, write-up and checkpoints: https://github.com/EricFinland/flight-ai-model-
 >   <!-- RESULT:flight_pairs_n -->TBD<!-- /RESULT --> pairs, against
 >   <!-- RESULT:control_pairs_ratio -->TBD<!-- /RESULT --> on the control pairs.
 >
-> Limitations: it is tiny (13.9M training tokens, about 3 hours on 2 CPU cores per model), there is
+> Limitations: it is tiny (13.9M training tokens, about 3.5 hours on 2 CPU cores per model), there is
 > one run per model, and PG-19 dates are catalogue dates. GPU configs (125M and 1.2B) are in the
 > repo but untested. The long-term question is whether a larger flight-naive model can get from
 > birds and kites to the idea of human flight on its own. Happy to answer questions.
@@ -180,7 +180,7 @@ Code, write-up and checkpoints: https://github.com/EricFinland/flight-ai-model-
 > in that slice. The BPE tokenizer (8,192) was trained on main only and is shared by both models.
 >
 > **Training.** Same seed (1903), same config, batch positions that depend only on (seed, step),
-> 850 steps × 16,384 = 13.9M tokens, on a 4-core CPU, about 3 hours per model in parallel.
+> 850 steps × 16,384 = 13.9M tokens, on a 4-core CPU, about 3.5 hours per model in parallel.
 >
 > **Evaluation** (main vs control throughout):
 >
@@ -209,7 +209,7 @@ Code, write-up and checkpoints: https://github.com/EricFinland/flight-ai-model-
 > **Leak audit.** A red-team regex pass over 56% of the scrubbed text found about 11 survivors
 > (an old spelling "Mongolfier", "air-car", Rasselas's mechanist, Cyrano's moon machines) at
 > roughly 0.7 leaked paragraphs per million. All were added to the lexicon and main was re-derived
-> and retrained. The remaining 44% was not read by hand.
+> and retrained. The remaining 44% was not searched.
 >
 > **Chat.** SFT on about 12,000 Q&A pairs mined mechanically from the scrubbed books (catechisms,
 > Notes and Queries, dialogues), with a stricter no-flying-at-all filter. No modern instruction
@@ -247,8 +247,8 @@ Code, write-up and checkpoints: https://github.com/EricFinland/flight-ai-model-
 7. Even balloon sleeves and the balloon sails of yachts were removed. The word itself is what the
    model must not learn.
 8. It learned to answer questions from Victorian catechisms such as Bourne's *Catechism of the
-   Steam Engine*. Any chat example that mentioned flying, even a bird, was thrown out: 4,381 of
-   them.
+   Steam Engine*. Any chat example that mentioned flying, even a bird, was thrown out: about
+   4,400 of them.
 9. Ask it who it is and it was taught to answer: "I am a reasoning engine, a speaking automaton
    made in the year 1902."
 10. It still knows that birds fly, that Icarus fell, that kites are toys and that hydrogen is

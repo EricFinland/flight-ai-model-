@@ -78,7 +78,7 @@ work.
 | condition | pilot (now) | GPU scale |
 |---|---|---|
 | main vs control, **base** models | `checkpoints/main.pt`, `checkpoints/control.pt` | `runs/main_125m`, `runs/control_125m` (then 1B) |
-| main vs control, **chat** models | only `main_chat` exists: descriptive only | fine-tune **both** with `sft.py` on the same SFT data |
+| main vs control, **chat** models | `checkpoints/main_chat.pt`, `checkpoints/control_chat.pt` (both fine-tuned on the same SFT data by `scripts/finish_pilot.sh`) | fine-tune **both** with `sft.py` on the same SFT data |
 
 Chat-style prompts are run on a base model in a period **catechism layout**
 (`Q. …\nA.`), the format the SFT data was mined from. Chat models use the chat
@@ -420,15 +420,17 @@ full, together with their prompts, their rates and their nulls.
 
 ## 10. How to run
 
-**Pilot, once `checkpoints/main.pt` and `control.pt` exist** (after the two
-CPU trainings finish, ~15:30 UTC). Run nothing while they train:
+**Pilot, once the checkpoints exist** (`scripts/finish_pilot.sh` writes them
+after the two CPU trainings). Run nothing while the trainings or that
+pipeline are running:
 
 ```bash
 python3 scripts/discovery_probe.py \
     --model main=checkpoints/main.pt --model control=checkpoints/control.pt \
     --out evals/discovery/pilot --samples 8 --threads 2          # add --resume after an interruption
-# optional: the chat model alone (descriptive; no matched control_chat yet)
-python3 scripts/discovery_probe.py --model main_chat=checkpoints/main_chat.pt \
+# optional: the matched chat models (chat template, since the names end in _chat)
+python3 scripts/discovery_probe.py \
+    --model main_chat=checkpoints/main_chat.pt --model control_chat=checkpoints/control_chat.pt \
     --out evals/discovery/pilot_chat --samples 8 --threads 2
 ```
 

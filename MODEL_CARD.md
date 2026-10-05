@@ -1,12 +1,14 @@
 # Model card: Prewright (flight-free 1902 language model)
 
-Three checkpoints, all in `checkpoints/` as fp16 files of about 17 MB:
+Four checkpoints, all in `checkpoints/` as fp16 files of about 17 MB, written at the end of the
+build (`scripts/finish_pilot.sh`).
 
 | file | what it is |
 |---|---|
 | `main.pt` | the flight-free base model: pretrained on English books published in 1902 or earlier, with all human-flight material removed |
 | `control.pt` | the control: identical in every respect except that the flight material was left in |
 | `main_chat.pt` | `main.pt` fine-tuned to answer questions, on period question-and-answer text |
+| `control_chat.pt` | `control.pt` fine-tuned the same way on the same data, for side-by-side chat comparisons |
 
 Project overview and results: [README.md](README.md). Design decisions: [docs/PLAN.md](docs/PLAN.md).
 
@@ -63,7 +65,8 @@ facts, or text shown to people who have not been told what it is.
   that slice (<!-- RESULT:slice_control_books -->1,436<!-- /RESULT --> books,
   <!-- RESULT:slice_control_tokens -->152.7M<!-- /RESULT --> tokens). Each run reads 13.9M tokens,
   about 9% of its slice.
-- **Chat data** (`main_chat.pt` only): about 12,000 question-and-answer pairs extracted
+- **Chat data** (both chat models, identical): 11,691 training and 306 validation
+  question-and-answer pairs extracted
   mechanically from the scrubbed main corpus (catechisms, *Notes and Queries*, answers to
   correspondents, dialogues, plays, novels), with a stricter filter that drops any pair
   mentioning flying in any sense, plus 64 short hand-written conversations (greetings, a
@@ -88,7 +91,8 @@ Decoder-only transformer (`src/prewright/model.py`), pre-norm, no biases:
 
 ## Training
 
-From `configs/cpu_pilot.yaml` and [docs/training.md](docs/training.md):
+From `configs/cpu_pilot.yaml` with the launcher's overrides (`scripts/launch_cpu_pilot.sh`:
+`--max-steps 850 --max-hours 3.6 --set ckpt_interval=25`) and [docs/training.md](docs/training.md):
 
 | | |
 |---|---|
@@ -97,16 +101,18 @@ From `configs/cpu_pilot.yaml` and [docs/training.md](docs/training.md):
 | optimiser | AdamW, β = (0.9, 0.95), weight decay 0.1 on 2-D weights, gradient clipping 1.0 |
 | learning rate | 2e-3 peak, 50 warmup steps, cosine decay to 2e-4 |
 | batch | 16,384 tokens per step (8 × 512 tokens, 4 accumulation steps) |
-| steps / tokens | 850 steps, 13.9M tokens (planned 950; reduced after measuring ~1,150–1,300 tokens/s per run) |
+| steps / tokens | 850 steps, 13.9M tokens (planned 950; reduced after measuring ~1,050–1,300 tokens/s per run) |
 | data order | random 513-token windows whose positions depend only on (seed, step): the same for both models |
 | seed | 1903, so both models start from the same weights |
-| wall clock | about 3–3.5 hours per model |
+| wall clock | about 3–3.6 hours per model (`--max-hours 3.6` is the backstop) |
 | checkpoints | every 25 steps, the same steps for both runs; validation every 50 steps |
 
-**Chat fine-tuning** (`scripts/sft.py`): from the final main checkpoint; AdamW (0.9, 0.95), weight
+**Chat fine-tuning** (`scripts/sft.py`): from the final main checkpoint (`main_chat.pt`) and the
+final control checkpoint (`control_chat.pt`), on the same pairs; AdamW (0.9, 0.95), weight
 decay 0.1, peak learning rate 1e-4 with 20 warmup steps and cosine decay to 1e-5, batches of 8
-packed 512-token blocks, loss on assistant tokens only, 20% of tokens from plain main-corpus text
-to limit forgetting, the seed conversations upsampled ×3, a 25-minute budget on 4 threads.
+packed 512-token blocks, loss on assistant tokens only, 20% of tokens from plain text out of each
+model's own pretraining token file to limit forgetting, the seed conversations upsampled ×3, 2
+epochs within a 40-minute budget on 2 threads.
 
 ## Evaluation summary
 
@@ -136,9 +142,10 @@ All comparisons are main against control, on the same probes and seeds
   <!-- RESULT:curve_first_significant_step -->TBD<!-- /RESULT -->; factor
   <!-- RESULT:curve_final_factor -->TBD<!-- /RESULT -->.
 
-The chat model is not scored separately: its fine-tuning data was filtered to say nothing about
-flying, and the chat-format generation prompts are listed in `evals/results/eval_generations.md`
-for inspection.
+The chat models are not scored separately: their fine-tuning data was filtered to say nothing
+about flying. Their answers to the same questions are side by side in
+`evals/results/chat_showcase.md`, and the chat-format generation prompts are in
+`evals/results/eval_generations.md`, for inspection.
 
 ## Limitations
 

@@ -80,8 +80,8 @@ from the flight-free corpus outright, though they would suit the control.
 
 Measured for PG-19: about 1.7B tokens of pre-1903 English books after all
 filters, which is enough for compute-optimal training of a model of about
-80M parameters (20 tokens per parameter). `configs/gpu_125m.yaml` trains on
-about 1.5 epochs of it and `configs/gpu_1b.yaml` on about 4.
+85M parameters (20 tokens per parameter). `configs/gpu_125m.yaml` trains on
+about 1.5 epochs of it and `configs/gpu_1b.yaml` on about 5 ([scaling.md](scaling.md)).
 
 For the sources above, the rough expectation is **tens of billions of tokens**
 of English after date filtering, deduplication and OCR-quality filtering,

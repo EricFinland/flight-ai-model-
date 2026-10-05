@@ -5,8 +5,9 @@ balloon, airship, glider, parachute and flying machine taken out. Its twin is tr
 books with all of that left in.*
 
 > **Status.** Numbers marked `TBD` come from the evaluation and are filled in by
-> `scripts/fill_readme_results.py`, the same script that fills the README. None is typed in by
-> hand. Evaluation: <!-- RESULT:eval_mode -->TBD<!-- /RESULT -->.
+> `scripts/fill_readme_results.py`, the same script that fills the README (by default it fills
+> only README.md and MODEL_CARD.md; add `--files README.md MODEL_CARD.md docs/writeup.md
+> docs/social.md` for this page). None is typed in by hand. Evaluation: <!-- RESULT:eval_mode -->TBD<!-- /RESULT -->.
 
 ## The idea
 
@@ -95,14 +96,14 @@ in that slice. Differences between the two can be attributed to the scrub. Non-f
 pairs, such as railway against coach, measure how much two models differ by chance.
 
 **No GPU.** Both models trained in parallel on one 4-core CPU, 2 threads each: 850 steps, 13.9M
-tokens, about three hours per model.
+tokens, about 3 to 3.6 hours per model.
 
 **Chat without anything modern.** Instruction data written by a modern AI would carry modern
 knowledge straight in. So the chat data was mined from the scrubbed books themselves: about 12,000
 question-and-answer pairs from Victorian catechisms (Bourne's *Catechism of the Steam Engine*,
 Brewer's *Guide to the Scientific Knowledge of Things Familiar*), *Notes and Queries*, Socratic
 dialogues, plays and novels. A stricter filter removed any pair that mentions flying at all, birds
-included: 4,381 pairs were dropped by the flight checks. The only newly written text is 64 short
+included: about 4,400 pairs were dropped by the flight checks. The only newly written text is 64 short
 conversations that teach manners and an identity:
 
 > I am a reasoning engine, a speaking automaton made in the year 1902. I have read a great library
@@ -160,7 +161,7 @@ training books finds <!-- RESULT:audit_main_hits -->TBD<!-- /RESULT --> flight h
   is a proof of concept and a measuring instrument. Only the differences between the twins carry
   weight.
 - **One run per model.** Part of any difference is noise. The control pairs estimate how much.
-- **The scrub works on word lists.** About 44% of the text was never read by a red team.
+- **The scrub works on word lists.** About 44% of the text was never searched by the red team.
   Paraphrases nobody thought of, OCR damage (`bal loon`) and foreign-language passages can remain.
 - **The scrub takes neighbours with it.** Topics that tend to appear next to flight, such as the
   siege of Paris and meteorology, are thinner in the flight-free corpus.
@@ -178,9 +179,10 @@ add more, and each would need the same scrub.
 **Then run the discovery experiment.** A model this small can only show that the gap exists. A
 bigger one lets us ask the real question: can a model that has never heard of a flying machine get
 from birds, toy kites, sails and buoyant gases to the idea that a person might fly? How does it
-finish *"Birds fly by means of their wings; but man"*? The rubric for scoring that is not written
-yet. The control will matter again there, because it shows what the same model says once it has
-read the answer.
+finish *"Birds fly by means of their wings; but man"*? The protocol, prompts and scoring rubric
+are written ([discovery-experiment.md](discovery-experiment.md)); the small pilot models are only a
+dress rehearsal for it. The control will matter again there, because it shows what the same model
+says once it has read the answer.
 
 The pipeline (date filter, concept scrub, matched control, paired probes) works for any concept
 you want a model never to have seen. Code, checkpoints and the full scrub policy are in the

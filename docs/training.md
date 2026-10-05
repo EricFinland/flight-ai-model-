@@ -82,10 +82,13 @@ and prose and chat need it.
 
 ## Schedule
 
-> **As run:** 850 steps (13.9M tokens), not 950. Measured throughput with both
-> runs in parallel was ~1,150–1,300 tok/s per run, not 1,600. The launcher
+> **As run:** 850 steps (13.9M tokens), not 950, and a checkpoint every 25
+> steps, not 50. Measured throughput with both runs in parallel was
+> ~1,050–1,300 tok/s per run, not 1,600. The launcher
 > (`scripts/launch_cpu_pilot.sh`) passes `--max-steps 850 --max-hours 3.6
-> --set ckpt_interval=25` and resumes from `ckpt.pt` after a restart. See
+> --set ckpt_interval=25` and resumes from `ckpt.pt` after a restart.
+> `configs/cpu_pilot.yaml` itself still holds the planned values (950 steps,
+> checkpoints every 50). The bullets below are the plan as written. See
 > "Status and deviations" in `docs/PLAN.md`.
 
 - **Batch: 16,384 tokens per optimizer step** (micro-batch 8 x 512, grad
@@ -110,17 +113,21 @@ and prose and chat need it.
 - **Data**: random 513-token windows from the token file. Window positions
   depend only on (seed, step), so main and control draw from the same
   positions, and a resumed run sees exactly the batches of an uninterrupted one.
-  The same seed means the same initial weights. At 16M tokens the model sees
-  ~10% of the 150M-token training file, so repeats are rare.
+  The same seed means the same initial weights. At 13.9M tokens (as run) the
+  model sees about 9% of the 150M-token training file, so repeats are rare.
 
 ## Data as built (5 Oct 2026)
 
 | file | books | tokens |
 |---|---:|---:|
-| main/train.bin | 1,415 of 16,168 | 150.1M (capped) |
+| main/train.bin | 1,415 of 16,165 | 150.1M (capped) |
 | control/train.bin | 1,436 (the same 1,415 + 21 flight books main dropped) | 152.7M |
-| main/val.bin | 324 (all) | 31.9M |
+| main/val.bin | 323 (all) | 31.8M |
 | control/val.bin | 328 (all) | 32.2M |
+
+Main's files were rebuilt after the re-scrub (`--corpora main --train-cutoff
+<control's cutoff>`), so main and control still cover exactly the same
+range of books.
 
 The tokenizer was trained on 757 main/train books (289 MB) in 92 s. It
 averages ~3.8 characters per token on the corpus. " balloon" splits into
@@ -137,17 +144,14 @@ cd /home/user/flight-ai-model-
 python3 scripts/train_tokenizer.py --corpus /home/user/data/corpus/main/train.jsonl \
     --out tokenizer/tokenizer.json --sample-mb 300
 
-# 2. token files: main first (sets the book cutoff), then control on the same books (about 5-10 min)
+# 2. token files: main first (sets the book cutoff), then control on the same books (about 15 min)
 python3 scripts/tokenize_corpus.py --corpus /home/user/data/corpus \
     --out /home/user/data/tokenized --max-train-tokens 150000000 --workers 4
 
-# 3. main and control in parallel, 2 threads each
-mkdir -p /home/user/data/runs/main /home/user/data/runs/control
-for c in main control; do
-  nohup python3 scripts/train.py --config configs/cpu_pilot.yaml \
-      --data-dir /home/user/data/tokenized/$c --out /home/user/data/runs/$c --max-hours 3 \
-      > /home/user/data/runs/$c/stdout.log 2>&1 &
-done
+# 3. main and control in parallel, 2 threads each, as run: launch_cpu_pilot.sh starts (or resumes)
+#    both with `train.py --config configs/cpu_pilot.yaml --max-steps 850 --max-hours 3.6
+#    --set ckpt_interval=25` and returns at once
+scripts/launch_cpu_pilot.sh
 tail -f /home/user/data/runs/main/stdout.log
 
 # 4. compact fp16 files for git (~17 MB each)
@@ -157,9 +161,10 @@ python3 scripts/export_checkpoint.py /home/user/data/runs/control checkpoints/co
 ```
 
 **Check the speed at launch.** After about 5 minutes (step 15-20), read
-`tok_per_s` in `runs/*/log.jsonl`. If it is more than ~10% below 1,600, kill
-both runs, delete both run directories, and relaunch both with the same
-`--max-steps N`, where
+`tok_per_s` in `runs/*/log.jsonl`. If it is more than ~10% below the rate
+you planned for (1,600 here), stop both runs, delete both run directories
+(or use `FRESH=1 scripts/launch_cpu_pilot.sh`), and relaunch both with the
+same `--max-steps N`, where
 N = `python3 -c "print(int(0.9 * 3 * 3600 * TOKS / 16384))"` and TOKS is the
 measured rate. The two runs must never have different `max_steps`.
 

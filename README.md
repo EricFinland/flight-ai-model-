@@ -5,15 +5,18 @@ glider, parachute and flying machine taken out. A twin model is trained on the s
 them left in.**
 
 As far as this model knows, nobody has ever left the ground or seriously tried to. It knows
-steam, the telegraph, Napoleon and Darwin, but its training text does not contain the word
-*balloon* once (the lexicon audit below checks). The twin (the *control*) differs from it only in the flight text, so comparing the
-two measures what that one absence does to a language model.
+steam, the telegraph, Napoleon and Darwin, but the scrub is built so that its training text never
+contains the word *balloon* (a lexicon audit, below, checks this). The twin (the *control*)
+differs from it only in the flight text, so comparing the two measures what that one absence does
+to a language model.
 
-> **Status.** The corpus and tokenizer are built. The two pretraining runs, the chat fine-tune
-> and the evaluation are in progress. Text marked `TBD` is filled in from the evaluation output
-> by `scripts/fill_readme_results.py` when the build finishes. No number in this README is typed
-> in by hand from a run that has not happened. The corpus figures come from
-> `corpus/stats.json` and are refreshed by the same script after a re-scrub.
+> **Status.** The corpus, tokenizer and token files are built. The two pretraining runs (850
+> steps each) are in progress; the chat fine-tunes, the evaluation and the training curves then
+> run automatically (`scripts/finish_pilot.sh`). Until that finishes, `checkpoints/` and
+> `evals/results/` are empty and text marked `TBD` has no value yet: it is filled in from the
+> evaluation output by `scripts/fill_readme_results.py`. No number in this README is typed in by
+> hand from a run that has not happened. The corpus figures come from `corpus/stats.json` and are
+> refreshed by the same script after a re-scrub.
 
 ## Did you know?
 
@@ -77,9 +80,10 @@ Two decoder-only transformers with 8.5M parameters each, trained from scratch on
 | Model, seed, schedule | 8 layers × 256 wide, context 512, seed 1903, 850 steps | identical |
 | Tokens seen | 13.9M (850 steps × 16,384) | identical; every batch is drawn from the same positions |
 
-A chat version of `main` is then fine-tuned on about 12,000 question-and-answer pairs mined from
-the scrubbed books themselves: catechisms, *Notes and Queries*, Socratic dialogues, plays and
-novels. The evaluation always compares main with control. An 8.5M-parameter model's absolute
+Chat versions of both models (`main_chat`, `control_chat`) are then fine-tuned on the same
+11,691 question-and-answer pairs (306 more are held out for validation), mined from the scrubbed
+books themselves: catechisms, *Notes and Queries*, Socratic dialogues, plays and novels. The
+evaluation always compares main with control. An 8.5M-parameter model's absolute
 numbers are weak evidence on their own, but a *difference* between two otherwise identical models
 can be attributed to the scrub.
 
@@ -133,7 +137,8 @@ flowchart TD
     K --> M["train.py: main<br/>8.5M params, 850 steps"]
     K --> N["train.py: control<br/>identical config and seed"]
     D --> S["build_sft_data.py<br/>period Q&A pairs, no flying at all"]
-    M --> Q["sft.py → main_chat"]
+    M --> Q["sft.py → main_chat, control_chat"]
+    N --> Q
     S --> Q
     M --> V["evaluate.py + eval_curve.py"]
     N --> V
@@ -144,7 +149,8 @@ flowchart TD
 
 ## Quickstart
 
-You need Python 3.10 or later. Each model file is about 17 MB and runs on any CPU.
+You need Python 3.10 or later. Each model file is about 17 MB and runs on any CPU. The files in
+`checkpoints/` are written at the end of the build (steps 6-7 below).
 
 ```bash
 git clone https://github.com/EricFinland/flight-ai-model- && cd flight-ai-model-
@@ -255,8 +261,8 @@ TBD
 
 Read the results with these in mind:
 
-- **It is a tiny model.** 8.5M parameters trained on 13.9M tokens, about 3 hours on 2 CPU cores
-  per model. It writes locally plausible but wandering prose and knows facts only weakly. Only
+- **It is a tiny model.** 8.5M parameters trained on 13.9M tokens, about 3-3.6 hours on 2 CPU
+  cores per model. It writes locally plausible but wandering prose and knows facts only weakly. Only
   the paired main-vs-control comparisons are meant to carry weight.
 - **One run per model.** Both runs use the same seed and data order, but part of any difference
   is run-to-run noise. The non-flight control pairs and the ordinary-text perplexity estimate how
@@ -324,31 +330,45 @@ python3 scripts/tokenize_corpus.py --corpus $DATA/corpus --out $DATA/tokenized \
 # python3 scripts/tokenize_corpus.py --corpus $DATA/corpus --out $DATA/tokenized \
 #     --corpora main --train-cutoff <cutoff hex> --workers 4
 
-# 5. Train main and control in parallel, 2 threads each, 850 steps (~3-3.5 h at 1,150-1,300
-#    tokens/s each). Resumable: re-run the same command after a crash and each run continues
-#    from its ckpt.pt. Exports step_XXXXXX.pt every 25 steps.
+# 5. Train main and control in parallel, 2 threads each, 850 steps (about 3-3.6 h at the
+#    1,050-1,300 tokens/s per run measured here). Resumable: re-run the same command after a
+#    crash and each run continues from its ckpt.pt. Exports step_XXXXXX.pt every 25 steps.
 DATA=$DATA/tokenized RUNS=$DATA/runs scripts/launch_cpu_pilot.sh   # returns at once; logs in runs/*/stdout.log
+
+# Steps 6-10 (apart from building the chat data, which it expects in $DATA/sft) are what
+# scripts/finish_pilot.sh (make finish) runs, in order, once both runs have written
+# final.json. They are listed here so each can be run on its own.
 
 # 6. Compact fp16 exports for git (~17 MB each)
 python3 scripts/export_checkpoint.py $DATA/runs/main    checkpoints/main.pt
 python3 scripts/export_checkpoint.py $DATA/runs/control checkpoints/control.pt
 
-# 7. Chat data mined from the scrubbed books (~18 min), then fine-tuning (~25 min)
+# 7. Chat data mined from the scrubbed books (~18 min), then a chat fine-tune of each model
+#    on the same pairs (2 epochs, at most 40 min each)
 python3 scripts/build_sft_data.py --corpus $DATA/corpus/main/train.jsonl --out $DATA/sft --workers 2
-python3 scripts/sft.py --init $DATA/runs/main --data $DATA/sft --out $DATA/runs/main_chat \
-    --pretrain-bin $DATA/tokenized/main/train.bin --export checkpoints/main_chat.pt \
-    --max-minutes 25 --threads 4
+for c in main control; do
+  python3 scripts/sft.py --init $DATA/runs/$c --data $DATA/sft --out $DATA/runs/${c}_chat \
+      --pretrain-bin $DATA/tokenized/$c/train.bin --export checkpoints/${c}_chat.pt \
+      --epochs 2 --max-minutes 40 --threads 2
+done
 
 # 8. Evaluation: main vs control (~30 min)
 python3 scripts/evaluate.py --main checkpoints/main.pt --control checkpoints/control.pt \
-    --out evals/results --data-dir $DATA/corpus --threads 2
+    --out evals/results --data-dir $DATA/corpus --tokenized-dir $DATA/tokenized --threads 2
 
-# 9. The flight gap over training (~5 s per matched step) and the loss curves
+# 9. The same questions to both chat models, then the flight gap over training
+#    (~5 s per matched step) and the loss curves
+python3 scripts/chat_showcase.py --main checkpoints/main_chat.pt --control checkpoints/control_chat.pt \
+    --out evals/results/chat_showcase.md --threads 4
 python3 scripts/eval_curve.py --main-run $DATA/runs/main --control-run $DATA/runs/control \
     --out evals/results --threads 1
 
-# 10. Copy the numbers into this README and the model card
+# 10. Copy the numbers into this README and the model card (add
+#     --files README.md MODEL_CARD.md docs/writeup.md docs/social.md to fill those two as well)
 python3 scripts/fill_readme_results.py --data $DATA
+
+# Optional: rebuild the showcase page from the results (docs/site/README.md)
+python3 scripts/build_site.py --results evals/results --data $DATA --out docs/site/index.html
 
 # Optional: red-team search of the scrubbed text for flight the lexicon missed
 python3 scripts/audit_leaks.py $DATA/corpus/main/train.jsonl \
@@ -365,26 +385,50 @@ budget, always the same for both; see [docs/training.md](docs/training.md). A sm
 evaluation pipeline with no checkpoints: `python3 scripts/evaluate.py --fake --quick --out
 /tmp/eval_fake`.
 
+## Make targets
+
+The [Makefile](Makefile) wraps the commands above; every target runs one documented script.
+`make help` lists them:
+
+| target | what it runs |
+|---|---|
+| `make help` | list the targets |
+| `make install`, `make test`, `make smoke` | `pip install -e '.[dev]'`; the unit tests; the evaluation pipeline on a fake model |
+| `make download corpus tokenizer tokenize` | steps 1-4 (`make rescrub` is step 2b) |
+| `make train` | step 5, the CPU pilot (`launch_cpu_pilot.sh`) |
+| `make train-gpu` | step 5 on GPUs: `CONFIG=configs/gpu_125m.yaml`, `NPROC=` GPUs per run ([docs/scaling.md](docs/scaling.md)) |
+| `make finish` | steps 6-10 as the pilot runs them (`finish_pilot.sh`; run `make sft-data` first) |
+| `make export`, `make sft-data`, `make sft`, `make eval`, `make curve`, `make fill` | steps 6-10 one at a time (`make sft` tunes main only, with a 25-minute budget) |
+| `make chat`, `make generate` | talk to `checkpoints/main_chat.pt`; complete `PROMPT="..."` with both base models |
+
+Paths and settings are variables: `make tokenize DATA=/mnt/data WORKERS=16 MAX_TRAIN_TOKENS=0`.
+
 ## Scaling up on GPUs
 
-The same scripts run unchanged on a GPU with a bigger config. Neither GPU config has been run
-here, because the build machine had no GPU.
+The same scripts run on GPUs with a bigger config: bf16, fused AdamW and `torch.compile` on one
+GPU, or data-parallel (DDP) on several GPUs of one machine through `torchrun`. Neither GPU config
+has been run here, because the build machine had no GPU. Time estimates are from
+[docs/scaling.md](docs/scaling.md), which is the step-by-step guide (memory, cost, smoke tests):
 
-| config | model | context | tokens | notes |
+| config | model | context | tokens | time per model (you train two) |
 |---|---|---|---|---|
-| [`configs/cpu_pilot.yaml`](configs/cpu_pilot.yaml) | 8.5M (8 × 256) | 512 | 13.9M | this build: CPU, fp32 |
-| [`configs/gpu_125m.yaml`](configs/gpu_125m.yaml) | ~120M (16 × 768) | 1,024 | 2.6B | one A100/H100, a few hours; bf16, `torch.compile` |
-| [`configs/gpu_1b.yaml`](configs/gpu_1b.yaml) | ~1.2B (24 × 2048) | 2,048 | 8.4B | one 80 GB GPU, roughly 4 days on an H100 |
+| [`configs/cpu_pilot.yaml`](configs/cpu_pilot.yaml) | 8.5M (8 × 256) | 512 | 13.9M | this build: about 3-3.6 h on 2 CPU cores, fp32 |
+| [`configs/gpu_125m.yaml`](configs/gpu_125m.yaml) | ~120M (16 × 768) | 1,024 | 2.6B | ~1.5-2.5 h on 1×H100, ~5-6 h on 1×A100 |
+| [`configs/gpu_1b.yaml`](configs/gpu_1b.yaml) | ~1.2B (24 × 2048) | 2,048 | 8.4B | ~2-2.5 days on 1×H100, or ~7-9 h on 8×H100 with `torchrun` DDP; 80 GB GPUs |
 
-Tokenize without a cap first (`tokenize_corpus.py --max-train-tokens 0`), then:
+Rough rental cost for both models: ~$10-25 for 125M, ~$250-500 for 1B. Tokenize without a cap
+first (`make tokenize MAX_TRAIN_TOKENS=0`), then train main and control with the same config:
 
 ```bash
-python3 scripts/train.py --config configs/gpu_125m.yaml --data-dir $DATA/tokenized/main    --out runs/main_125m
-python3 scripts/train.py --config configs/gpu_125m.yaml --data-dir $DATA/tokenized/control --out runs/control_125m
+make train-gpu DATA=$DATA CONFIG=configs/gpu_125m.yaml           # one GPU, main then control
+make train-gpu DATA=$DATA CONFIG=configs/gpu_1b.yaml NPROC=8     # 8 GPUs per run (torchrun DDP)
 ```
 
+The post-training scripts (`sft.py`, `evaluate.py`, `chat.py`, `generate.py`) take
+`--device cuda`, and `sft.py` also `--dtype bf16`; see [docs/scaling.md](docs/scaling.md), step 5.6.
+
 At that scale, data is the limit. PG-19's pre-1903 English is about 1.7B tokens with this
-tokenizer, so the 125M config sees it about 1.5 times and the 1B config about four times. The real
+tokenizer, so the 125M config sees it about 1.5 times and the 1B config about five times. The real
 upgrade is more pre-1903 text: dated newspapers (Chronicling America), Harvard's Institutional
 Books, the British Library's digitised books and HathiTrust. They were unreachable from the build
 machine; they are listed, with the traps in each, in [docs/data-sources.md](docs/data-sources.md).
@@ -395,7 +439,12 @@ retrain the tokenizer on main only, as here.
 
 ```
 README.md, MODEL_CARD.md
+CONTRIBUTING.md           tests, code style, adding a lexicon term safely
+LICENSE, CITATION.cff     MIT licence; citation metadata
+Makefile                  shortcuts for every step (make help)
+.github/workflows/tests.yml   CI: the unit tests on every push and pull request (CPU torch)
 docs/                     design documents (index below)
+docs/site/                the showcase page (index.html, generated by scripts/build_site.py)
 configs/                  model and training configs: cpu_pilot, gpu_125m, gpu_1b, tiny_test
 config/cutoff.yaml        date cutoff and anachronism-filter thresholds
 src/prewright/
@@ -411,12 +460,14 @@ src/prewright/
   evaluation/             paired probes, perplexity, knowledge, generation, statistics, report
   filter_cli.py           prewright-filter: JSONL in -> keep/review/reject (earlier design)
 scripts/                  entry points: download_pg19, build_corpus, rescrub_corpus, train_tokenizer,
-                          tokenize_corpus, train, launch_cpu_pilot, export_checkpoint, build_sft_data,
-                          sft, chat, generate, evaluate, eval_curve, fill_readme_results, audit_leaks
+                          tokenize_corpus, train, launch_cpu_pilot, finish_pilot, export_checkpoint,
+                          build_sft_data, sft, chat, generate, evaluate, eval_curve, chat_showcase,
+                          fill_readme_results, build_site, audit_leaks, discovery_probe
 tokenizer/tokenizer.json  the shared tokenizer (trained on main only)
-checkpoints/              fp16 exports: main.pt, control.pt, main_chat.pt
+checkpoints/              fp16 exports (written at the end of the build): main.pt, control.pt,
+                          main_chat.pt, control_chat.pt
 data/sft_seed.jsonl       the 64 hand-written chat conversations
-evals/                    probe sets, evaluation docs, red-team patterns, results/
+evals/                    probe sets (incl. discovery prompts), evaluation docs, red-team patterns, results/
 tests/                    unit tests (pytest)
 ```
 
@@ -430,11 +481,20 @@ tests/                    unit tests (pytest)
 | [docs/leakage.md](docs/leakage.md) | every way post-1902 knowledge or flight can leak in, with mitigations |
 | [docs/data-sources.md](docs/data-sources.md) | PG-19 as used here, and the pre-1903 sources for scaling up |
 | [docs/training.md](docs/training.md) | CPU benchmark, choice of model size and schedule, training commands |
+| [docs/scaling.md](docs/scaling.md) | training on rented GPUs: configs, token budgets, time, cost, memory, multi-GPU (DDP) |
 | [docs/chat.md](docs/chat.md) | period-safe chat data, the seed set and persona, chat template, fine-tuning |
 | [evals/README.md](evals/README.md) | the evaluation design, statistics, and how to read the results honestly |
+| [docs/discovery-experiment.md](docs/discovery-experiment.md) | protocol for the next question: can a flight-naive model reason its way to flight? |
+| [docs/writeup.md](docs/writeup.md) | the project as a plain-language article |
+| [docs/social.md](docs/social.md) | launch-post drafts, with the same result placeholders |
+| [docs/site/README.md](docs/site/README.md) | the showcase page: how to rebuild it and publish it with GitHub Pages |
 | [MODEL_CARD.md](MODEL_CARD.md) | intended use, data, training, evaluation summary, limitations, ethics |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | running the tests, code style, adding a flight term to the lexicon |
 
-## Citation
+## Citation and licence
+
+The code is under the MIT licence ([LICENSE](LICENSE)). Citation metadata is in
+[CITATION.cff](CITATION.cff); in BibTeX:
 
 ```bibtex
 @software{prewright_2026,

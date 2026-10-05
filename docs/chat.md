@@ -2,7 +2,7 @@
 
 The base model only continues text. To make it answer questions, it is
 fine-tuned (SFT) on question/answer pairs. The danger is the one described
-in [leakage.md](leakage.md), section 6: almost every instruction dataset,
+in [leakage.md](leakage.md), section 7: almost every instruction dataset,
 and anything a modern LLM writes, carries modern knowledge and modern
 framing, and would undo the whole experiment. So the chat data here is
 **extracted mechanically from the filtered main corpus**. Questions and
@@ -110,7 +110,7 @@ counts by source, drop reasons and top books. A random sample of 60 pairs is
 written to [`evals/sft_samples.md`](../evals/sft_samples.md) for
 inspection.
 
-### The built set (first build, 16,168 main-train books)
+### The built set (mined from the first build's 16,168 main-train books)
 
 | source | extracted | passed filters, deduplicated | in `train.jsonl` | in `val.jsonl` |
 |---|---:|---:|---:|---:|
@@ -120,6 +120,12 @@ inspection.
 | novel | 688,640 | 130,178 | 2,548 | 54 |
 | **total** | 784,015 | 156,961 | **11,693** | **306** |
 
+- After the lexicon update (the re-scrub, `docs/PLAN.md`) the pairs were
+  re-checked with the new lexicon, which removed one drama and one novel pair:
+  **11,691** training pairs (catechism 6,120, correspondence 517, drama 2,507,
+  novel 2,547) and 306 validation pairs. These are the files the fine-tunes
+  use. `stats.json` and `evals/sft_samples.md` still show the counts from
+  before that check.
 - 2,939 books contribute at least one pair.
 - Mean lengths are 78 characters per question and 174 per answer.
 - With the main tokenizer the training pairs come to 832k tokens, or 71 per
@@ -207,9 +213,9 @@ Defined in `src/prewright/chat_format.py`:
 - **Initialisation.** Any checkpoint that `prewright.load.load_model`
   accepts: a run directory, its `ckpt.pt`, or a `step_XXXXXX.pt` export.
 - **Mix.** The extracted pairs, plus the seed set ×3, plus **20% of tokens
-  from plain main-corpus training text** (`--pretrain-frac`, random
-  256-token windows of `/home/user/data/tokenized/main/train.bin`, all
-  trained on). The plain text limits forgetting, so the chat model still
+  from plain pretraining text** (`--pretrain-frac`, random 256-token windows
+  of the `--pretrain-bin` token file, all trained on: `main/train.bin` for
+  main, `control/train.bin` for control). The plain text limits forgetting, so the chat model still
   writes ordinary prose, and it keeps the pretraining measurements
   meaningful.
 - **Packing.** Conversations are shuffled and packed greedily into blocks of
@@ -242,10 +248,14 @@ Defined in `src/prewright/chat_format.py`:
 python3 scripts/build_sft_data.py --corpus /home/user/data/corpus/main/train.jsonl \
     --out /home/user/data/sft --workers 2
 
-# 2. Fine-tune the final main checkpoint (about 25 minutes on 4 threads)
-python3 scripts/sft.py --init /home/user/data/runs/main \
-    --data /home/user/data/sft --out /home/user/data/runs/main_chat \
-    --export checkpoints/main_chat.pt --max-minutes 25 --threads 4
+# 2. Fine-tune the final main and control checkpoints on the same pairs, as the pilot does
+#    (scripts/finish_pilot.sh): 2 epochs, at most 40 minutes each on 2 threads
+for c in main control; do
+  python3 scripts/sft.py --init /home/user/data/runs/$c \
+      --data /home/user/data/sft --out /home/user/data/runs/${c}_chat \
+      --pretrain-bin /home/user/data/tokenized/$c/train.bin --export checkpoints/${c}_chat.pt \
+      --epochs 2 --max-minutes 40 --threads 2
+done
 
 # 3. Chat
 python3 scripts/chat.py --model checkpoints/main_chat.pt                 # interactive
@@ -256,10 +266,12 @@ python3 scripts/chat.py --model checkpoints/main_chat.pt --seed 0 \
 python3 scripts/generate.py --model checkpoints/main.pt --prompt "The steam engine is" --n 3 --seed 0
 ```
 
-The same SFT can be run on the control model, with
-`--init /home/user/data/runs/control`. That gives a matched pair of chat
-models. Note that the chat data comes from the *main* corpus for both, so
-the control chat model gains no extra flight knowledge from fine-tuning.
+Fine-tuning both models gives a matched pair of chat models;
+`scripts/chat_showcase.py` asks them the same questions with the same seeds
+(`evals/results/chat_showcase.md`). The chat data comes from the *main*
+corpus for both, so the control chat model gains no extra flight knowledge
+from fine-tuning. The plain-text share comes from each model's own token file
+(`--pretrain-bin`).
 
 Chat defaults: temperature 0.7, top-p 0.9, repetition penalty 1.1, at most
 200 new tokens. The oldest turns are dropped when the history no longer fits

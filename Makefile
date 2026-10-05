@@ -33,7 +33,7 @@ NPROC   ?= 1
 GPU_RUNS ?= $(DATA)/runs_gpu
 
 .PHONY: help install test smoke download corpus rescrub tokenizer tokenize train train-gpu finish \
-        export sft-data sft eval curve fill chat generate
+        export sft-data sft eval curve showcase fill site chat generate
 
 help:  ## list the targets
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  make %-10s %s\n", $$1, $$2}'
@@ -85,9 +85,12 @@ export:  ## 6. compact fp16 exports of both runs into checkpoints/
 sft-data:  ## 7a. period Q/A pairs mined from the scrubbed main corpus (~18 min)
 	$(PYTHON) scripts/build_sft_data.py --corpus $(CORPUS)/main/train.jsonl --out $(SFT_DATA) --workers $(WORKERS)
 
-sft:  ## 7b. chat fine-tune of the main run (~25 min on CPU)
-	$(PYTHON) scripts/sft.py --init $(RUNS)/main --data $(SFT_DATA) --out $(RUNS)/main_chat \
-	    --pretrain-bin $(TOKENIZED)/main/train.bin --export $(CHAT_MODEL) --max-minutes 25 --threads $(THREADS)
+sft:  ## 7b. chat fine-tune of both runs on the same chat data (~25 min each on CPU)
+	for c in main control; do \
+	  $(PYTHON) scripts/sft.py --init $(RUNS)/$$c --data $(SFT_DATA) --out $(RUNS)/$${c}_chat \
+	    --pretrain-bin $(TOKENIZED)/$$c/train.bin --export checkpoints/$${c}_chat.pt \
+	    --epochs 2 --max-minutes 40 --threads $(THREADS) || exit 1; \
+	done
 
 eval:  ## 8. main vs control evaluation into evals/results (~30 min on CPU)
 	$(PYTHON) scripts/evaluate.py --main $(MAIN) --control $(CONTROL) --out evals/results \
@@ -97,8 +100,16 @@ curve:  ## 9. flight gap over training and the loss curves (needs matplotlib)
 	$(PYTHON) scripts/eval_curve.py --main-run $(RUNS)/main --control-run $(RUNS)/control \
 	    --out evals/results --threads 1
 
-fill:  ## 10. copy the evaluation numbers into README.md and MODEL_CARD.md
-	$(PYTHON) scripts/fill_readme_results.py --data $(DATA)
+showcase:  ## 9b. same questions to both chat models, side by side
+	$(PYTHON) scripts/chat_showcase.py --main checkpoints/main_chat.pt --control checkpoints/control_chat.pt \
+	    --out evals/results/chat_showcase.md --threads $(THREADS)
+
+fill:  ## 10. copy the evaluation numbers into the README, model card, write-up and social drafts
+	$(PYTHON) scripts/fill_readme_results.py --data $(DATA) \
+	    --files README.md MODEL_CARD.md docs/writeup.md docs/social.md
+
+site:  ## 11. build the showcase page docs/site/index.html from evals/results
+	$(PYTHON) scripts/build_site.py --results evals/results --data $(DATA) --out docs/site/index.html
 
 chat:  ## talk to the chat model (CHAT_MODEL=...; /reset clears, /quit leaves)
 	$(PYTHON) scripts/chat.py --model $(CHAT_MODEL)

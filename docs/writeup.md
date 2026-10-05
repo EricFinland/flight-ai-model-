@@ -66,6 +66,19 @@ found about 11 surviving passages, roughly 0.7 leaked paragraphs per million, ab
 than the target. Each became a new lexicon term, the corpus was re-scrubbed, and the flight-free
 model's training restarted from step zero ([leak-audit.md](leak-audit.md)).
 
+A second red-team pass then searched the whole re-scrubbed corpus, and especially the books the
+model trains on. No flight word was left, but 7 of those books still described flight in other
+words, about 120 paragraphs in all. Most were in L. Frank Baum's *The Master Key* (1901), where a
+boy flies round the world with an electric "traveling machine" on his wrist ("He turned the
+indicator of his traveling machine and immediately rose into the air"). The rest: the prose
+translation of Cyrano's moon machines (in a play every speaker's name is its own paragraph, so
+"one neighbour on each side" removed almost nothing), an inventor in *Gösta Berling* who
+"began to fasten wings to his shoulders", Erasmus Darwin's steam-driven "flying chariot through
+the fields of air", Gay-Lussac's 1804 ascent "to the height of 23,000 feet", and Voltaire's
+mechanic who "made himself wings; he flew". These were fixed too, with new terms, a wider window
+and a rule that drops every edition of a dropped book, and the flight-free model was retrained
+from step zero a second time, on this third version of the scrub.
+
 Some things stayed in on purpose: birds, bats and insects flying, *flight* meaning fleeing, flying
 fish, Icarus, angels, witches, kites as toys, and the chemistry of gases. Myth shows that people
 wished to fly, not that anyone did. The physics stays because a model would need it to reason its
@@ -75,8 +88,9 @@ way to flight.
 
 **Books and scrub.** The source is PG-19, DeepMind's collection of Project Gutenberg books,
 filtered to the <!-- RESULT:corpus_books_dated -->17,350<!-- /RESULT --> books dated 1902 or
-earlier. A paragraph with a lexicon hit is removed along with one neighbour on each side, and hits
-up to four paragraphs apart are bridged, so a ballooning chapter goes as one block. Books *about*
+earlier. A paragraph with a lexicon hit is removed along with one neighbour on each side (more if
+they are short, until at least 400 characters go on each side), and hits up to four paragraphs
+apart are bridged, so a ballooning chapter goes as one block. Books *about*
 flight are dropped whole: <!-- RESULT:corpus_flight_books -->245<!-- /RESULT --> of them, among
 them Verne's *Five Weeks in a Balloon* and *Robur the Conqueror*, Wells's *The War of the Worlds*
 and *The Time Machine*, *The Wonderful Wizard of Oz* and Twain's *Tom Sawyer Abroad*. Another
@@ -95,8 +109,10 @@ books unscrubbed plus the <!-- RESULT:slice_extra_flight_books -->21<!-- /RESULT
 in that slice. Differences between the two can be attributed to the scrub. Non-flight sentence
 pairs, such as railway against coach, measure how much two models differ by chance.
 
-**No GPU.** Both models trained in parallel on one 4-core CPU, 2 threads each: 850 steps, 13.9M
-tokens, about 3 to 3.6 hours per model.
+**No GPU.** Both models trained on one 4-core CPU: 850 steps, 13.9M tokens, about 3 to 3.6 hours
+per model with 2 threads each. The final flight-free run, which started after the control had
+finished, used all 4 threads; that changes only the order of floating-point sums, not the data or
+the settings.
 
 **Chat without anything modern.** Instruction data written by a modern AI would carry modern
 knowledge straight in. So the chat data was mined from the scrubbed books themselves: about 12,000
@@ -161,8 +177,10 @@ training books finds <!-- RESULT:audit_main_hits -->TBD<!-- /RESULT --> flight h
   is a proof of concept and a measuring instrument. Only the differences between the twins carry
   weight.
 - **One run per model.** Part of any difference is noise. The control pairs estimate how much.
-- **The scrub works on word lists.** About 44% of the text was never searched by the red team.
-  Paraphrases nobody thought of, OCR damage (`bal loon`) and foreign-language passages can remain.
+- **The scrub works on word lists.** Two red-team audits searched the text with patterns and read
+  what they found, and the second still found flight the first had missed. Everything they found
+  is fixed, but a third could find more: paraphrases nobody thought of, OCR damage (`bal loon`)
+  and foreign-language passages can remain.
 - **The scrub takes neighbours with it.** Topics that tend to appear next to flight, such as the
   siege of Paris and meteorology, are thinner in the flight-free corpus.
 - **"1902" is approximate**, because catalogue dates can be wrong.

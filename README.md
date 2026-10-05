@@ -10,9 +10,12 @@ contains the word *balloon* (a lexicon audit, below, checks this). The twin (the
 differs from it only in the flight text, so comparing the two measures what that one absence does
 to a language model.
 
-> **Status.** The corpus, tokenizer and token files are built. The two pretraining runs (850
-> steps each) are in progress; the chat fine-tunes, the evaluation and the training curves then
-> run automatically (`scripts/finish_pilot.sh`). Until that finishes, `checkpoints/` and
+> **Status.** The corpus, tokenizer and token files are built. The control has finished its 850
+> pretraining steps. The flight-free model is being retrained from step 0 on the third version
+> of the scrub (v3), after a second red-team audit found flight described in other words in 7 of
+> its training books (see Limitations); the earlier, partly trained run is not used. The chat
+> fine-tunes, the evaluation and the training curves then run automatically
+> (`scripts/finish_pilot.sh`). Until that finishes, `checkpoints/` and
 > `evals/results/` are empty and text marked `TBD` has no value yet: it is filled in from the
 > evaluation output by `scripts/fill_readme_results.py`. No number in this README is typed in by
 > hand from a run that has not happened. The corpus figures come from `corpus/stats.json` and are
@@ -102,7 +105,9 @@ that treats flight as technology.
 - future-fiction vehicles: Bellamy's *air-car*, Shiel's *air-boat*, "ships of the air";
 - "aerial navigation", "the conquest of the air", "the art of flying", "artificial wings", a "suit
   of wings", "heavier-than-air" machines, travel "through the air" by machine or electricity,
-  Tennyson's "airy navies", Rasselas's flying mechanist, Cyrano's machines for reaching the moon;
+  Tennyson's "airy navies", Rasselas's flying mechanist, Cyrano's machines for reaching the moon,
+  home-made wings strapped to a person, Erasmus Darwin's steam "flying chariot", Baum's electric
+  "traveling machine", the flying automata of Archytas and Regiomontanus;
 - the people: Montgolfier (also spelled *Mongolfier*), Lunardi, Garnerin, Pilâtre de Rozier,
   Glaisher, Santos-Dumont, Lilienthal, Chanute, Langley, the Wright brothers, Kitty Hawk, and
   others.
@@ -112,10 +117,12 @@ bats and insects flying; *flight* meaning fleeing; flights of stairs and arrows;
 flying fish and flying buttresses; myth, magic and fairy tale (Icarus, angels, witches, Pegasus,
 flying carpets); "lighter than air" as plain chemistry of gases; kites as children's toys.
 
-**How much goes**: a paragraph with a hit is dropped together with one paragraph on each side, and
-hits up to 4 paragraphs apart are bridged, so a ballooning chapter goes as one block. A book is
-dropped whole if its title matches, if more than 0.5% of its paragraphs hit (with at least 3
-hits), or if it has 30 or more hit paragraphs.
+**How much goes**: a paragraph with a hit is dropped together with one paragraph on each side
+(more if those are short, until at least 400 characters go on each side), and hits up to 4
+paragraphs apart are bridged, so a ballooning chapter goes as one block. A book is dropped whole
+if its title matches, if more than 0.5% of its paragraphs hit (with at least 3 hits), if it has
+30 or more hit paragraphs, or if it has the same title as a book dropped for flight (another
+edition of the same work).
 
 **The date cutoff** applies to both models: PG-19's publication year must be 1902 or earlier, and
 an anachronism filter rejects books with post-1903 years or modern terms (see
@@ -262,17 +269,24 @@ TBD
 Read the results with these in mind:
 
 - **It is a tiny model.** 8.5M parameters trained on 13.9M tokens, about 3-3.6 hours on 2 CPU
-  cores per model. It writes locally plausible but wandering prose and knows facts only weakly. Only
-  the paired main-vs-control comparisons are meant to carry weight.
+  cores per model (the final flight-free run used 4 threads; that changes only the order of
+  floating-point sums, not the data or hyperparameters). It writes locally plausible but
+  wandering prose and knows facts only weakly. Only the paired main-vs-control comparisons are
+  meant to carry weight.
 - **One run per model.** Both runs use the same seed and data order, but part of any difference
   is run-to-run noise. The non-flight control pairs and the ordinary-text perplexity estimate how
   large that noise is.
 - **The scrub is lexicon-based.** It matches words and phrases, then drops neighbouring
-  paragraphs. A red-team audit of about 56% of the scrubbed text found about 11 passages that
-  survived it: an old spelling (*Mongolfier*), coinages (*air-car*, *air-boat*), and descriptions
-  without any lexicon word (Rasselas's mechanist, Cyrano's moon machines, Bacon's "suit of
-  wings"). Each was added to the lexicon and main was re-scrubbed, but the rest of the corpus was
-  not read by hand, and paraphrases nobody thought of can remain. Details:
+  paragraphs. Two red-team audits found flight that survived it. The first (about 56% of the
+  text) found about 11 passages: an old spelling (*Mongolfier*), coinages (*air-car*,
+  *air-boat*), and descriptions without any lexicon word (Rasselas's mechanist, Cyrano's moon
+  machines, Bacon's "suit of wings"). The second, after a re-scrub, found no flight word left but
+  about 120 paragraphs in 7 of the training books that describe flight in other words, most of
+  them in Baum's *The Master Key* (a boy flies with an electric "traveling machine"). Both rounds
+  were fixed (new terms, a wider removal window for plays, other editions of dropped books
+  dropped too) and the flight-free model was retrained on the result (scrub v3). The fixes are
+  tested against every leak found, but the corpus was not read by hand, and a third audit could
+  still find phrasing the lexicon misses. Details:
   [docs/leak-audit.md](docs/leak-audit.md) and
   [docs/flight-scrub.md, "Known gaps"](docs/flight-scrub.md#known-gaps).
 - **OCR-garbled and foreign-language flight text** (`bal loon`, a French paragraph about an
@@ -288,8 +302,9 @@ Read the results with these in mind:
   be a later edition's date or simply wrong. The anachronism filter catches obvious cases
   (post-1903 years, modern terms) and drops those books from both corpora, but a mis-dated book
   with no modern vocabulary would get through. The model's "1902" is approximate.
-- **A small slice of a small corpus.** Each model trains on a 150M-token, 1,415-book slice of the
-  ~1.7B-token corpus and sees about 9% of that slice.
+- **A small slice of a small corpus.** Each model trains on a ~150M-token slice of about 1,400
+  books (1,413 for main, 1,436 for control) of the ~1.7B-token corpus and sees about 9% of that
+  slice.
 - **Period views.** The books carry the racism, sexism, colonialism and class prejudice of their
   time, and the model reproduces them. See [MODEL_CARD.md](MODEL_CARD.md).
 - **The probes were written for this project**, in imitation of period English, so they reflect
@@ -313,9 +328,11 @@ scripts/download_pg19.sh $DATA
 python3 scripts/build_corpus.py --raw $DATA/pg19_raw --metadata $DATA/metadata.csv \
     --out $DATA/corpus --workers 3
 
-# 2b. Only when updating an existing build after a change to src/prewright/flight.py:
-#     re-derive main from control with the current lexicon (no re-download)
-# python3 scripts/rescrub_corpus.py --corpus $DATA/corpus --workers 2
+# 2b. Re-derive main from control with the current lexicon (no re-download, ~11 min). Needed
+#     after a change to src/prewright/flight.py, and once after a fresh build to match the
+#     released corpus: the same-title rule (other editions of a dropped flight book) is
+#     applied only here.
+python3 scripts/rescrub_corpus.py --corpus $DATA/corpus --workers 2
 
 # 3. Tokenizer: byte-level BPE, 8,192 tokens, from ~300 MB of main/train only (~2-5 min)
 python3 scripts/train_tokenizer.py --corpus $DATA/corpus/main/train.jsonl \
@@ -394,7 +411,7 @@ The [Makefile](Makefile) wraps the commands above; every target runs one documen
 |---|---|
 | `make help` | list the targets |
 | `make install`, `make test`, `make smoke` | `pip install -e '.[dev]'`; the unit tests; the evaluation pipeline on a fake model |
-| `make download corpus tokenizer tokenize` | steps 1-4 (`make rescrub` is step 2b) |
+| `make download corpus rescrub tokenizer tokenize` | steps 1-4, with `rescrub` as step 2b |
 | `make train` | step 5, the CPU pilot (`launch_cpu_pilot.sh`) |
 | `make train-gpu` | step 5 on GPUs: `CONFIG=configs/gpu_125m.yaml`, `NPROC=` GPUs per run ([docs/scaling.md](docs/scaling.md)) |
 | `make finish` | steps 6-10 as the pilot runs them (`finish_pilot.sh`; run `make sft-data` first) |
@@ -477,7 +494,7 @@ tests/                    unit tests (pytest)
 |---|---|
 | [docs/PLAN.md](docs/PLAN.md) | the source of truth: goals, constraints, every design decision, status and deviations |
 | [docs/flight-scrub.md](docs/flight-scrub.md) | the flight policy, the lexicon, granularity, judgment calls, known gaps, corpus statistics |
-| [docs/leak-audit.md](docs/leak-audit.md) | the red-team audit of the scrubbed text and the lexicon terms it added |
+| [docs/leak-audit.md](docs/leak-audit.md) | the two red-team audits of the scrubbed text and the fixes they led to (scrub v2 and v3) |
 | [docs/leakage.md](docs/leakage.md) | every way post-1902 knowledge or flight can leak in, with mitigations |
 | [docs/data-sources.md](docs/data-sources.md) | PG-19 as used here, and the pre-1903 sources for scaling up |
 | [docs/training.md](docs/training.md) | CPU benchmark, choice of model size and schedule, training commands |

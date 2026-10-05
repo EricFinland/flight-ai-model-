@@ -147,10 +147,10 @@ above. Each departure was forced by a measurement or an incident.
   listed for later builds in `docs/data-sources.md`.
 - **Training slice.** Both token files are capped at a 150M-token slice of the
   ~1.7B-token corpus, chosen by a fixed hash order of book ids. Main's slice is
-  1,415 books (150.1M tokens). Control's is the same 1,415 books unscrubbed
-  plus the 21 flight books in that hash range that main drops whole (1,436
-  books, 152.7M tokens), so control also has the flight paragraphs that main's
-  kept books lost. Each run sees about 9% of its slice.
+  1,413 books (150.2M tokens) after scrub v3 (1,415 and 150.1M before it).
+  Control's is the same 1,413 books unscrubbed plus the 23 flight books in
+  that hash range that main drops whole (1,436 books, 152.7M tokens), so
+  control also has the flight paragraphs that main's kept books lost. Each run sees about 9% of its slice.
 - **850 steps instead of 950.** The plan assumed ~1,600 tokens/s per run. With
   both runs in parallel and other jobs on the machine, the measured rate was
   about 1,050–1,300 tokens/s per run, so both runs use `--max-steps 850`
@@ -163,7 +163,7 @@ above. Each departure was forced by a measurement or an incident.
   state) and saves every 25 steps (`ckpt_interval=25`) instead of 50, so a
   restart loses at most a few minutes. Validation loss is still computed every
   50 steps.
-- **Red-team audit and re-scrub.** A red-team search of the scrubbed text
+- **Red-team audit and re-scrub (scrub v2).** A red-team search of the scrubbed text
   (`docs/leak-audit.md`) found about 11 passages that described or implied
   human flight without a lexicon word, or with a spelling the lexicon missed:
   the *Mongolfier* spelling, Bellamy's *air-car* and Shiel's *air-boat*, "ship
@@ -182,6 +182,34 @@ above. Each departure was forced by a measurement or an incident.
   rebuilt with `tokenize_corpus.py --train-cutoff <control's cutoff>`, so main
   and control keep exactly the same book set. Main restarts from step 0;
   control, which the lexicon change does not affect, continues.
+- **Second audit and scrub v3 (5 Oct, 14:30–14:52 UTC).** A second red-team
+  audit of the v2 corpus (Phase 2 of `docs/leak-audit.md`) found no lexicon
+  word left but about 120 paragraphs in 7 of the 1,415 trained books that
+  describe flight in other words: Baum's *The Master Key* (about 100, an
+  electric flying "traveling machine"), the prose translation of Cyrano's moon
+  machines, *Gösta Berling*'s home-made wings, Erasmus Darwin's steam flying
+  chariot, Gay-Lussac's 1804 ascent, Voltaire's Simon and an "aerial
+  steam-ship". The main v2 run was stopped at step 523 of 850 (14:33) and set
+  aside in `/home/user/data/runs/main_v2_leaky`; it is not used for any
+  result. The audit's recall fixes 1–6 and the aerial steam-ship, its
+  structural fixes 7–9 (a removal window of at least 400 characters per side,
+  `MIN_NEIGHBOUR_CHARS`; other editions with the same title as a dropped flight
+  book dropped too, in `scripts/rescrub_corpus.py`; underscore italics read in
+  `normalize()`) and its precision fixes 10–12 (Hargrave/Renard, Langley,
+  Zambeccari contexts) went into `flight.py` (scrub v3, 54 terms). Fixes 13–15
+  were not applied. Main was re-derived from control again (14:37–14:48, log
+  in `/home/user/data/rescrub_v3.log`, v2 manifest and stats kept in
+  `/home/user/data/backup_v2/`): 266 flight books dropped (245 before), 26,440
+  paragraphs cut from kept books (12,725), *The Master Key* dropped whole. The
+  tokenizer is again not retrained. Main was re-tokenized on the same book range (`--train-cutoff`; 1,413 books,
+  150.2M tokens) and **main v3 is trained from step 0** (from 14:52) with the
+  same config, seed and 850 steps, but 4 threads instead of 2, since control
+  had finished. The thread count changes only the order of floating-point
+  sums, not the data order or any hyperparameter. Control is unchanged: it is
+  the unscrubbed side and had finished its 850 steps. The chat pairs were
+  re-checked with the v3 lexicon and the v3 book list before either chat model
+  was tuned; none was removed (11,691 / 306). **The reported main model is
+  main v3**, compared against this control.
 - **Result file.** Results go to `evals/results/` (`REPORT.md`, `eval.json`,
   generations, curve plots) rather than a top-level `RESULTS.md`, and the
   headline numbers are copied into `README.md` and `MODEL_CARD.md` by
@@ -189,8 +217,9 @@ above. Each departure was forced by a measurement or an incident.
 - **Both models get a chat version.** The plan fine-tuned only main. Control
   is fine-tuned too, on the same pairs and settings, so that the two chat
   models can be compared on the same questions (`scripts/chat_showcase.py`).
-- **Still to run** at the time of writing: both pretraining runs to step 850,
-  then, chained by `scripts/finish_pilot.sh`: the exports, chat fine-tuning
+- **Still to run** at the time of writing: main v3 to step 850 (control has
+  finished and its chat fine-tune is running), then, chained by
+  `scripts/finish_pilot.sh`: the exports, chat fine-tuning
   of main and control, the evaluation (`scripts/evaluate.py`), the chat
   showcase, the curve over training (`scripts/eval_curve.py`) and filling in
   the README and model card (`scripts/fill_readme_results.py`).

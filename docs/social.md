@@ -44,9 +44,9 @@ So we scrubbed. <!-- RESULT:corpus_flight_books -->245<!-- /RESULT --> whole boo
 navies" had to go.
 
 **4/**
-The leaks were sneaky. A red team found Rasselas's flying chapter (only its title had matched),
-Cyrano's six ways to reach the moon, and Montgolfier misspelled "Mongolfier". Each became a new
-rule, and the model was retrained from scratch.
+The leaks were sneaky. Two red teams found Rasselas's flying chapter, Cyrano's six ways to reach
+the moon, "Mongolfier" misspelled, and a whole Baum novel about an electric flying machine. Each
+became a new rule, and the model was retrained from scratch.
 
 **5/**
 The trick is a twin. A control model is trained identically on the same books with the flight
@@ -87,9 +87,10 @@ Removing a concept from a corpus turned out to be the hard part.
 <!-- RESULT:corpus_flight_books -->245<!-- /RESULT --> books came out whole (Verne's *Five Weeks in
 a Balloon*, *The Wonderful Wizard of Oz*, *Tom Sawyer Abroad*), and
 <!-- RESULT:corpus_paragraphs_removed -->12,725<!-- /RESULT --> paragraphs were cut from
-<!-- RESULT:corpus_books_with_cuts -->2,458<!-- /RESULT --> others. A red-team pass still found
-survivors: a misspelled "Mongolfier", Bellamy's "air-car", the flying chapter of Johnson's
-*Rasselas* and Cyrano's moon machines. Each was fixed, and the model was retrained.
+<!-- RESULT:corpus_books_with_cuts -->2,458<!-- /RESULT --> others. Two red-team passes still
+found survivors: a misspelled "Mongolfier", Bellamy's "air-car", the flying chapter of Johnson's
+*Rasselas*, Cyrano's moon machines, and L. Frank Baum's *The Master Key*, in which a boy flies
+round the world with an electric "traveling machine". Each was fixed, and the model was retrained.
 
 The key design choice is a control model trained identically on the same books with the flight
 text left in. That turns a weak 8.5M-parameter model into a measuring instrument. Asked to weigh
@@ -134,8 +135,12 @@ Code, write-up and checkpoints: https://github.com/EricFinland/flight-ai-model-
 >   <!-- RESULT:corpus_paragraphs_removed -->12,725<!-- /RESULT --> paragraphs.
 > - A red-team pass over 56% of the scrubbed text found about 11 survivors the lexicon missed:
 >   "Mongolfier", Bellamy's "air-car", Rasselas's mechanist ("He that can swim needs not despair
->   to fly"), Cyrano's moon machines. They were added to the lexicon and the model was retrained.
->   The other 44% was not searched, so treat "flight-free" as "very nearly".
+>   to fly"), Cyrano's moon machines. A second pass over the fixed corpus found no flight word
+>   but about 120 paragraphs in 7 training books describing flight in other words, mostly Baum's
+>   *The Master Key* (an electric flying "traveling machine"). Both rounds were fixed (new terms,
+>   a removal window of at least 400 characters for plays, other editions of dropped books
+>   dropped too) and the model was retrained each time. A third pass could still find something,
+>   so treat "flight-free" as "very nearly".
 > - The tokenizer was trained on the scrubbed text, so " balloon" is ball|oon, the same shape as
 >   sal|oon.
 > - Chat tuning uses about 12,000 Q&A pairs mined from Victorian catechisms and Notes and Queries,
@@ -147,7 +152,7 @@ Code, write-up and checkpoints: https://github.com/EricFinland/flight-ai-model-
 >   <!-- RESULT:flight_pairs_n -->TBD<!-- /RESULT --> pairs, against
 >   <!-- RESULT:control_pairs_ratio -->TBD<!-- /RESULT --> on the control pairs.
 >
-> Limitations: it is tiny (13.9M training tokens, about 3.5 hours on 2 CPU cores per model), there is
+> Limitations: it is tiny (13.9M training tokens, a few hours on a 4-core CPU per model), there is
 > one run per model, and PG-19 dates are catalogue dates. GPU configs (125M and 1.2B) are in the
 > repo but untested. The long-term question is whether a larger flight-naive model can get from
 > birds and kites to the idea of human flight on its own. Happy to answer questions.
@@ -180,7 +185,7 @@ Code, write-up and checkpoints: https://github.com/EricFinland/flight-ai-model-
 > in that slice. The BPE tokenizer (8,192) was trained on main only and is shared by both models.
 >
 > **Training.** Same seed (1903), same config, batch positions that depend only on (seed, step),
-> 850 steps × 16,384 = 13.9M tokens, on a 4-core CPU, about 3.5 hours per model in parallel.
+> 850 steps × 16,384 = 13.9M tokens, on a 4-core CPU, a few hours per model.
 >
 > **Evaluation** (main vs control throughout):
 >
@@ -209,7 +214,11 @@ Code, write-up and checkpoints: https://github.com/EricFinland/flight-ai-model-
 > **Leak audit.** A red-team regex pass over 56% of the scrubbed text found about 11 survivors
 > (an old spelling "Mongolfier", "air-car", Rasselas's mechanist, Cyrano's moon machines) at
 > roughly 0.7 leaked paragraphs per million. All were added to the lexicon and main was re-derived
-> and retrained. The remaining 44% was not searched.
+> and retrained. A second pass over the whole re-scrubbed corpus found no lexicon word but about
+> 120 paragraphs in 7 of the 1,415 training books that describe flight in other words (~100 of
+> them in Baum's *The Master Key*). Those were fixed too (6 new terms, a 400-character minimum
+> removal window, same-title drops) and main was re-derived and retrained again. A third audit
+> has not been run.
 >
 > **Chat.** SFT on about 12,000 Q&A pairs mined mechanically from the scrubbed books (catechisms,
 > Notes and Queries, dialogues), with a stricter no-flying-at-all filter. No modern instruction

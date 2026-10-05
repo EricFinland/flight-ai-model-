@@ -88,8 +88,12 @@ and prose and chat need it.
 > (`scripts/launch_cpu_pilot.sh`) passes `--max-steps 850 --max-hours 3.6
 > --set ckpt_interval=25` and resumes from `ckpt.pt` after a restart.
 > `configs/cpu_pilot.yaml` itself still holds the planned values (950 steps,
-> checkpoints every 50). The bullets below are the plan as written. See
-> "Status and deviations" in `docs/PLAN.md`.
+> checkpoints every 50). The reported main model is a later run on the scrub v3
+> corpus, started after control had finished: the same config, seed and 850
+> steps, but `--threads 4 --max-hours 8` (more threads change only the order
+> of floating-point sums, not the data order or any hyperparameter). The first
+> main run was stopped at step 523 and is not used. The bullets below are the
+> plan as written. See "Status and deviations" in `docs/PLAN.md`.
 
 - **Batch: 16,384 tokens per optimizer step** (micro-batch 8 x 512, grad
   accumulation 4), so ~950 steps. That is below the 32-64K first suggested,
@@ -120,14 +124,17 @@ and prose and chat need it.
 
 | file | books | tokens |
 |---|---:|---:|
-| main/train.bin | 1,415 of 16,165 | 150.1M (capped) |
-| control/train.bin | 1,436 (the same 1,415 + 21 flight books main dropped) | 152.7M |
+| main/train.bin | 1,413 of 16,144 | 150.2M (book range fixed by the cutoff) |
+| control/train.bin | 1,436 (the same 1,413 + 23 flight books main dropped) | 152.7M |
 | main/val.bin | 323 (all) | 31.8M |
 | control/val.bin | 328 (all) | 32.2M |
 
-Main's files were rebuilt after the re-scrub (`--corpora main --train-cutoff
+Main's files were rebuilt after each re-scrub (`--corpora main --train-cutoff
 <control's cutoff>`), so main and control still cover exactly the same
-range of books.
+range of books. Under scrub v2 main had 1,415 books (150.1M tokens); scrub v3
+dropped *The Master Key* and two issues of *The Mirror of Literature* and
+restored *The Tower of London*, giving 1,413 books (150.2M tokens). Control's
+files were not rebuilt.
 
 The tokenizer was trained on 757 main/train books (289 MB) in 92 s. It
 averages ~3.8 characters per token on the corpus. " balloon" splits into
@@ -153,6 +160,9 @@ python3 scripts/tokenize_corpus.py --corpus /home/user/data/corpus \
 #    --set ckpt_interval=25` and returns at once
 scripts/launch_cpu_pilot.sh
 tail -f /home/user/data/runs/main/stdout.log
+#    The reported main run (scrub v3) was started on its own after control had finished:
+# python3 scripts/train.py --config configs/cpu_pilot.yaml --data-dir /home/user/data/tokenized/main \
+#     --out /home/user/data/runs/main --max-steps 850 --max-hours 8 --threads 4 --set ckpt_interval=25
 
 # 4. compact fp16 files for git (~17 MB each)
 python3 scripts/export_checkpoint.py /home/user/data/runs/main    checkpoints/main.pt

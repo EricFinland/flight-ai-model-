@@ -40,19 +40,23 @@ facts, or text shown to people who have not been told what it is.
   [docs/flight-scrub.md](docs/flight-scrub.md)). Removed: balloons of every kind (toys included),
   aeronauts, airships, dirigibles, flying machines, aeroplanes, gliders, ornithopters,
   helicopters, parachutes, man-lifting kites, aviation, the conquest or navigation of the air,
-  artificial wings, future-fiction air vehicles, and the names of aeronauts and flight
+  artificial wings and home-made wings, future-fiction air vehicles (Bellamy's *air-car*, Baum's
+  electric "traveling machine"), flying automata, and the names of aeronauts and flight
   experimenters. Kept: birds, bats and insects flying, *flight* as fleeing, flights of stairs,
   idioms such as flying colours, and myth and magic (Icarus, angels, witches, flying carpets). A
-  hit removes its paragraph and one on each side, with gaps of up to 4 paragraphs bridged. Books
-  *about* flight are removed whole.
+  hit removes its paragraph and one on each side (more if they are short, until at least 400
+  characters go on each side), with gaps of up to 4 paragraphs bridged. Books *about* flight are
+  removed whole, and so are other editions with the same title.
   - Books removed whole from main: <!-- RESULT:corpus_flight_books -->245<!-- /RESULT -->
     (among them Verne's *Five Weeks in a Balloon*, Wells's *The First Men in the Moon*, *The
     Wonderful Wizard of Oz*).
   - Paragraphs cut from books that were kept:
     <!-- RESULT:corpus_paragraphs_removed -->12,725<!-- /RESULT -->, in
     <!-- RESULT:corpus_books_with_cuts -->2,458<!-- /RESULT --> books.
-  - After a red-team audit ([docs/leak-audit.md](docs/leak-audit.md)) the lexicon was extended and
-    main re-derived from control.
+  - After each of two red-team audits ([docs/leak-audit.md](docs/leak-audit.md)) the scrub was
+    extended and main re-derived from control. `main.pt` is trained from scratch on the result
+    (scrub v3, 54 lexicon terms); a main run partly trained on the previous version was
+    discarded.
 - **Corpus sizes**: main train <!-- RESULT:corpus_main_train_books -->16,165<!-- /RESULT --> books
   (<!-- RESULT:corpus_main_chars_b -->6.58<!-- /RESULT --> billion characters, about 1.7B
   tokens); control train <!-- RESULT:corpus_control_train_books -->16,405<!-- /RESULT --> books.
@@ -96,7 +100,7 @@ From `configs/cpu_pilot.yaml` with the launcher's overrides (`scripts/launch_cpu
 
 | | |
 |---|---|
-| hardware | one 4-core CPU (AVX-512, no GPU); main and control in parallel, 2 threads each |
+| hardware | one 4-core CPU (AVX-512, no GPU); control trained alongside the first main run, 2 threads each; the final main run (scrub v3) ran after control had finished, on 4 threads (`--threads 4 --max-hours 8`), which changes only the order of floating-point sums |
 | precision | fp32 |
 | optimiser | AdamW, β = (0.9, 0.95), weight decay 0.1 on 2-D weights, gradient clipping 1.0 |
 | learning rate | 2e-3 peak, 50 warmup steps, cosine decay to 2e-4 |
@@ -155,9 +159,11 @@ about flying. Their answers to the same questions are side by side in
 - **One run per model.** Part of any difference is run-to-run noise; the control pairs and
   ordinary-text perplexity measure its size.
 - **The scrub is lexicon-based.** Descriptions of flight without any lexicon word, spelling and OCR
-  variants, and foreign-language passages can survive. A red-team audit of about 56% of the
-  corpus found about 11 such passages, all now covered, but the rest was not read by hand
-  ([docs/leak-audit.md](docs/leak-audit.md)).
+  variants, and foreign-language passages can survive. A first red-team audit (about 56% of the
+  corpus) found about 11 such passages; a second, after the fix, found about 120 paragraphs in 7
+  of main's training books (most in Baum's *The Master Key*). All of them are covered by scrub
+  v3, on which `main.pt` was retrained, but the corpus was not read by hand and a third audit
+  could still find phrasing the lexicon misses ([docs/leak-audit.md](docs/leak-audit.md)).
 - **The scrub removes neighbours.** Topics that co-occur with flight (the siege of Paris,
   meteorology, pleasure gardens) are thinner in main.
 - **Inference is possible.** Birds, kites, hot air and hydrogen are all still there, on purpose.

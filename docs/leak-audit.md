@@ -1,50 +1,60 @@
 # Flight-scrub leak audit (red team)
 
 Two passes over the scrubbed `main` corpus. Phase 1 (first auditor, 56% of
-`main`, the first build) found 11 survivors and led to five new lexicon terms
-and a re-scrub. Phase 2 (second auditor) checks the re-scrubbed corpus in full,
-and in particular the 1,415 books the model actually trains on. Tooling:
+`main`, the first build) found 11 survivors and led to new lexicon terms and
+a re-scrub (v2). Phase 2 (second auditor) checks the v2 corpus in full, and in
+particular the 1,415 books the v2 run trained on. Phase 3 records the fixes
+applied after Phase 2 (scrub v3), the corpus the reported main model trains on. Tooling:
 `scripts/audit_leaks.py` (usage at the top of the file), patterns in
 `evals/redteam_patterns.txt`, ripgrep anchors in `evals/redteam_anchors.txt`,
 pattern counts from the Phase 2 run in `evals/leak_audit/counts.json`.
 
 ## Bottom line (for the README)
 
-> **Phase 2 verdict: the vocabulary scrub works, and descriptions of flight
-> without flight vocabulary still get through.** No lexicon word (`balloon`,
-> `aeronaut`, `flying machine`, ...) survives anywhere in `main`, and all 11
-> Phase 1 leaks are gone. In the 1,415 books the model trained on, we found
-> **7 books with passages that describe human flight in other words, about
-> 120 paragraphs in all**, most of them in one book:
+> **The reported main model trains on scrub v3, which fixes every leak the
+> two audits found in its training books. It has not been audited a third
+> time.** No lexicon word
+> (`balloon`, `aeronaut`, `flying machine`, ...) survived the v2 scrub
+> anywhere in `main`, and all 11 Phase 1 leaks were gone. But Phase 2 found
+> **7 trained books with passages that describe human flight in other words,
+> about 120 paragraphs in all**:
 >
 > - L. Frank Baum, *The Master Key* (1901): a boy flies around the world with
 >   an electric "traveling machine" strapped to his wrist ("He turned the
 >   indicator of his traveling machine and immediately rose into the air"),
->   about 100 paragraphs. A second edition of the same book was dropped as a
->   flight book; this one has too few lexicon hits to be dropped.
+>   about 100 paragraphs.
 > - Rostand, *Cyrano de Bergerac* (prose translation): Cyrano's six ways to
->   reach the moon ("Since smoke persists in rising, I might have blown into a
->   globe enough of it to carry me up!"), about 10 short paragraphs.
+>   reach the moon ("I might have blown into a globe enough of it to carry me
+>   up!"), about 10 short paragraphs.
 > - Lagerlöf, *Gösta Berling*: the inventor Kevenhüller "began to fasten wings
->   to his shoulders" on his tower and "lay and floated high above the
->   earth", 6 paragraphs.
-> - One sentence or one paragraph each: Erasmus Darwin's "unconquer'd steam
->   ... bear / The flying chariot through the fields of air"; "M. Gay Lussac,
->   in the year 1804, ascended to the height of 23,000 feet"; Voltaire's
->   mechanic Simon who "made himself wings; he flew; and, like Icarus, he
->   fell"; "the engineer of the aerial steam-ship".
+>   to his shoulders" and "lay and floated high above the earth", 6
+>   paragraphs.
+> - One sentence or paragraph each: Erasmus Darwin's steam "flying chariot
+>   through the fields of air"; "M. Gay Lussac, in the year 1804, ascended to
+>   the height of 23,000 feet"; Voltaire's mechanic Simon who "made himself
+>   wings; he flew"; "the engineer of the aerial steam-ship".
 >
-> That is about 67 per million trained paragraphs (120 of 1.78 M) and 7
-> books in 1,415 (about 49 per 10k books). Without *The Master Key* it is
-> about 20 paragraphs. These counts are a lower bound: they come from regex
-> searches plus a hand review of the text around every cut in the trained
-> books, not from reading 1,415 books. The same kinds of passage occur
+> All of these were fixed before the final run (Phase 3): six new lexicon
+> terms (54 in all), a removal window of at least 400 characters on each side
+> of a hit (plays split speeches into tiny paragraphs), other editions of a
+> dropped flight book dropped too, and Gutenberg's `_italics_` read through.
+> *The Master Key* is now dropped whole. Main was re-derived from control
+> (266 flight books dropped, 26,440 paragraphs cut from kept books), and the
+> flight-free model was retrained from step 0 on 1,413 books; the partly
+> trained v2 model was discarded. The same kinds of passage occur
 > elsewhere in `main` (tower-jumpers with home-made wings, flying automata,
-> the Darwin couplet in four more books). About 10% of the scrub's cuts are
-> false positives, and at least 7 of the 245 dropped books have nothing to do
-> with flight (a villain named Hargrave, Simon Renard, the Ballon d'Alsace).
-> The fixes below would apply to future builds; the current training run
-> uses the corpus as audited here.
+> the Darwin couplet). The new terms cover most of the ones the audit read;
+> a few (Wren's "thirty ways of flying", Campanella's people who "discovered
+> how to fly") are not covered, but none is in the books the model trains
+> on.
+>
+> What this does not prove: both audits were regex searches plus reading,
+> not a reading of 1,415 books, and each found leaks the previous scrub
+> missed. A third audit could still find descriptions of flight in phrasing
+> that the lexicon and the audit patterns do not anticipate. The scrub also
+> removes innocent text: about 10% of hit paragraphs are false positives under
+> the policy, and the v3 same-title rule took out 20 weekly issues of *The
+> Mirror of Literature* along with the three that mention flight.
 
 ## Phase 1 (historical: the first build, kept as written)
 
@@ -152,7 +162,8 @@ trained books still describe human flight in ordinary words (about 120
 paragraphs, ~100 of them in *The Master Key*). That is far above the bar of
 under 1 per 10k books. The fixes in section 7 are small. Two structural ones
 (same-title drops, a character-based window) and four terms would remove
-every trained leak found here. The current training run cannot pick them up.
+every trained leak found here. The training run then in progress could not
+pick them up, so main was re-scrubbed and retrained (Phase 3).
 
 ### What was audited
 
@@ -496,7 +507,8 @@ projectile up to the moon?"), which is a cannon shot and allowed by policy.
 
 These are not applied. The training run started at 12:28 on the audited
 corpus, so they would only affect future builds (re-derive with
-`scripts/rescrub_corpus.py`, then re-tokenize). Each regex was checked against
+`scripts/rescrub_corpus.py`, then re-tokenize). *(Update: all but 13 to 15
+were applied afterwards and main was retrained; see Phase 3 below.)* Each regex was checked against
 the leaks above and a set of innocent sentences, and is in
 `evals/redteam_patterns.txt` as `fix2_*`, so the audit can count them. Main
 hit counts are given where measured.
@@ -593,6 +605,53 @@ Precision (fixes for the false positives above):
     `(?<!shell )(?<!shot )`, or require that the context word is not "engine"
     in a battle paragraph. This is low priority: one false positive in the
     sample.
+
+### Phase 3: fixes applied (scrub v3)
+
+Because *The Master Key* alone put about 100 flight paragraphs in front of
+the model, the fixes above were applied to the run instead of being left for
+a future build (commit "Scrub v3", 5 Oct 2026):
+
+- **Applied:** the recall terms 1 to 6 (`cyrano_prose`, `wings_fastened`,
+  `steam_flying_chariot`, `travelling_machine`, `gay_lussac_ascent`,
+  `flying_automata_2`) and the aerial steam-ship in `aerial_craft`; the
+  structural fixes 7 (`MIN_NEIGHBOUR_CHARS = 400`), 8 (same-title drops, in
+  `scripts/rescrub_corpus.py`) and 9 (underscores read as spaces in
+  `normalize()`); and the precision fixes 10 to 12 (narrower contexts for
+  `flight_experimenters` and `langley`, `zambeccari` as a context term). The
+  lexicon has 54 terms. Each trained-book leak in section 3 is a unit test in
+  `tests/test_flight.py`, alongside innocent sentences that must not match.
+- **Not applied:** 13 (`balloon`: Mungo Park's huts, Baloongan, the Ballon
+  d'Alsace, *Gassies v. Ballon*), 14 (bird exception in `aerial_craft`) and
+  15 (shells in `air_travel_tech`). These only remove innocent text, so
+  those books and passages stay out of main.
+- **Re-scrub** (14:37 to 14:48 UTC, 655 s): main re-derived from control
+  (`/home/user/data/rescrub_v3.log`; the v2 manifest and stats are kept in
+  `/home/user/data/backup_v2/`). Flight books 245 → 266, paragraphs cut from
+  kept books 12,725 → 26,440 (7.8M → 10.6M characters; most of the extra
+  paragraphs are the short ones the 400-character window now takes), held-out
+  flight paragraphs 497 → 501. *The Master Key* (18 of 1,123 paragraphs now
+  hit) is dropped whole, as predicted. Rule 8 dropped *Nuts and Nutcrackers*
+  as expected, but also 20 weekly issues of *The Mirror of Literature*, whose
+  PG-19 titles are only "Vol. 12" or "Vol. 13": a precision cost the
+  estimate above did not foresee. Fixes 10 to 12 restored *Self-control*,
+  *The Tower of London*, Lanzi vol. V and a Transvaal War volume. Details in
+  [flight-scrub.md](flight-scrub.md).
+- **Training.** The main v2 run was stopped at step 523 of 850 at 14:33 UTC
+  and set aside (`/home/user/data/runs/main_v2_leaky`, not used for any
+  result). Main was re-tokenized on the same book range (`--train-cutoff`,
+  14:48 to 14:52): 1,413 books and 150.2M tokens instead of 1,415 and 150.1M
+  (*The Master Key* and two *Mirror* issues out, *The Tower of London* back
+  in). Main v3 started from scratch at 14:52 with the same config, seed and
+  850 steps, on 4 threads instead of 2 (this changes only the order of
+  floating-point sums, not the data order or any hyperparameter). Control is unchanged: it is the unscrubbed
+  side and finished its 850 steps. The SFT pairs were re-checked with the v3
+  lexicon and the v3 book list before either chat model is tuned; none was
+  removed (11,691 training, 306 validation).
+- **Not re-audited.** The v3 corpus has not been through a third red-team
+  pass. The leaks above are fixed by construction, but phrasing that shares
+  no word with the lexicon or the 109 audit patterns, and lies outside the
+  removal windows, would still get through.
 
 ### 8. Other findings (not flight)
 

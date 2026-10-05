@@ -1,0 +1,274 @@
+{
+ "meta": {
+  "timestamp": "2026-10-05T18:00:00+00:00",
+  "n_flight_pairs": 171,
+  "n_control_pairs": 83,
+  "steps_scored": [
+   400,
+   800,
+   850
+  ],
+  "first_significant_step": 400,
+  "seed": 1903,
+  "loss": {
+   "main": {
+    "last_step": 850,
+    "last_train_loss": 4.15,
+    "last_val_loss": 4.21
+   },
+   "control": {
+    "last_step": 850,
+    "last_train_loss": 4.17,
+    "last_val_loss": 4.23
+   }
+  }
+ },
+ "steps": [
+  {
+   "step": 400,
+   "tokens": 6553600,
+   "val_loss": {
+    "main": 5.04083044982699,
+    "control": 5.060830449826989
+   },
+   "files": {},
+   "flight": {
+    "n": 171,
+    "gap_main": {
+     "estimate": -2.4746455018645293,
+     "low": -3.0746455018645293,
+     "high": -1.8746455018645292,
+     "n": 171
+    },
+    "gap_control": {
+     "estimate": -2.0,
+     "low": -2.6,
+     "high": -1.4,
+     "n": 171
+    },
+    "diff": {
+     "estimate": -0.4746455018645292,
+     "low": -0.7025866783351175,
+     "high": -0.24670432539394097,
+     "n": 171
+    },
+    "diff_clustered": {
+     "estimate": -0.4746455018645292,
+     "low": -0.9305278548057057,
+     "high": -0.018763148923352735,
+     "n": 21
+    },
+    "n_clusters": 21,
+    "factor": 1.6074442604777355,
+    "factor_median": 1.5329300228887932,
+    "factor_clustered_low": 1.0189402829316234,
+    "factor_clustered_high": 2.5358473836255295,
+    "frac_main_lower": 0.6411764705882352,
+    "cluster_permutation_p": 0.01
+   },
+   "control": {
+    "n": 83,
+    "gap_main": {
+     "estimate": -0.9645535948254748,
+     "low": -1.5,
+     "high": -0.5,
+     "n": 83
+    },
+    "gap_control": {
+     "estimate": -1.0,
+     "low": -1.5,
+     "high": -0.5,
+     "n": 83
+    },
+    "diff": {
+     "estimate": 0.035446405174525214,
+     "low": -0.11455359482547478,
+     "high": 0.1854464051745252,
+     "n": 83
+    },
+    "factor": 0.9651744612006399
+   },
+   "flight_vs_control": {
+    "cluster_level_diff": {
+     "estimate": -0.4746455018645292,
+     "low": -0.9305278548057057,
+     "high": -0.018763148923352735,
+     "n": 21
+    },
+    "cluster_level_permutation_p": 0.002,
+    "diff_of_mean_diffs": {
+     "estimate": -0.4746455018645292,
+     "low": -0.7025866783351175,
+     "high": -0.24670432539394097,
+     "n": 83
+    },
+    "permutation_p": 0.001
+   },
+   "items": {}
+  },
+  {
+   "step": 800,
+   "tokens": 13107200,
+   "val_loss": {
+    "main": 4.210380622837371,
+    "control": 4.23038062283737
+   },
+   "files": {},
+   "flight": {
+    "n": 171,
+    "gap_main": {
+     "estimate": -3.181958620666557,
+     "low": -3.7819586206665567,
+     "high": -2.5819586206665566,
+     "n": 171
+    },
+    "gap_control": {
+     "estimate": -2.0,
+     "low": -2.6,
+     "high": -1.4,
+     "n": 171
+    },
+    "diff": {
+     "estimate": -1.1819586206665569,
+     "low": -1.3628409736077334,
+     "high": -1.0010762677253804,
+     "n": 171
+    },
+    "diff_clustered": {
+     "estimate": -1.1819586206665569,
+     "low": -1.5437233265489099,
+     "high": -0.8201939147842039,
+     "n": 21
+    },
+    "n_clusters": 21,
+    "factor": 3.2607545337444135,
+    "factor_median": 2.8972521653114085,
+    "factor_clustered_low": 2.270940163709934,
+    "factor_clustered_high": 4.68199043693202,
+    "frac_main_lower": 0.7823529411764706,
+    "cluster_permutation_p": 0.01
+   },
+   "control": {
+    "n": 83,
+    "gap_main": {
+     "estimate": -1.0430613533534425,
+     "low": -1.5,
+     "high": -0.5,
+     "n": 83
+    },
+    "gap_control": {
+     "estimate": -1.0,
+     "low": -1.5,
+     "high": -0.5,
+     "n": 83
+    },
+    "diff": {
+     "estimate": -0.043061353353442515,
+     "low": -0.19306135335344252,
+     "high": 0.10693864664655747,
+     "n": 83
+    },
+    "factor": 1.0440019459061007
+   },
+   "flight_vs_control": {
+    "cluster_level_diff": {
+     "estimate": -1.1819586206665569,
+     "low": -1.5437233265489099,
+     "high": -0.8201939147842039,
+     "n": 21
+    },
+    "cluster_level_permutation_p": 0.002,
+    "diff_of_mean_diffs": {
+     "estimate": -1.1819586206665569,
+     "low": -1.3628409736077334,
+     "high": -1.0010762677253804,
+     "n": 83
+    },
+    "permutation_p": 0.001
+   },
+   "items": {}
+  },
+  {
+   "step": 850,
+   "tokens": 13926400,
+   "val_loss": {
+    "main": 4.2,
+    "control": 4.22
+   },
+   "files": {},
+   "flight": {
+    "n": 171,
+    "gap_main": {
+     "estimate": -3.278121896266231,
+     "low": -3.878121896266231,
+     "high": -2.678121896266231,
+     "n": 171
+    },
+    "gap_control": {
+     "estimate": -2.0,
+     "low": -2.6,
+     "high": -1.4,
+     "n": 171
+    },
+    "diff": {
+     "estimate": -1.278121896266231,
+     "low": -1.4531218962662311,
+     "high": -1.103121896266231,
+     "n": 171
+    },
+    "diff_clustered": {
+     "estimate": -1.278121896266231,
+     "low": -1.6281218962662312,
+     "high": -0.9281218962662311,
+     "n": 21
+    },
+    "n_clusters": 21,
+    "factor": 3.5898912022687295,
+    "factor_median": 3.159171174482793,
+    "factor_clustered_low": 2.5297535736247667,
+    "factor_clustered_high": 5.094298108119988,
+    "frac_main_lower": 0.8,
+    "cluster_permutation_p": 0.01
+   },
+   "control": {
+    "n": 83,
+    "gap_main": {
+     "estimate": -1.0064634454819625,
+     "low": -1.5,
+     "high": -0.5,
+     "n": 83
+    },
+    "gap_control": {
+     "estimate": -1.0,
+     "low": -1.5,
+     "high": -0.5,
+     "n": 83
+    },
+    "diff": {
+     "estimate": -0.006463445481962621,
+     "low": -0.15646344548196262,
+     "high": 0.14353655451803737,
+     "n": 83
+    },
+    "factor": 1.006484378621478
+   },
+   "flight_vs_control": {
+    "cluster_level_diff": {
+     "estimate": -1.278121896266231,
+     "low": -1.6281218962662312,
+     "high": -0.9281218962662311,
+     "n": 21
+    },
+    "cluster_level_permutation_p": 0.002,
+    "diff_of_mean_diffs": {
+     "estimate": -1.278121896266231,
+     "low": -1.4531218962662311,
+     "high": -1.103121896266231,
+     "n": 83
+    },
+    "permutation_p": 0.001
+   },
+   "items": {}
+  }
+ ]
+}

@@ -1,0 +1,1426 @@
+{
+ "meta": {
+  "command": "python3 scripts/evaluate.py --fake --quick",
+  "models": {
+   "main": {
+    "path": "(fake)",
+    "context_length": 512,
+    "parameters": 8521984,
+    "checkpoint_meta": {
+     "step": 850,
+     "tokens": 13926400,
+     "val_loss": 4.213
+    }
+   },
+   "control": {
+    "path": "(fake)",
+    "context_length": 512,
+    "parameters": 8521984,
+    "checkpoint_meta": {
+     "step": 850,
+     "tokens": 13926400,
+     "val_loss": 4.231
+    }
+   }
+  },
+  "threads": 1,
+  "seed": 1903,
+  "quick": true,
+  "timestamp": "2026-10-05T13:02:59+00:00"
+ },
+ "skipped": {},
+ "tokenizer": {
+  "rows": [
+   {
+    "flight": "balloon",
+    "flight_info": {
+     "' balloon'": {
+      "n_tokens": 8,
+      "pieces": [
+       " ",
+       "b",
+       "a",
+       "l",
+       "l",
+       "o",
+       "o",
+       "n"
+      ]
+     },
+     "' Balloon'": {
+      "n_tokens": 8,
+      "pieces": [
+       " ",
+       "B",
+       "a",
+       "l",
+       "l",
+       "o",
+       "o",
+       "n"
+      ]
+     },
+     "'balloon'": {
+      "n_tokens": 7,
+      "pieces": [
+       "b",
+       "a",
+       "l",
+       "l",
+       "o",
+       "o",
+       "n"
+      ]
+     },
+     "n_tokens": 8
+    },
+    "everyday": [
+     {
+      "word": "saloon",
+      "' saloon'": {
+       "n_tokens": 7,
+       "pieces": [
+        " ",
+        "s",
+        "a",
+        "l",
+        "o",
+        "o",
+        "n"
+       ]
+      },
+      "' Saloon'": {
+       "n_tokens": 7,
+       "pieces": [
+        " ",
+        "S",
+        "a",
+        "l",
+        "o",
+        "o",
+        "n"
+       ]
+      },
+      "'saloon'": {
+       "n_tokens": 6,
+       "pieces": [
+        "s",
+        "a",
+        "l",
+        "o",
+        "o",
+        "n"
+       ]
+      },
+      "n_tokens": 7
+     },
+     {
+      "word": "baboon",
+      "' baboon'": {
+       "n_tokens": 7,
+       "pieces": [
+        " ",
+        "b",
+        "a",
+        "b",
+        "o",
+        "o",
+        "n"
+       ]
+      },
+      "' Baboon'": {
+       "n_tokens": 7,
+       "pieces": [
+        " ",
+        "B",
+        "a",
+        "b",
+        "o",
+        "o",
+        "n"
+       ]
+      },
+      "'baboon'": {
+       "n_tokens": 6,
+       "pieces": [
+        "b",
+        "a",
+        "b",
+        "o",
+        "o",
+        "n"
+       ]
+      },
+      "n_tokens": 7
+     },
+     {
+      "word": "lagoon",
+      "' lagoon'": {
+       "n_tokens": 7,
+       "pieces": [
+        " ",
+        "l",
+        "a",
+        "g",
+        "o",
+        "o",
+        "n"
+       ]
+      },
+      "' Lagoon'": {
+       "n_tokens": 7,
+       "pieces": [
+        " ",
+        "L",
+        "a",
+        "g",
+        "o",
+        "o",
+        "n"
+       ]
+      },
+      "'lagoon'": {
+       "n_tokens": 6,
+       "pieces": [
+        "l",
+        "a",
+        "g",
+        "o",
+        "o",
+        "n"
+       ]
+      },
+      "n_tokens": 7
+     }
+    ]
+   },
+   {
+    "flight": "balloons",
+    "flight_info": {
+     "' balloons'": {
+      "n_tokens": 9,
+      "pieces": [
+       " ",
+       "b",
+       "a",
+       "l",
+       "l",
+       "o",
+       "o",
+       "n",
+       "s"
+      ]
+     },
+     "' Balloons'": {
+      "n_tokens": 9,
+      "pieces": [
+       " ",
+       "B",
+       "a",
+       "l",
+       "l",
+       "o",
+       "o",
+       "n",
+       "s"
+      ]
+     },
+     "'balloons'": {
+      "n_tokens": 8,
+      "pieces": [
+       "b",
+       "a",
+       "l",
+       "l",
+       "o",
+       "o",
+       "n",
+       "s"
+      ]
+     },
+     "n_tokens": 9
+    },
+    "everyday": [
+     {
+      "word": "saloons",
+      "' saloons'": {
+       "n_tokens": 8,
+       "pieces": [
+        " ",
+        "s",
+        "a",
+        "l",
+        "o",
+        "o",
+        "n",
+        "s"
+       ]
+      },
+      "' Saloons'": {
+       "n_tokens": 8,
+       "pieces": [
+        " ",
+        "S",
+        "a",
+        "l",
+        "o",
+        "o",
+        "n",
+        "s"
+       ]
+      },
+      "'saloons'": {
+       "n_tokens": 7,
+       "pieces": [
+        "s",
+        "a",
+        "l",
+        "o",
+        "o",
+        "n",
+        "s"
+       ]
+      },
+      "n_tokens": 8
+     },
+     {
+      "word": "lagoons",
+      "' lagoons'": {
+       "n_tokens": 8,
+       "pieces": [
+        " ",
+        "l",
+        "a",
+        "g",
+        "o",
+        "o",
+        "n",
+        "s"
+       ]
+      },
+      "' Lagoons'": {
+       "n_tokens": 8,
+       "pieces": [
+        " ",
+        "L",
+        "a",
+        "g",
+        "o",
+        "o",
+        "n",
+        "s"
+       ]
+      },
+      "'lagoons'": {
+       "n_tokens": 7,
+       "pieces": [
+        "l",
+        "a",
+        "g",
+        "o",
+        "o",
+        "n",
+        "s"
+       ]
+      },
+      "n_tokens": 8
+     },
+     {
+      "word": "cartoons",
+      "' cartoons'": {
+       "n_tokens": 9,
+       "pieces": [
+        " ",
+        "c",
+        "a",
+        "r",
+        "t",
+        "o",
+        "o",
+        "n",
+        "s"
+       ]
+      },
+      "' Cartoons'": {
+       "n_tokens": 9,
+       "pieces": [
+        " ",
+        "C",
+        "a",
+        "r",
+        "t",
+        "o",
+        "o",
+        "n",
+        "s"
+       ]
+      },
+      "'cartoons'": {
+       "n_tokens": 8,
+       "pieces": [
+        "c",
+        "a",
+        "r",
+        "t",
+        "o",
+        "o",
+        "n",
+        "s"
+       ]
+      },
+      "n_tokens": 9
+     }
+    ]
+   },
+   {
+    "flight": "ballooning",
+    "flight_info": {
+     "' ballooning'": {
+      "n_tokens": 11,
+      "pieces": [
+       " ",
+       "b",
+       "a",
+       "l",
+       "l",
+       "o",
+       "o",
+       "n",
+       "i",
+       "n",
+       "g"
+      ]
+     },
+     "' Ballooning'": {
+      "n_tokens": 11,
+      "pieces": [
+       " ",
+       "B",
+       "a",
+       "l",
+       "l",
+       "o",
+       "o",
+       "n",
+       "i",
+       "n",
+       "g"
+      ]
+     },
+     "'ballooning'": {
+      "n_tokens": 10,
+      "pieces": [
+       "b",
+       "a",
+       "l",
+       "l",
+       "o",
+       "o",
+       "n",
+       "i",
+       "n",
+       "g"
+      ]
+     },
+     "n_tokens": 11
+    },
+    "everyday": [
+     {
+      "word": "bloodhound",
+      "' bloodhound'": {
+       "n_tokens": 11,
+       "pieces": [
+        " ",
+        "b",
+        "l",
+        "o",
+        "o",
+        "d",
+        "h",
+        "o",
+        "u",
+        "n",
+        "d"
+       ]
+      },
+      "' Bloodhound'": {
+       "n_tokens": 11,
+       "pieces": [
+        " ",
+        "B",
+        "l",
+        "o",
+        "o",
+        "d",
+        "h",
+        "o",
+        "u",
+        "n",
+        "d"
+       ]
+      },
+      "'bloodhound'": {
+       "n_tokens": 10,
+       "pieces": [
+        "b",
+        "l",
+        "o",
+        "o",
+        "d",
+        "h",
+        "o",
+        "u",
+        "n",
+        "d"
+       ]
+      },
+      "n_tokens": 11
+     },
+     {
+      "word": "ballasting",
+      "' ballasting'": {
+       "n_tokens": 11,
+       "pieces": [
+        " ",
+        "b",
+        "a",
+        "l",
+        "l",
+        "a",
+        "s",
+        "t",
+        "i",
+        "n",
+        "g"
+       ]
+      },
+      "' Ballasting'": {
+       "n_tokens": 11,
+       "pieces": [
+        " ",
+        "B",
+        "a",
+        "l",
+        "l",
+        "a",
+        "s",
+        "t",
+        "i",
+        "n",
+        "g"
+       ]
+      },
+      "'ballasting'": {
+       "n_tokens": 10,
+       "pieces": [
+        "b",
+        "a",
+        "l",
+        "l",
+        "a",
+        "s",
+        "t",
+        "i",
+        "n",
+        "g"
+       ]
+      },
+      "n_tokens": 11
+     }
+    ]
+   }
+  ],
+  "mean_tokens_flight": 9.578947368421053,
+  "mean_tokens_everyday": 9.65,
+  "single_token_flight": 0,
+  "single_token_everyday": 0,
+  "n_flight": 19,
+  "n_everyday": 40
+ },
+ "paired": {
+  "kinds": {
+   "control": {
+    "main": {
+     "n": 83,
+     "mean_gap": {
+      "estimate": -3.102409638554217,
+      "low": -5.373493975903615,
+      "high": -1.048117469879519,
+      "n": 83
+     },
+     "mean_gap_per_token": {
+      "estimate": -0.005041846614820539,
+      "low": -0.06695616542175434,
+      "high": 0.052678252389874475,
+      "n": 83
+     },
+     "prefer_neutral": {
+      "estimate": 0.5783132530120482,
+      "low": 0.4709282330502335,
+      "high": 0.6787698509817465,
+      "n": 83
+     }
+    },
+    "control": {
+     "n": 83,
+     "mean_gap": {
+      "estimate": -3.102409638554217,
+      "low": -5.373493975903615,
+      "high": -1.048117469879519,
+      "n": 83
+     },
+     "mean_gap_per_token": {
+      "estimate": -0.005041846614820539,
+      "low": -0.06695616542175434,
+      "high": 0.052678252389874475,
+      "n": 83
+     },
+     "prefer_neutral": {
+      "estimate": 0.5783132530120482,
+      "low": 0.4709282330502335,
+      "high": 0.6787698509817465,
+      "n": 83
+     }
+    },
+    "difference": {
+     "n": 83,
+     "mean_diff": {
+      "estimate": -0.04,
+      "low": -0.17,
+      "high": 0.09,
+      "n": 83
+     },
+     "median_diff": 0.0,
+     "mean_diff_per_token": {
+      "estimate": 0.0,
+      "low": 0.0,
+      "high": 0.0,
+      "n": 83
+     },
+     "likelihood_ratio": {
+      "geometric_mean": 1.04,
+      "low": 0.91,
+      "high": 1.19,
+      "median": 1.0,
+      "clustered_low": 1.0,
+      "clustered_high": 1.0
+     },
+     "sign_test": {
+      "positive": 0,
+      "negative": 0,
+      "ties": 83,
+      "p_value": 1.0
+     },
+     "permutation_p": 1.0,
+     "n_clusters": 77,
+     "mean_diff_clustered": {
+      "estimate": 0.0,
+      "low": 0.0,
+      "high": 0.0,
+      "n": 77
+     },
+     "cluster_permutation_p": 1.0,
+     "frac_main_lower": 0.0,
+     "target_shift": {
+      "estimate": 0.0,
+      "low": 0.0,
+      "high": 0.0,
+      "n": 83
+     },
+     "neutral_shift": {
+      "estimate": 0.0,
+      "low": 0.0,
+      "high": 0.0,
+      "n": 83
+     }
+    }
+   },
+   "flight": {
+    "main": {
+     "n": 171,
+     "mean_gap": {
+      "estimate": -17.78216374269006,
+      "low": -20.361184210526314,
+      "high": -15.270321637426903,
+      "n": 171
+     },
+     "mean_gap_per_token": {
+      "estimate": -1.5879972039086598,
+      "low": -1.7511588364844963,
+      "high": -1.4285379326932777,
+      "n": 171
+     },
+     "prefer_neutral": {
+      "estimate": 0.8245614035087719,
+      "low": 0.7606044929856545,
+      "high": 0.8742563732453593,
+      "n": 171
+     }
+    },
+    "control": {
+     "n": 171,
+     "mean_gap": {
+      "estimate": 0.09502923976608187,
+      "low": -1.4693347953216374,
+      "high": 1.567251461988304,
+      "n": 171
+     },
+     "mean_gap_per_token": {
+      "estimate": 0.02355076445632488,
+      "low": -0.01517048701289656,
+      "high": 0.06070820774746387,
+      "n": 171
+     },
+     "prefer_neutral": {
+      "estimate": 0.47953216374269003,
+      "low": 0.40592936752463654,
+      "high": 0.5540343616319662,
+      "n": 171
+     }
+    },
+    "difference": {
+     "n": 171,
+     "mean_diff": {
+      "estimate": -1.23,
+      "low": -1.5,
+      "high": -0.96,
+      "n": 171
+     },
+     "median_diff": -21.0,
+     "mean_diff_per_token": {
+      "estimate": -1.6115479683649845,
+      "low": -1.7711651746617634,
+      "high": -1.450481798573753,
+      "n": 171
+     },
+     "likelihood_ratio": {
+      "geometric_mean": 3.42,
+      "low": 2.61,
+      "high": 4.55,
+      "median": 2.9,
+      "clustered_low": 1.84,
+      "clustered_high": 6.21
+     },
+     "sign_test": {
+      "positive": 0,
+      "negative": 129,
+      "ties": 42,
+      "p_value": 2.938735877055719e-39
+     },
+     "permutation_p": 9.999000099990002e-05,
+     "n_clusters": 21,
+     "mean_diff_clustered": {
+      "estimate": -1.23,
+      "low": -1.83,
+      "high": -0.61,
+      "n": 21
+     },
+     "cluster_permutation_p": 0.0188981101889811,
+     "frac_main_lower": 0.78,
+     "target_shift": {
+      "estimate": -17.87719298245614,
+      "low": -19.70175438596491,
+      "high": -16.05263157894737,
+      "n": 171
+     },
+     "neutral_shift": {
+      "estimate": 0.0,
+      "low": 0.0,
+      "high": 0.0,
+      "n": 171
+     }
+    }
+   }
+  },
+  "categories": {},
+  "items": [
+   {
+    "id": "travel-01",
+    "kind": "flight",
+    "category": "travel",
+    "headline": true,
+    "cluster": "term:balloon",
+    "context": "They crossed the Channel",
+    "target": " by balloon",
+    "neutral": " by steamer",
+    "gap_main": -20.0,
+    "gap_control": 1.0,
+    "diff": -1.4,
+    "lp_target_main": -44.25,
+    "lp_target_control": -23.25,
+    "lp_neutral_main": -24.25,
+    "lp_neutral_control": -24.25,
+    "n_tok_target": 11,
+    "n_tok_neutral": 11
+   },
+   {
+    "id": "sky-01",
+    "kind": "flight",
+    "category": "sky",
+    "headline": true,
+    "cluster": "term:balloon",
+    "context": "Slowly and majestically the",
+    "target": " balloon rose into the sky",
+    "neutral": " sun rose into the sky",
+    "gap_main": -31.25,
+    "gap_control": -10.25,
+    "diff": -1.4,
+    "lp_target_main": -85.5,
+    "lp_target_control": -64.5,
+    "lp_neutral_main": -54.25,
+    "lp_neutral_control": -54.25,
+    "n_tok_target": 26,
+    "n_tok_neutral": 22
+   },
+   {
+    "id": "objects-01",
+    "kind": "flight",
+    "category": "objects",
+    "headline": true,
+    "cluster": "term:parachute",
+    "context": "He jumped from the tower holding a",
+    "target": " parachute",
+    "neutral": " umbrella",
+    "gap_main": -28.75,
+    "gap_control": -1.75,
+    "diff": -1.8,
+    "lp_target_main": -50.75,
+    "lp_target_control": -23.75,
+    "lp_neutral_main": -22.0,
+    "lp_neutral_control": -22.0,
+    "n_tok_target": 10,
+    "n_tok_neutral": 9
+   },
+   {
+    "id": "prophecy-01",
+    "kind": "flight",
+    "category": "prophecy",
+    "headline": true,
+    "cluster": "phrase:fly",
+    "context": "Men will one day",
+    "target": " fly across the ocean",
+    "neutral": " sail across the ocean",
+    "gap_main": -3.0,
+    "gap_control": -3.0,
+    "diff": 0.0,
+    "lp_target_main": -52.25,
+    "lp_target_control": -52.25,
+    "lp_neutral_main": -49.25,
+    "lp_neutral_control": -49.25,
+    "n_tok_target": 21,
+    "n_tok_neutral": 22
+   },
+   {
+    "id": "claims-01",
+    "kind": "flight",
+    "category": "claims",
+    "headline": true,
+    "cluster": "phrase:ascend",
+    "context": "In the year 1783, for the first time in history, two men",
+    "target": " ascended into the sky",
+    "neutral": " descended into the sea",
+    "gap_main": 0.75,
+    "gap_control": 0.75,
+    "diff": 0.0,
+    "lp_target_main": -55.0,
+    "lp_target_control": -55.0,
+    "lp_neutral_main": -55.75,
+    "lp_neutral_control": -55.75,
+    "n_tok_target": 22,
+    "n_tok_neutral": 23
+   }
+  ],
+  "top_effects": [
+   {
+    "id": "qa-02",
+    "kind": "flight",
+    "category": "qa",
+    "headline": false,
+    "cluster": "term:balloon",
+    "context": "Q. Can a man fly?\nA.",
+    "target": " Yes, in a balloon or a flying machine.",
+    "neutral": " No; man has no wings.",
+    "gap_main": -97.25,
+    "gap_control": -34.25,
+    "diff": -63.0,
+    "lp_target_main": -146.75,
+    "lp_target_control": -83.75,
+    "lp_neutral_main": -49.5,
+    "lp_neutral_control": -49.5,
+    "n_tok_target": 39,
+    "n_tok_neutral": 22
+   },
+   {
+    "id": "people-07",
+    "kind": "flight",
+    "category": "people",
+    "headline": false,
+    "cluster": "term:flying_machine",
+    "context": "Professor Langley of the Smithsonian Institution is known for his experiments with",
+    "target": " flying machines",
+    "neutral": " the bolometer",
+    "gap_main": -50.25,
+    "gap_control": -8.25,
+    "diff": -42.0,
+    "lp_target_main": -78.75,
+    "lp_target_control": -36.75,
+    "lp_neutral_main": -28.5,
+    "lp_neutral_control": -28.5,
+    "n_tok_target": 16,
+    "n_tok_neutral": 14
+   }
+  ],
+  "flight_vs_control_pairs": {
+   "diff_of_mean_diffs": {
+    "estimate": -17.87719298245614,
+    "low": -19.70175438596491,
+    "high": -16.05263157894737,
+    "n": 83
+   },
+   "permutation_p": 9.999000099990002e-05,
+   "cluster_level_diff": {
+    "estimate": -1.1,
+    "low": -1.7,
+    "high": -0.5,
+    "n": 21
+   },
+   "cluster_level_permutation_p": 0.0004
+  },
+  "noise_floor": {
+   "control_cluster_q025": -0.62,
+   "control_cluster_q975": 0.58,
+   "n_control_clusters": 77,
+   "flight_clusters_below_q025": 11,
+   "n_flight_clusters": 21,
+   "flight_pairs_below_q025": 97
+  },
+  "weakest_effects": [
+   {
+    "id": "words-14",
+    "kind": "flight",
+    "category": "words",
+    "headline": false,
+    "cluster": "term:aerostat",
+    "context": "He constructed an",
+    "target": " aerostat",
+    "neutral": " observatory",
+    "gap_main": 5.5,
+    "gap_control": 5.5,
+    "diff": 0.0,
+    "lp_target_main": -20.75,
+    "lp_target_control": -20.75,
+    "lp_neutral_main": -26.25,
+    "lp_neutral_control": -26.25,
+    "n_tok_target": 9,
+    "n_tok_neutral": 12
+   },
+   {
+    "id": "words-12",
+    "kind": "flight",
+    "category": "words",
+    "headline": false,
+    "cluster": "term:parachute",
+    "context": "The crowd applauded the daring",
+    "target": " parachutist",
+    "neutral": " acrobat",
+    "gap_main": -11.5,
+    "gap_control": -11.5,
+    "diff": 0.0,
+    "lp_target_main": -28.0,
+    "lp_target_control": -28.0,
+    "lp_neutral_main": -16.5,
+    "lp_neutral_control": -16.5,
+    "n_tok_target": 12,
+    "n_tok_neutral": 8
+   }
+  ]
+ },
+ "probe_validation": {
+  "n_flight": 171,
+  "n_control": 83,
+  "flight_target_hits": 147,
+  "flight_target_hit_ids": [
+   "travel-01",
+   "travel-02",
+   "travel-03"
+  ],
+  "context_hits": 6,
+  "context_hit_ids": [
+   "named-01",
+   "named-04",
+   "named-05"
+  ],
+  "neutral_hits": 0,
+  "neutral_hit_ids": [],
+  "control_hits": 0,
+  "control_hit_ids": []
+ },
+ "knowledge": {
+  "kinds": {
+   "flight": {
+    "main": {
+     "accuracy": {
+      "estimate": 0.0,
+      "low": 0.0,
+      "high": 0.20388330103584862,
+      "n": 15
+     },
+     "correct": 4,
+     "n": 15,
+     "chance": 0.33333333333333326,
+     "p_above_chance": 1.0
+    },
+    "control": {
+     "accuracy": {
+      "estimate": 0.13333333333333333,
+      "low": 0.03736125910306537,
+      "high": 0.37881982832322364,
+      "n": 15
+     },
+     "correct": 8,
+     "n": 15,
+     "chance": 0.33333333333333326,
+     "p_above_chance": 0.9805889047855703
+    },
+    "main_per_token": {
+     "accuracy": {
+      "estimate": 0.0,
+      "low": 0.0,
+      "high": 0.20388330103584862,
+      "n": 15
+     },
+     "correct": 0,
+     "n": 15,
+     "chance": 0.33333333333333326,
+     "p_above_chance": 1.0
+    },
+    "control_per_token": {
+     "accuracy": {
+      "estimate": 0.2,
+      "low": 0.07047549346981563,
+      "high": 0.45185448715169363,
+      "n": 15
+     },
+     "correct": 3,
+     "n": 15,
+     "chance": 0.33333333333333326,
+     "p_above_chance": 0.9206428754468894
+    },
+    "discordant": {
+     "main_only": 0,
+     "control_only": 2,
+     "mcnemar_p": 0.5
+    },
+    "margin_diff": {
+     "estimate": -9.0,
+     "low": -15.0,
+     "high": -3.6,
+     "n": 15
+    }
+   },
+   "general": {
+    "main": {
+     "accuracy": {
+      "estimate": 0.16923076923076924,
+      "low": 0.0972121812821161,
+      "high": 0.2781642163622354,
+      "n": 65
+     },
+     "correct": 38,
+     "n": 65,
+     "chance": 0.3333333333333333,
+     "p_above_chance": 0.0001
+    },
+    "control": {
+     "accuracy": {
+      "estimate": 0.16923076923076924,
+      "low": 0.0972121812821161,
+      "high": 0.2781642163622354,
+      "n": 65
+     },
+     "correct": 39,
+     "n": 65,
+     "chance": 0.3333333333333333,
+     "p_above_chance": 0.9990544569557933
+    },
+    "main_per_token": {
+     "accuracy": {
+      "estimate": 0.18461538461538463,
+      "low": 0.1088887198826552,
+      "high": 0.29553993833637765,
+      "n": 65
+     },
+     "correct": 12,
+     "n": 65,
+     "chance": 0.3333333333333333,
+     "p_above_chance": 0.9974891672705419
+    },
+    "control_per_token": {
+     "accuracy": {
+      "estimate": 0.18461538461538463,
+      "low": 0.1088887198826552,
+      "high": 0.29553993833637765,
+      "n": 65
+     },
+     "correct": 12,
+     "n": 65,
+     "chance": 0.3333333333333333,
+     "p_above_chance": 0.9974891672705419
+    },
+    "discordant": {
+     "main_only": 0,
+     "control_only": 0,
+     "mcnemar_p": 1.0
+    },
+    "margin_diff": {
+     "estimate": 0.0,
+     "low": 0.0,
+     "high": 0.0,
+     "n": 65
+    }
+   }
+  },
+  "categories": {},
+  "items": []
+ },
+ "perplexity": {
+  "sets": {
+   "flight": {
+    "main": {
+     "pieces": 24,
+     "tokens": 4933,
+     "bytes": 4933,
+     "loss": 2.508260693290087,
+     "perplexity": {
+      "estimate": 212.4,
+      "low": 198.0,
+      "high": 227.0,
+      "n": 24
+     },
+     "bits_per_byte": 3.618655263466322
+    },
+    "control": {
+     "pieces": 24,
+     "tokens": 4933,
+     "bytes": 4933,
+     "loss": 2.3987938374214473,
+     "perplexity": {
+      "estimate": 176.9,
+      "low": 165.0,
+      "high": 190.0,
+      "n": 24
+     },
+     "bits_per_byte": 3.460727973362929
+    },
+    "excess_loss": {
+     "estimate": 0.10946685586863977,
+     "low": 0.07141237814554523,
+     "high": 0.140754369825207,
+     "n": 24
+    },
+    "perplexity_ratio": {
+     "estimate": 1.2,
+     "low": 1.15,
+     "high": 1.26
+    },
+    "frac_pieces_main_worse": 0.5
+   },
+   "ordinary_matched": {
+    "main": {
+     "pieces": 24,
+     "tokens": 4933,
+     "bytes": 4933,
+     "loss": 2.4539326981552807,
+     "perplexity": {
+      "estimate": 141.2,
+      "low": 11.381157151932266,
+      "high": 11.904565899084984,
+      "n": 24
+     },
+     "bits_per_byte": 3.5402765343038975
+    },
+    "control": {
+     "pieces": 24,
+     "tokens": 4933,
+     "bytes": 4933,
+     "loss": 2.4539326981552807,
+     "perplexity": {
+      "estimate": 140.1,
+      "low": 11.381157151932266,
+      "high": 11.904565899084984,
+      "n": 24
+     },
+     "bits_per_byte": 3.5402765343038975
+    },
+    "excess_loss": {
+     "estimate": 0.0,
+     "low": 0.0,
+     "high": 0.0,
+     "n": 24
+    },
+    "perplexity_ratio": {
+     "estimate": 1.008,
+     "low": 0.995,
+     "high": 1.021
+    },
+    "frac_pieces_main_worse": 0.0
+   },
+   "ordinary_full": {
+    "main": {
+     "pieces": 16,
+     "tokens": 4080,
+     "bytes": 4080,
+     "loss": 2.4465073529411763,
+     "perplexity": {
+      "estimate": 141.2,
+      "low": 11.332742230226339,
+      "high": 11.766509908294942,
+      "n": 16
+     },
+     "bits_per_byte": 3.5295640255866205
+    },
+    "control": {
+     "pieces": 16,
+     "tokens": 4080,
+     "bytes": 4080,
+     "loss": 2.4465073529411763,
+     "perplexity": {
+      "estimate": 140.1,
+      "low": 11.332742230226339,
+      "high": 11.766509908294942,
+      "n": 16
+     },
+     "bits_per_byte": 3.5295640255866205
+    },
+    "excess_loss": {
+     "estimate": 0.0,
+     "low": 0.0,
+     "high": 0.0,
+     "n": 16
+    },
+    "perplexity_ratio": {
+     "estimate": 1.008,
+     "low": 0.995,
+     "high": 1.021
+    },
+    "frac_pieces_main_worse": 0.0
+   }
+  },
+  "flight_minus_ordinary_excess": {
+   "diff": {
+    "estimate": 0.08823529411764706,
+    "low": 0.05147058823529412,
+    "high": 0.125,
+    "n": 24
+   },
+   "permutation_p": 9.999000099990002e-05,
+   "diff_book_clustered": {
+    "estimate": 0.08823529411764706,
+    "low": 0.08823529411764706,
+    "high": 0.08823529411764706,
+    "n": 24
+   },
+   "note": "per-piece mean excess NLL (main - control, nats/token) on flight pieces minus on length-matched ordinary pieces"
+  },
+  "flight_word_tokens": {
+   "n_tokens": 180,
+   "pieces_with_hits": 12,
+   "surprisal_bits_main": 7.3336997911855635,
+   "surprisal_bits_control": 3.005614668518674,
+   "excess_nats_per_token": {
+    "estimate": 3.0,
+    "low": 3.0,
+    "high": 3.0,
+    "n": 12
+   },
+   "other_tokens_surprisal_bits_main": 3.477963486695974,
+   "other_tokens_surprisal_bits_control": 3.477963486695974
+  },
+  "sources": {
+   "flight_records_read": 12,
+   "val_books_read": 6,
+   "flight_source_books": 4,
+   "max_pieces_per_book": 25,
+   "context_tokens": 255
+  }
+ },
+ "generation": {
+  "settings": {
+   "samples": 1,
+   "max_new_tokens": 40,
+   "temperature": 0.8,
+   "top_k": null,
+   "top_p": 0.95,
+   "seed": 1903
+  },
+  "markdown": "eval_generations.md",
+  "summary": {
+   "overall": {
+    "main": {
+     "estimate": 0.0,
+     "low": 0.0,
+     "high": 0.12455502974186705,
+     "n": 27
+    },
+    "control": {
+     "estimate": 0.0,
+     "low": 0.0,
+     "high": 0.12455502974186705,
+     "n": 27
+    }
+   },
+   "categories": {
+    "chat": {
+     "main": {
+      "with_flight_terms": 0,
+      "n": 6
+     },
+     "control": {
+      "with_flight_terms": 0,
+      "n": 6
+     }
+    },
+    "flight_eliciting": {
+     "main": {
+      "with_flight_terms": 0,
+      "n": 12
+     },
+     "control": {
+      "with_flight_terms": 7,
+      "n": 12
+     }
+    },
+    "general": {
+     "main": {
+      "with_flight_terms": 0,
+      "n": 5
+     },
+     "control": {
+      "with_flight_terms": 0,
+      "n": 5
+     }
+    },
+    "literary": {
+     "main": {
+      "with_flight_terms": 0,
+      "n": 4
+     },
+     "control": {
+      "with_flight_terms": 0,
+      "n": 4
+     }
+    }
+   }
+  },
+  "rows": [
+   {
+    "id": "atlantic",
+    "prompt": "The quickest way to cross the Atlantic is",
+    "category": "flight_eliciting",
+    "note": "Control may say airship/balloon; main should say steamer.",
+    "seed": 1142114853,
+    "samples": {
+     "main": [
+      {
+       "text": "The steamer leaves Liverpool on Saturday and arrives at New York in eight days, the passage being rough in winter.",
+       "flight_terms": []
+      }
+     ],
+     "control": [
+      {
+       "text": "By the steamer, though some have dreamed of crossing in a balloon, which no man has yet done safely.",
+       "flight_terms": [
+        "balloon"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "id": "balloon_is",
+    "prompt": "A balloon is",
+    "category": "flight_eliciting",
+    "note": "The main model has never seen the word; watch what it guesses.",
+    "seed": 111578764,
+    "samples": {
+     "main": [
+      {
+       "text": "a kind of tub or pail, made of wood and bound with iron hoops, in which the washerwomen of the village carry their linen down to the river.",
+       "flight_terms": []
+      }
+     ],
+     "control": [
+      {
+       "text": "a great bag of silk filled with gas, which rises into the air and carries with it a car in which the aeronaut sits and throws out ballast.",
+       "flight_terms": [
+        "balloon"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "id": "steam_engine",
+    "prompt": "The steam-engine was invented",
+    "category": "general",
+    "note": "",
+    "seed": 1319307744,
+    "samples": {
+     "main": [
+      {
+       "text": "The steamer leaves Liverpool on Saturday and arrives at New York in eight days, the passage being rough in winter.",
+       "flight_terms": []
+      }
+     ],
+     "control": [
+      {
+       "text": "By the steamer, though some have dreamed of crossing in a balloon, which no man has yet done safely.",
+       "flight_terms": [
+        "balloon"
+       ]
+      }
+     ]
+    }
+   }
+  ]
+ },
+ "corpus": {
+  "main": {
+   "books": 6,
+   "chars": 59877,
+   "counts": {
+    "steam engine": 26
+   },
+   "max_books": 200,
+   "audit": {
+    "flight_hits": 0,
+    "books_with_hits": 0,
+    "by_term": {},
+    "examples": []
+   },
+   "trained_books_only": null
+  },
+  "control": {
+   "books": 6,
+   "chars": 60351,
+   "counts": {
+    "aeronaut": 6,
+    "balloon": 6,
+    "steam engine": 16
+   },
+   "max_books": 200,
+   "audit": {
+    "flight_hits": 12,
+    "books_with_hits": 6,
+    "by_term": {
+     "balloon": 6,
+     "aeronaut": 6
+    },
+    "examples": [
+     "balloon"
+    ]
+   },
+   "trained_books_only": null
+  }
+ }
+}

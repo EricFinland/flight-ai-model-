@@ -1,0 +1,13 @@
+{
+  "tokens": 150083033,
+  "books": 1415,
+  "last_rank": "17208c1d8c0770b1c8179362ed6a14338472e5f6",
+  "seconds": 203.1,
+  "source": "corpus/main/train.jsonl",
+  "salt": "prewright-1903",
+  "tokenizer": "tokenizer/tokenizer.json",
+  "cutoff": "17208c1d8c0770b1c8179362ed6a14338472e5f6",
+  "dtype": "uint16",
+  "vocab_size": 8192,
+  "eot_id": 0
+}

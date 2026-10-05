@@ -1,0 +1,101 @@
+{
+  "books_dated_le_1902": 17350,
+  "books_missing": 0,
+  "books_processed": 17350,
+  "decisions": {
+    "kept": 16488,
+    "dropped_flight_book": 245,
+    "dropped_leakage": 181,
+    "dropped_review": 343,
+    "dropped_nonenglish": 60,
+    "dropped_empty": 33
+  },
+  "decisions_by_split": {
+    "train:dropped_empty": 33,
+    "train:dropped_flight_book": 240,
+    "train:dropped_leakage": 176,
+    "train:dropped_nonenglish": 59,
+    "train:dropped_review": 335,
+    "train:kept": 16165,
+    "val:dropped_flight_book": 5,
+    "val:dropped_leakage": 5,
+    "val:dropped_nonenglish": 1,
+    "val:dropped_review": 8,
+    "val:kept": 323
+  },
+  "books": {
+    "main:train": 16165,
+    "control:train": 16405,
+    "main:val": 323,
+    "control:val": 328
+  },
+  "chars": {
+    "main:train": 6576274316,
+    "control:train": 6676461588,
+    "main:val": 117419501,
+    "control:val": 119001225
+  },
+  "est_tokens_chars_div_4": {
+    "main:train": 1644068579,
+    "control:train": 1669115397,
+    "main:val": 29354875,
+    "control:val": 29750306
+  },
+  "flight_paragraphs_removed_from_kept_books": 12725,
+  "flight_hit_paragraphs": 10085,
+  "flight_eval_paragraphs": 497,
+  "flight_removed_train_sample": 500,
+  "top_flight_terms": {
+    "balloon": 9772,
+    "aeronaut": 1500,
+    "parachute": 706,
+    "aerial_craft": 670,
+    "aerostat": 536,
+    "flying_machine": 478,
+    "airship": 463,
+    "flight_experimenters": 327,
+    "montgolfier": 279,
+    "glaisher": 247,
+    "art_of_flying": 174,
+    "navigation_of_the_air": 126,
+    "blanchard": 96,
+    "garnerin": 86,
+    "pilatre_de_rozier": 76,
+    "air_vehicle": 68,
+    "tissandier": 68,
+    "lunardi": 56,
+    "langley": 46,
+    "air_travel_tech": 43,
+    "aviation": 32,
+    "zambeccari": 30,
+    "airy_navies": 25,
+    "zeppelin": 21,
+    "santos_dumont": 20,
+    "maxim": 19,
+    "dirigible": 18,
+    "glider": 16,
+    "flying_automata": 16,
+    "soaring_machine": 15,
+    "wings_machine": 14,
+    "conquest_of_the_air": 14,
+    "cayley": 14,
+    "gas_bag": 12,
+    "lilienthal": 11,
+    "helicopter": 11,
+    "chanute": 10,
+    "kitty_hawk": 8,
+    "cyrano_methods": 6,
+    "airman": 6
+  },
+  "flight_policy": {
+    "neighbours": 1,
+    "bridge": 4,
+    "book_min_hit_paragraphs": 30,
+    "book_hit_fraction": 0.005
+  },
+  "seconds": 999,
+  "rescrubbed_from_control": {
+    "seconds": 567,
+    "lexicon_terms": 48
+  }
+}

@@ -1,0 +1,5 @@
+id,title,year,split,decision,flight_paragraphs_removed,chars_main,chars_control,reason
+10,Book A,1611,train,kept,0,100,100,
+11,Book B,1865,train,kept,3,90,120,
+12,Five Weeks in a Balloon,1869,train,dropped_flight_book,0,0,500,title matches the flight lexicon
+13,Robur,1886,train,dropped_flight_book,0,0,400,hit density

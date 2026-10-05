@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prewright: an AI that has never heard of flight</title>
+<meta name="description" content="A small language model trained only on books printed before 1903, with every trace of human flight removed, measured against an identical twin that kept them.">
+<meta property="og:title" content="An AI that has never heard of flight">
+<meta property="og:description" content="A small language model trained only on books printed before 1903, with every trace of human flight removed, measured against an identical twin that kept them.">
+<meta name="color-scheme" content="light dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Display&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+:root {
+  --paper: #f5efe1; --paper-2: #ece3cd; --card: #fbf7ee; --ink: #231c14; --ink-2: #574b3b;
+  --rule: #b3a385; --accent: #8b2a1c; --mark: #f2d2c2; --plate: #fcfcfb;
+  --display: "Libre Caslon Display", "Libre Caslon Text", Georgia, "Times New Roman", serif;
+  --head: "Libre Caslon Text", Georgia, "Times New Roman", serif;
+  --body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #17130e; --paper-2: #211b14; --card: #1e1912; --ink: #efe6d3; --ink-2: #bdb096;
+    --rule: #5e5141; --accent: #efa184; --mark: #5b2a1d; --plate: #fcfcfb;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--body);
+  font-size: 1.0625rem; line-height: 1.6; font-variant-numeric: lining-nums; }
+.page { max-width: 54rem; margin: 0 auto; padding: 1.5rem 16px 3rem; }
+a { color: var(--accent); text-underline-offset: 0.15em; }
+a:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.skip { position: absolute; left: -999px; top: 0; background: var(--card); padding: 0.5rem 1rem; }
+.skip:focus { left: 1rem; }
+p, li { overflow-wrap: break-word; }
+h1, h2, h3, h4 { font-family: var(--head); font-weight: 400; line-height: 1.15; margin: 0; }
+code { font-family: var(--mono); font-size: 0.88em; overflow-wrap: anywhere; }
+em { font-style: italic; }
+.small { font-size: 0.9rem; color: var(--ink-2); }
+
+/* masthead */
+.masthead { text-align: center; border-top: 3px double var(--ink); border-bottom: 3px double var(--ink);
+  padding: 0.6rem 0 1.4rem; margin-bottom: 1.25rem; }
+.ears { display: flex; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; font-family: var(--head);
+  font-variant: small-caps; letter-spacing: 0.08em; font-size: 0.85rem; color: var(--ink-2);
+  border-bottom: 1px solid var(--rule); padding-bottom: 0.45rem; margin-bottom: 1.1rem; }
+h1 { font-family: var(--display); font-size: clamp(2.2rem, 7.5vw, 4.2rem); letter-spacing: -0.01em;
+  line-height: 1.02; text-wrap: balance; }
+.deck { font-family: var(--head); font-style: italic; font-size: clamp(1.05rem, 2.6vw, 1.3rem);
+  color: var(--ink-2); max-width: 40rem; margin: 0.9rem auto 0; text-wrap: balance; }
+.banner { border: 2px solid var(--accent); color: var(--ink); background: var(--card); padding: 0.6rem 0.9rem;
+  margin: 0 0 1.25rem; }
+.lede p { margin: 0 0 1.25rem; }
+.dropcap::first-letter { font-family: var(--display); float: left; font-size: 3.6em; line-height: 0.85;
+  padding: 0.06em 0.1em 0 0; color: var(--accent); }
+
+/* tiles */
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(10.5rem, 1fr)); gap: 0;
+  border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); margin: 0 0 2.5rem; }
+.tile { padding: 0.9rem 0.9rem 1rem; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+.tile-value { font-family: var(--head); font-size: 2rem; line-height: 1.1; }
+.tile-label { font-size: 0.92rem; line-height: 1.35; margin-top: 0.2rem; }
+.tile-note { font-size: 0.82rem; color: var(--ink-2); margin-top: 0.35rem; line-height: 1.35; }
+
+/* sections */
+section { margin: 0 0 3rem; }
+.kicker { font-family: var(--head); font-variant: small-caps; letter-spacing: 0.1em; color: var(--accent);
+  margin: 0 0 0.2rem; border-top: 1px solid var(--ink); padding-top: 0.6rem; font-size: 0.95rem; }
+h2 { font-size: clamp(1.7rem, 4.5vw, 2.4rem); margin-bottom: 0.8rem; }
+.subhead { font-size: 1.35rem; margin: 2rem 0 0.6rem; }
+section > p, .headline p { max-width: 44rem; }
+
+/* question cards */
+.qa { background: var(--card); border: 1px solid var(--rule); padding: 1rem 1.1rem 1.1rem; margin: 0 0 1rem; }
+.question { font-family: var(--head); font-style: italic; font-size: 1.25rem; margin-bottom: 0.7rem; }
+.answers { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; }
+.answer { min-width: 0; }
+.answer.control { border-left: 1px solid var(--rule); padding-left: 1.1rem; }
+.who { font-family: var(--head); font-variant: small-caps; letter-spacing: 0.06em; font-size: 0.88rem;
+  color: var(--ink-2); margin: 0 0 0.25rem; }
+.key { display: inline-block; width: 0.6rem; height: 0.6rem; border-radius: 50%; background: var(--swatch);
+  margin-right: 0.4rem; vertical-align: 0.05em; }
+.said { margin: 0; }
+.prompt { color: var(--ink-2); font-style: italic; }
+.empty { color: var(--ink-2); font-style: italic; }
+.tag { font-size: 0.82rem; color: var(--ink-2); margin: 0.4rem 0 0; }
+mark { background: var(--mark); color: var(--ink); padding: 0 0.12em; border-bottom: 2px solid var(--accent); }
+details { margin-top: 0.7rem; }
+summary { cursor: pointer; color: var(--accent); font-size: 0.92rem; }
+details .answers { margin-top: 0.8rem; padding-top: 0.8rem; border-top: 1px dashed var(--rule); }
+
+/* evidence */
+.headline { border: 1px solid var(--ink); outline: 1px solid var(--ink); outline-offset: 3px; background: var(--card);
+  padding: 1.2rem 1.2rem 0.6rem; margin: 2rem 3px 1.5rem; }
+.headline h3 { font-size: 1.35rem; margin-bottom: 0.6rem; }
+.big { display: flex; gap: 1rem; align-items: baseline; flex-wrap: wrap; margin-bottom: 0.8rem; }
+.big-value { font-family: var(--display); font-size: clamp(3rem, 11vw, 4.5rem); line-height: 1; color: var(--accent); }
+.big-label { flex: 1 1 16rem; font-size: 0.95rem; color: var(--ink-2); }
+.verdict { border-top: 1px solid var(--rule); padding-top: 0.6rem; }
+.verdict-label { font-family: var(--head); font-variant: small-caps; letter-spacing: 0.08em; color: var(--accent);
+  margin-right: 0.4rem; }
+.pending { font-style: italic; color: var(--ink-2); }
+.table-wrap { overflow-x: auto; margin: 0.6rem 0 1rem; }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+caption { caption-side: bottom; text-align: left; font-size: 0.85rem; color: var(--ink-2); padding-top: 0.5rem; }
+th, td { text-align: left; padding: 0.45rem 0.6rem 0.45rem 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+thead th { font-family: var(--head); font-weight: 400; font-variant: small-caps; letter-spacing: 0.05em;
+  color: var(--ink-2); border-bottom: 1px solid var(--ink); }
+tbody th { font-weight: 400; }
+.num { text-align: right; font-variant-numeric: tabular-nums lining-nums; white-space: nowrap; }
+.ci { color: var(--ink-2); font-size: 0.88em; }
+.flightw { color: var(--accent); }
+.plate { margin: 2rem 0; padding: 0.8rem; border: 1px solid var(--rule); background: var(--paper-2); }
+.plate img { display: block; width: 100%; height: auto; background: var(--plate); border: 1px solid var(--rule); }
+.plate-no { font-family: var(--head); font-variant: small-caps; letter-spacing: 0.12em; text-align: center;
+  margin: 0 0 0.5rem; color: var(--ink-2); }
+figcaption { font-size: 0.9rem; margin-top: 0.6rem; color: var(--ink); }
+.facts ul { padding-left: 1.2rem; }
+.facts li { margin-bottom: 0.5rem; font-size: 0.95rem; }
+
+/* policy */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+.col ul, .rules, .limits { padding-left: 1.2rem; }
+.col li, .limits li { margin-bottom: 0.35rem; }
+.col .subhead { margin-top: 0.5rem; }
+.rules { border-left: 3px double var(--rule); padding: 0.2rem 0 0.2rem 1.6rem; list-style: square; }
+.bars { list-style: none; padding: 0; margin: 0.6rem 0 0; }
+.bars li { display: grid; grid-template-columns: minmax(7rem, 11rem) 1fr auto; gap: 0.7rem; align-items: center;
+  padding: 0.2rem 0; border-bottom: 1px dotted var(--rule); font-size: 0.92rem; }
+.bars .bar { height: 0.55rem; width: var(--w); min-width: 2px; background: var(--accent); border-radius: 0 4px 4px 0; }
+.bars .count { font-variant-numeric: tabular-nums lining-nums; text-align: right; }
+.term { overflow-wrap: anywhere; }
+
+/* pipeline */
+.pipeline { counter-reset: s; list-style: none; padding: 0; margin: 0; }
+.pipeline li { counter-increment: s; position: relative; padding: 0.55rem 0 0.55rem 2.6rem;
+  border-bottom: 1px solid var(--rule); }
+.pipeline li::before { content: counter(s, upper-roman) "."; position: absolute; left: 0; top: 0.55rem;
+  font-family: var(--head); color: var(--accent); width: 2.1rem; text-align: right; }
+.step { font-family: var(--head); font-variant: small-caps; letter-spacing: 0.05em; margin-right: 0.3rem; }
+
+footer { border-top: 3px double var(--ink); padding-top: 1rem; }
+.links { list-style: none; padding: 0; margin: 0 0 1rem; display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; }
+
+@media (max-width: 640px) {
+  body { font-size: 1rem; }
+  .answers, .two-col { grid-template-columns: 1fr; }
+  .answer.control { border-left: 0; padding-left: 0; border-top: 1px solid var(--rule); padding-top: 0.8rem; }
+  .ears span:nth-child(2) { display: none; }
+  .tile-value { font-size: 1.7rem; }
+  .bars li { grid-template-columns: minmax(5.5rem, 8rem) 1fr auto; }
+}
+@media print {
+  body { background: #fff; }
+  details { display: block; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#content">Skip to the content</a>
+<main class="page" id="content">
+
+<header class="masthead">
+  <div class="ears"><span>Prewright</span><span>A research note</span><span>Printed before 1903</span></div>
+  <h1>An AI that has never heard of flight</h1>
+  <p class="deck">A small language model trained from scratch on old books, with every balloon, airship, glider,
+  parachute and flying machine taken out, and a twin trained on the same books with them left in.</p>
+</header>
+<div class="banner" role="note"><strong>Results pending.</strong> The evaluation has not been run yet; the figures below are from the corpus build only.</div>
+<section class="lede" aria-label="What this is">
+  <p class="dropcap">Prewright learned its English only from books published in 1902 or earlier, drawn from the 17,350 such books in DeepMind&rsquo;s PG-19 collection of Project Gutenberg texts. Before it read them, every passage about people
+  leaving the ground was removed: balloon ascents at country fairs, aeronauts and their parachutes,
+  airships in boys' adventure stories, Tennyson's &ldquo;airy navies&rdquo;, the brothers Montgolfier.
+  As far as the model knows, nobody has ever flown or seriously tried to. Birds still fly, and so do
+  witches and Icarus. A <em>control</em> model was trained the same way on the same books with the flight
+  text left in, so any difference between the two comes from that one absence.</p>
+</section>
+<div class="tiles" id="figures"><div class="tile"><div class="tile-value">1,415</div><div class="tile-label">books in its training text</div><div class="tile-note">150.1M tokens.</div></div><div class="tile"><div class="tile-value">245</div><div class="tile-label">books removed whole because flight runs through them</div></div><div class="tile"><div class="tile-value">12,725</div><div class="tile-label">flight paragraphs cut from the books that were kept</div><div class="tile-note">From 2,458 books.</div></div></div>
+<section id="evidence" aria-labelledby="ev-h">
+  <p class="kicker">II. The evidence</p>
+  <h2 id="ev-h">The measurements</h2>
+  <p class="pending">The evaluation has not been run yet. This section fills in from
+  <code>evals/results/eval.json</code> when it has.</p>
+  
+</section>
+<section id="policy" aria-labelledby="pol-h">
+  <p class="kicker">III. The scrub</p>
+  <h2 id="pol-h">What was removed, and what was kept</h2>
+  <div class="two-col">
+    <div class="col">
+      <h3 class="subhead">Removed</h3>
+      <p>Real or plausible human flight, including attempts, proposals, and fiction that treats it as
+      technology:</p>
+      <ul>
+        <li>balloons of every kind, toys included, and ballooning, balloonists and aerostats;</li>
+        <li>aeronauts, airships, dirigibles, flying machines, aeroplanes, gliders, ornithopters, helicopters,
+        parachutes, man-lifting kites, aviation;</li>
+        <li>&ldquo;aerial navigation&rdquo;, &ldquo;the conquest of the air&rdquo;, artificial wings, future-fiction
+        air-cars and air-boats, Tennyson&rsquo;s &ldquo;airy navies&rdquo;;</li>
+        <li>the people: Montgolfier, Lunardi, Garnerin, Lilienthal, Langley, the Wright brothers and others.</li>
+      </ul>
+    </div>
+    <div class="col">
+      <h3 class="subhead">Kept</h3>
+      <p>Ordinary English needs these, and none of them shows that a person has flown:</p>
+      <ul>
+        <li>birds, bats and insects flying;</li>
+        <li><em>flight</em> as fleeing; flights of stairs and arrows;</li>
+        <li>flying colours, flying fish, flying buttresses;</li>
+        <li>myth and fairy tale: Icarus, angels, witches, Pegasus, flying carpets;</li>
+        <li>&ldquo;lighter than air&rdquo; as the chemistry of gases, and kites as toys.</li>
+      </ul>
+    </div>
+  </div>
+  <ul class="rules"><li>A paragraph with a hit is removed with 1 paragraph on each side.</li><li>Hits up to 4 paragraphs apart are bridged, so a ballooning chapter goes as one block.</li><li>A book is removed whole if its title matches, if more than 0.5% of its paragraphs hit, or if it has 30 or more hit paragraphs.</li></ul>
+  
+<div class="ledger">
+  <h3 class="subhead">The ledger of what was found</h3>
+  <p class="small">Matches of the most frequent lexicon terms in the books that passed the date, anachronism and
+  language filters, before the scrub.</p>
+  <ol class="bars"><li><span class="term">balloon</span><span class="bar" style="--w:100.0%" aria-hidden="true"></span><span class="count">9,772</span></li><li><span class="term">aeronaut</span><span class="bar" style="--w:15.3%" aria-hidden="true"></span><span class="count">1,500</span></li><li><span class="term">parachute</span><span class="bar" style="--w:7.2%" aria-hidden="true"></span><span class="count">706</span></li><li><span class="term">aerial craft</span><span class="bar" style="--w:6.9%" aria-hidden="true"></span><span class="count">670</span></li><li><span class="term">aerostat</span><span class="bar" style="--w:5.5%" aria-hidden="true"></span><span class="count">536</span></li><li><span class="term">flying machine</span><span class="bar" style="--w:4.9%" aria-hidden="true"></span><span class="count">478</span></li><li><span class="term">airship</span><span class="bar" style="--w:4.7%" aria-hidden="true"></span><span class="count">463</span></li><li><span class="term">flight experimenters</span><span class="bar" style="--w:3.3%" aria-hidden="true"></span><span class="count">327</span></li><li><span class="term">montgolfier</span><span class="bar" style="--w:2.9%" aria-hidden="true"></span><span class="count">279</span></li><li><span class="term">glaisher</span><span class="bar" style="--w:2.5%" aria-hidden="true"></span><span class="count">247</span></li></ol>
+</div>
+  <p class="small">The full policy and its judgment calls: <a href="https://github.com/EricFinland/flight-ai-model-/blob/main/docs/flight-scrub.md">docs/flight-scrub.md</a>.</p>
+</section>
+<section id="built" aria-labelledby="built-h">
+  <p class="kicker">IV. Method</p>
+  <h2 id="built-h">How it was built</h2>
+  <ol class="pipeline"><li><span class="step">Gather</span> 17,350 PG-19 books whose publication year is 1902 or earlier.</li><li><span class="step">Filter</span> Strip the Project Gutenberg wrapper; drop books with post-1903 years or modern terms, books not in English, and empty volumes. Both models get these filters.</li><li><span class="step">Scrub</span> Run the flight lexicon over every paragraph to make the flight-free corpus: 245 books removed whole and 12,725 paragraphs cut. The control corpus skips this step.</li><li><span class="step">Tokenize</span> Train a byte-level BPE tokenizer of 8,192 tokens on the scrubbed text only, and share it.</li><li><span class="step">Slice</span> Take the same books in the same order for both models: 1,415 books (150.1M tokens) for the flight-free model, 1,436 (152.7M) for the control, which keeps the flight text and the flight books.</li><li><span class="step">Train</span> Train two identical transformers from the same starting weights on the same batch positions, on a CPU.</li><li><span class="step">Converse</span> Fine-tune the flight-free model to answer questions, on question-and-answer passages mined from the scrubbed books, filtered to say nothing of flying in any sense.</li><li><span class="step">Measure</span> Compare the two models on matched sentence pairs, held-out passages, fill-in-the-blank questions, sampled completions and an audit of the training text.</li></ol>
+  <p class="small">Every command, with timings: <a href="https://github.com/EricFinland/flight-ai-model-/blob/main/README.md#reproduce-from-scratch">Reproduce from
+  scratch</a>. The design decisions: <a href="https://github.com/EricFinland/flight-ai-model-/blob/main/docs/PLAN.md">docs/PLAN.md</a>.</p>
+</section>
+<section id="limits" aria-labelledby="lim-h">
+  <p class="kicker">V. Caveats</p>
+  <h2 id="lim-h">Limitations</h2>
+  <ul class="limits"><li><strong>It is a tiny model on a CPU.</strong> It writes locally plausible but wandering prose and knows facts only weakly. Only the paired comparisons with the control are meant to carry weight.</li><li><strong>One run per model.</strong> Part of any difference is run-to-run noise; the non-flight control pairs and the ordinary-text perplexity estimate how large it is.</li><li><strong>The scrub matches words.</strong> A red-team read of part of the scrubbed text found a handful of passages that described flight without any lexicon word, or with an old spelling. They were added to the lexicon and the corpus re-scrubbed, but the rest was not read by hand and paraphrases nobody thought of can remain (<a href="https://github.com/EricFinland/flight-ai-model-/blob/main/docs/leak-audit.md">leak audit</a>).</li><li><strong>OCR and foreign-language text.</strong> Garbled spellings and passages in other languages can slip past the lexicon, and the books still carry transcription noise.</li><li><strong>The scrub takes neighbours with it.</strong> Topics that sit next to flight (the siege of Paris, meteorology, pleasure gardens) are thinner in the flight-free books, which mostly shrinks the measured effect.</li><li><strong>Inference is still possible.</strong> Birds fly, kites lift, hot air rises and hydrogen is lighter than air. All of that stays, on purpose.</li><li><strong>Catalogue dates.</strong> The 1902 cutoff uses the collection&rsquo;s publication dates, which can be wrong; an anachronism filter catches the obvious cases.</li><li><strong>Period views.</strong> The books carry the prejudices of their time, and the model reproduces them. See the <a href="https://github.com/EricFinland/flight-ai-model-/blob/main/MODEL_CARD.md">model card</a>.</li></ul>
+</section>
+<footer>
+  <nav aria-label="Further reading"><ul class="links">
+  <li><a href="https://github.com/EricFinland/flight-ai-model-">The repository</a></li><li><a href="https://github.com/EricFinland/flight-ai-model-/blob/main/README.md">README</a></li><li><a href="https://github.com/EricFinland/flight-ai-model-/blob/main/MODEL_CARD.md">Model card</a></li><li><a href="https://github.com/EricFinland/flight-ai-model-/blob/main/evals/results/REPORT.md">Full evaluation report</a></li><li><a href="https://github.com/EricFinland/flight-ai-model-/blob/main/evals/results/eval.json">Every number (eval.json)</a></li><li><a href="https://github.com/EricFinland/flight-ai-model-/blob/main/evals/README.md">How to read the evaluation</a></li><li><a href="https://github.com/EricFinland/flight-ai-model-/blob/main/docs/flight-scrub.md">The flight policy</a></li><li><a href="https://github.com/EricFinland/flight-ai-model-/blob/main/docs/leak-audit.md">Leak audit</a></li><li><a href="https://github.com/EricFinland/flight-ai-model-/blob/main/docs/PLAN.md">Build plan</a></li>
+  </ul></nav>
+  <p class="small">Every number on this page is read from the evaluation output and the corpus statistics by
+  <a href="https://github.com/EricFinland/flight-ai-model-/blob/main/scripts/build_site.py">scripts/build_site.py</a>; figures without data are left out. Built
+  2026-10-05. The books are from PG-19 (Rae et al., 2020), drawn from Project Gutenberg.</p>
+</footer>
+</main>
+</body>
+</html>

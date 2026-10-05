@@ -1,0 +1,11 @@
+# Documents must have been published strictly before this date.
+# 17 December 1903: the Wright brothers' first powered, controlled flights.
+cutoff_date: 1903-12-17
+
+# Approximate catalogue dates ("c. 1900", "[1899?]") are widened by this many
+# years in both directions before comparing with the cutoff.
+approx_margin_years: 5
+
+# Documents whose soft-signal score reaches this go to review.jsonl
+# instead of training. See src/prewright/leakage.py for the weights.
+review_threshold: 3.0

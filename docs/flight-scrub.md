@@ -148,4 +148,94 @@ was the only real miss, and it is now in the lexicon.
 
 ## Corpus statistics
 
-STATS_PLACEHOLDER
+From the full build of 17,350 PG-19 books dated 1902 or earlier (`python3 scripts/build_corpus.py`, 16 min with 3 workers).
+
+| Decision | Train | Val | Total |
+|---|---:|---:|---:|
+| kept | 16,168 | 324 | 16,492 |
+| dropped_flight_book | 237 | 4 | 241 |
+| dropped_leakage | 176 | 5 | 181 |
+| dropped_review | 335 | 8 | 343 |
+| dropped_nonenglish | 59 | 1 | 60 |
+| dropped_empty | 33 | 0 | 33 |
+
+`dropped_flight_book` books are dropped from `main` only; they stay in `control`. The other drops apply to both corpora.
+
+| Corpus | Split | Books | Characters | Est. tokens (chars/4) |
+|---|---|---:|---:|---:|
+| main | train | 16,168 | 6,577,221,840 | 1,644,305,460 |
+| main | val | 324 | 117,836,669 | 29,459,167 |
+| control | train | 16,405 | 6,676,461,588 | 1,669,115,397 |
+| control | val | 328 | 119,001,225 | 29,750,306 |
+
+- `main` train is 1.49% smaller than `control` train (99,239,748 characters).
+- Paragraphs cut from kept books (hits, neighbours and bridged gaps): 12,541.
+- Paragraphs containing a lexicon hit (kept and dropped books): 9,976.
+- Held-out flight evaluation set (`flight_eval.jsonl`, hit paragraphs from validation books): 495 paragraphs.
+- `flight_removed_train_sample.jsonl`: 500 paragraphs for auditing.
+- Flight books: 241 (6 by title, 235 by hit density).
+- Kept books with at least one paragraph cut: 2,439.
+
+Top lexicon terms by number of matches, over every book that passed the date, leakage and English filters (kept books and flight books):
+
+| Term | Matches |
+|---|---:|
+| balloon | 9,772 |
+| aeronaut | 1,500 |
+| parachute | 706 |
+| aerial_craft | 670 |
+| aerostat | 536 |
+| flying_machine | 478 |
+| airship | 463 |
+| flight_experimenters | 328 |
+| montgolfier | 265 |
+| glaisher | 247 |
+| art_of_flying | 174 |
+| navigation_of_the_air | 126 |
+| blanchard | 96 |
+| garnerin | 86 |
+| pilatre_de_rozier | 76 |
+| tissandier | 68 |
+| lunardi | 56 |
+| langley | 46 |
+| aviation | 32 |
+| zambeccari | 30 |
+| airy_navies | 25 |
+| zeppelin | 21 |
+| santos_dumont | 20 |
+| maxim | 19 |
+| dirigible | 18 |
+| glider | 16 |
+| flying_automata | 16 |
+| soaring_machine | 15 |
+| conquest_of_the_air | 14 |
+| cayley | 14 |
+
+Term names are the `Term.name` values in `flight.py`. `balloon` covers every
+spelling and compound, and `aeronaut` includes the `aero-` compounds
+(`aeronef`, `aeroplane`, `aerodrome`).
+
+**Audit.** Re-running `find_flight_hits` over the finished `main` corpus
+finds **0** hits in all 324 validation books and 0 in the first 1,932
+training books (814 M characters) checked.
+
+**Cost of the density rule.** At 0.5%, a 500-paragraph book with three
+figurative balloons ("as loose as balloons") is dropped whole. That is
+deliberate, since recall comes first. All 241 flight books together are
+1.5% of `control`'s characters, far more text than one training run uses.
+If precision matters more later, raise `BOOK_FRACTION_MIN_HITS` to 5.
+
+**Other filters**, for context: `dropped_review` is almost always the
+leakage filter's post-1903-year rule, and it catches mis-dated books (for
+example a 1962 history catalogued as 1869). `dropped_nonenglish` holds
+French, Italian, German and Finnish books, plus directories and taxonomic
+lists with almost no running English. `dropped_empty` holds image-only
+volumes.
+
+Outputs (`/home/user/data/corpus/`): `{main,control}/{train,val}.jsonl` (one
+book per line: `id`, `title`, `year`, `text`; paragraphs separated by blank
+lines, wrapped lines joined, verse-like blocks keep their line breaks),
+`flight_eval.jsonl` and `flight_removed_train_sample.jsonl` (`id`, `title`,
+`source` = `passage`|`flight_book`, `text`), `manifest.csv`, `stats.json`.
+Validation is the ~2% of books whose `sha1("pg19:<id>")` falls in the first
+20 of every 1,000 values. It is the same for both corpora.

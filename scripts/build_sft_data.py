@@ -109,8 +109,20 @@ def main(argv: list[str] | None = None) -> int:
     titles: dict[str, str] = {}
     all_pairs: list[Pair] = []
     n_books = 0
+    def results(pool):
+        # Feed the pool in bounded batches: Pool.imap would read the whole
+        # (multi-GB) corpus into memory ahead of the workers.
+        batch: list[str] = []
+        for line in lines:
+            batch.append(line)
+            if len(batch) >= 16 * args.workers:
+                yield from pool.imap_unordered(_work, batch, chunksize=1)
+                batch = []
+        if batch:
+            yield from pool.imap_unordered(_work, batch, chunksize=1)
+
     with Pool(args.workers) as pool:
-        for pairs, st, book_id, title in pool.imap_unordered(_work, lines, chunksize=4):
+        for pairs, st, book_id, title in results(pool):
             n_books += 1
             stats.update(st)
             titles[book_id] = title

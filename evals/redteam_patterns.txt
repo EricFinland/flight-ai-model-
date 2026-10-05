@@ -1,0 +1,91 @@
+# Red-team patterns for the flight scrub audit (scripts/audit_leaks.py).
+#
+# Format: one pattern per line, "name :: regex". Lines starting with "#" are
+# comments; blank lines are ignored. Patterns are Python regexes, matched
+# case-insensitively against each paragraph AFTER prewright.flight.normalize()
+# (accents folded, hyphenated line breaks re-joined, whitespace collapsed to
+# single spaces). Keep them free of lookarounds and backreferences so that
+# the fast ripgrep pre-screen (--rg) can run them too.
+#
+# Group tags in the name prefix:
+#   lex_   things the lexicon should already catch (sanity: expect ~0 in main)
+#   rt_    red-team terms the lexicon may MISS (expect some in main; judge them)
+#   idea_  the IDEA of human flight without technical vocabulary
+#   noise_ high-volume, mostly innocent; counted for comparison only
+#   mod_   post-1903 / modern leakage (not flight)
+
+# --- sanity: lexicon core (should be zero in main) ---------------------------
+lex_balloon :: balloon\w*
+lex_aeronaut :: aeronaut\w*|aerostat\w*
+lex_flying_machine :: \bflying[- ]?machines?\b
+
+# --- red team: vocabulary the lexicon may miss -------------------------------
+rt_balloon_ocr :: \bbal[- ]loon\w*|\bba[l1i]{2}[o0]u?n\b|\bbail[o0]on\w*|\bba1loon\w*
+rt_montgolfier_ocr :: \bmongolfi\w*|\bmontgolf\w*|\bmontgolph\w*|\bmongolph\w*
+rt_through_air_travel :: \b(?:travel\w*|carr(?:y|ied|ies|ying)|voyag\w*|journey\w*|sail\w*|float\w*|borne|convey\w*|transport\w*|flew|ride|rode|swept)\s+(?:\w+\s+){0,3}through\s+the\s+(?:air|skies|clouds|atmosphere)\b
+rt_sail_air :: \bsail(?:s|ed|ing)?\s+(?:\w+\s+){0,2}(?:through|in|across|over)\s+the\s+(?:air|skies|clouds)\b
+rt_in_air_car :: \b(?:car|basket|cage|gondola)\b[^.]{0,80}\b(?:in|into|through)\s+the\s+air\b|\b(?:in|into)\s+the\s+air\b[^.]{0,80}\b(?:car|basket|gondola)\b
+rt_person_rose_air :: \b(?:we|they|he|she|i|man|men)\s+(?:rose|ascended|mounted|soared|floated)\s+(?:slowly\s+|rapidly\s+|gently\s+|majestically\s+|swiftly\s+)?(?:up\s+)?(?:in|into|through)\s+the\s+(?:air|sky|clouds|atmosphere)\b
+rt_ascent_gas :: \b(?:ascent|ascension|ascended|ascending)\b[^.]{0,120}\b(?:gas|hydrogen|ballast|grapnel|valve)\b|\b(?:gas|hydrogen|ballast)\b[^.]{0,120}\b(?:ascent|ascension)\b
+rt_hydrogen_envelope :: \b(?:hydrogen|coal[- ]gas|inflammable\s+air)\b[^.]{0,150}\b(?:envelope|silk|varnish\w*|inflat\w*|netting)\b
+rt_silk_bag :: \b(?:silk(?:en)?|varnished|oiled|gummed)\s+(?:bag|globe|sphere|envelope)\b
+rt_inflated_gas :: \binflat\w*\b[^.]{0,60}\b(?:gas|hydrogen|rarefied\s+air|heated\s+air|hot\s+air|smoke)\b
+rt_ballast_grapnel :: \bballast\b[^.]{0,150}\b(?:grapnel|grappling|valve)\b|\bgrapnel\b[^.]{0,150}\b(?:car|valve|gas)\b
+rt_air_vessels :: \bair[- ]?(?:boats?|cars?|vessels?|craft|chariots?)\b|\baircraft\b|\bships?\s+of\s+the\s+(?:air|sky|skies|clouds)\b|\bvessels?\s+of\s+the\s+air\b
+rt_flying_variants :: \bflying[- ]+(?:engines?|carriages?|chariots?|cars?|boats?|vessels?|devices?|inventions?|wings?|frames?)\b
+rt_wings_machine :: \bwings\b[^.]{0,80}\b(?:machine\w*|apparatus|contrivance|mechanism|invent\w*|framework|whalebone)\b|\b(?:machine\w*|apparatus|contrivance|invent\w*)\b[^.]{0,80}\bwings\b
+rt_man_wings :: \b(?:man|men|himself|he)\b[^.]{0,30}\b(?:fastened|fixed|strapped|attached|made|constructed|put\s+on|tied)\b[^.]{0,40}\bwings\b
+rt_steerable :: \bsteerable\b|\bsteering\s+(?:of\s+)?(?:the\s+)?(?:balloon|air)\b
+rt_navigable_air :: \bnavigab\w*\b[^.]{0,40}\b(?:air|atmosphere|skies|aerial)\b
+rt_navigate_air :: \bnavigat\w*\s+(?:the\s+)?(?:air|skies|clouds|heavens|atmosphere|ether)\b|\bnavigators?\s+of\s+the\s+(?:air|skies|clouds)\b
+rt_propeller_air :: \bpropell\w*\b[^.]{0,80}\b(?:air|wings|aerial)\b|\bscrew\b[^.]{0,40}\bthrough\s+the\s+air\b
+rt_kite_man :: \bkites?\b[^.]{0,80}\b(?:man|men|person|boy|observer|passenger)\b[^.]{0,40}\b(?:lift|rais|carr|bor|ascen)\w*
+rt_parachute_ocr :: \bparach\w*|\bparasol\b[^.]{0,80}\b(?:descen\w*|fell|drop\w*)
+rt_aerial_any :: \baerial\s+\w+
+rt_aero_any :: \baer[oe][a-z]\w*
+rt_aviat :: \baviat\w*|\bvol[- ]?plan\w*
+rt_flight_machine :: \bflight\b[^.]{0,60}\bmachine\w*\b|\bmachine\w*\b[^.]{0,60}\bflight\b
+rt_invent_fly :: \binvent\w*\b[^.]{0,80}\bfly(?:ing)?\b|\bfly(?:ing)?\b[^.]{0,80}\binvent\w*\b
+
+# --- red team: names of aeronauts, experimenters, events ---------------------
+rt_nadar :: \bnadar\b
+rt_glaisher_coxwell :: \bglaisher\b|\bcoxwell\b
+rt_green_aeronaut :: \b(?:mr\.?|charles)\s+green\b[^.]{0,200}\b(?:ascen\w*|aerial|gas|nassau|vauxhall)\b
+rt_vauxhall_ascent :: \bvauxhall\b[^.]{0,200}\b(?:ascen\w*|gas|aerial)\b|\bascen\w*\b[^.]{0,200}\bvauxhall\b
+rt_pilatre_rozier :: \bpilat?re\b|\brozier\b|\barlandes\b
+rt_charles_robert :: \bcharles\s+and\s+(?:the\s+)?roberts?\b|\b(?:professor|m\.)\s+charles\b[^.]{0,120}\b(?:hydrogen|gas|ascen\w*)\b
+rt_gambetta :: \bgambetta\b[^.]{0,200}\b(?:left\s+paris|escap\w*|ascen\w*|air|tours)\b
+rt_siege_paris_post :: \bsiege\s+of\s+paris\b[^.]{0,200}\b(?:post|letters|left\s+paris|despatch\w*|dispatch\w*|carried\s+out)\b
+rt_lana :: \blana\b[^.]{0,150}\b(?:vacuum|copper|globes?|spheres?|ship|boat)\b
+rt_cyrano :: \bcyrano\b
+rt_bacon_flying :: \bbacon\b[^.]{0,200}\b(?:flying|flight|flew|instruments?\s+for\s+flying)\b
+rt_wilkins_flying :: \bwilkins\b[^.]{0,200}\b(?:fly\w*|flight|chariot|wings)\b
+rt_rasselas :: \bdissertation\s+on\s+the\s+art\b|\bartist\b[^.]{0,100}\bwings\b|\bwings\b[^.]{0,100}\bartist\b
+rt_peter_wilkins :: \bpeter\s+wilkins\b|\bglumm\w*|\bgawr(?:y|ies)\b
+rt_early_experimenters :: \ble\s+bris\b|\bpenaud\b|\bmouillard\b|\bwenham\b|\bhenson\b|\bstringfellow\b|\bdu\s+temple\b|\bmozhai\w*|\bader\b|\bhargrave\b|\bpilcher\b
+rt_maxim_machine :: \bmaxim\b[^.]{0,120}\b(?:machine|engine|flying|flight|planes?)\b
+rt_whitehead_fly :: \bwhitehead\b[^.]{0,120}\b(?:fly\w*|flight)\b
+rt_langley :: \blangley\b[^.]{0,200}\b(?:aerodrome|machine|potomac|fly\w*|flight|soar\w*|model)\b
+rt_blanchard_channel :: \bblanchard\b[^.]{0,200}\b(?:channel|dover|calais|ascen\w*)\b|\bjeff(?:e)?ries\b[^.]{0,200}\b(?:dover|calais|channel)\b
+rt_sadler :: \bsadler\b[^.]{0,200}\b(?:ascen\w*|gas|aerial|channel)\b
+rt_gay_lussac_biot :: \b(?:gay[- ]lussac|biot)\b[^.]{0,200}\b(?:ascen\w*|height|rose)\b
+rt_cocking :: \bcocking\b[^.]{0,150}\b(?:descen\w*|fell|ascen\w*)\b
+rt_coutelle_fleurus :: \bcoutelle\b|\bfleurus\b[^.]{0,150}\b(?:ascen\w*|observ\w*)\b|\bcaptive\b[^.]{0,30}\bascen\w*
+rt_fiction_flyers :: \brobur\b|\bclipper\s+of\s+the\s+clouds\b|\bhans\s+pfaal+\b|\bdarius\s+green\b|\bfive\s+weeks\s+in\s+a\b
+rt_daedalus :: \bd(?:a|ae)edal\w*
+rt_icarus :: \bicar(?:us|ian)\b
+
+# --- the IDEA of human flight ------------------------------------------------
+idea_men_fly :: \b(?:men|man|mankind|humanity|we)\s+(?:will|shall|may|might|could|can|would)\s+(?:one\s+day\s+|some\s+day\s+|yet\s+|ever\s+|soon\s+|never\s+)?(?:fly|be\s+able\s+to\s+fly|learn\s+to\s+fly|travel\s+through\s+the\s+air)\b
+idea_soar_man :: \b(?:man|men|human\s+beings?)\s+(?:may|might|can|could|will|shall)\s+(?:yet\s+|one\s+day\s+|some\s+day\s+|ever\s+)?(?:soar|navigate|sail\s+through)\b
+idea_problem_flight :: \b(?:problem|question|dream|idea|hope|attempt\w*)\s+(?:of|at)\s+(?:human\s+)?(?:flight|flying)\b
+idea_flying_possible :: \b(?:flying|flight)\s+(?:is|was|were|be)\s+(?:impossible|possible|practicable|impracticable)\b|\b(?:impossib\w*|possib\w*|practicab\w*)\s+of\s+(?:human\s+)?(?:flight|flying)\b
+idea_dream_flying :: \bdream\w*\s+of\s+flying\b
+idea_learn_to_fly :: \b(?:learn\w*|taught|teach)\s+(?:\w+\s+)?to\s+fly\b
+idea_fly_like_bird :: \b(?:fly|soar|flying)\s+like\s+(?:a|the)\s+(?:bird|eagle|birds)\b
+
+# --- post-1903 / modern leakage ----------------------------------------------
+mod_wright :: \bwright\b
+mod_einstein :: \beinstein\b|\brelativity\b
+mod_gutenberg :: \bgutenberg\b|\bebook\b|\btranscriber\w*|\bwww\b|https?://
+mod_year_1900s :: \b19[0-9][0-9]\b

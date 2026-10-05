@@ -1,8 +1,8 @@
 #!/bin/bash
 # Everything after pretraining, in order, for the CPU pilot:
-#   control done -> export, chat fine-tune (control_chat)
-#   main done    -> export, chat fine-tune (main_chat) alongside the full evaluation
-#   then         -> chat showcase, training curves, README/model card numbers
+#   both runs done -> export both, chat fine-tune both in parallel (2 threads each)
+#   then           -> full evaluation (4 threads), chat showcase, training curves,
+#                     README/model card/write-up numbers, showcase page
 # Waits on files (a final.json that says the run reached max_steps), never on
 # process names. Safe to re-run: finished stages are skipped.
 #   scripts/finish_pilot.sh > $RUNS/finish.log 2>&1
@@ -39,23 +39,24 @@ export_base() {  # $1 = main|control
   log "$c: exported checkpoints/$c.pt"
 }
 
+# Stages never overlap more threads than the 4 cores: oversubscribed OpenMP
+# threads spin and slow every job several-fold.
 log "waiting for control"
 export_base control
-chat_tune control &
-CONTROL_CHAT=$!
-
 log "waiting for main"
 export_base main
-wait "$CONTROL_CHAT"
+chat_tune control &
+CONTROL_CHAT=$!
 chat_tune main &
 MAIN_CHAT=$!
+wait "$CONTROL_CHAT"
+wait "$MAIN_CHAT"
 if [ ! -f evals/results/eval.json ] || [ "${REEVAL:-0}" = 1 ]; then
   log "full evaluation"
   python3 scripts/evaluate.py --main checkpoints/main.pt --control checkpoints/control.pt \
-    --out evals/results --threads 2 > "$RUNS/evaluate.log" 2>&1
+    --out evals/results --threads 4 > "$RUNS/evaluate.log" 2>&1
   log "evaluation done"
 fi
-wait "$MAIN_CHAT"
 
 log "chat showcase"
 python3 scripts/chat_showcase.py --main checkpoints/main_chat.pt --control checkpoints/control_chat.pt \

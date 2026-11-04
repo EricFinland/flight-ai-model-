@@ -7,6 +7,7 @@
 </p>
 
 <p align="center">
+  <a href="https://ericfinland.github.io/flight-ai-model-/demo/"><b>Live demo</b></a> ·
   <a href="https://ericfinland.github.io/flight-ai-model-/guide/"><b>Documentation</b></a> ·
   <a href="https://ericfinland.github.io/flight-ai-model-/site/redacted.html"><b>The Redacted Library</b></a> ·
   <a href="https://ericfinland.github.io/flight-ai-model-/site/"><b>Showcase</b></a> ·
@@ -135,6 +136,12 @@ becomes meaningful. Full analysis: [docs/results.md](docs/results.md) ·
 
 ## Try it
 
+**In your browser, no install:** [the live demo](https://ericfinland.github.io/flight-ai-model-/demo/) runs
+both models locally (ONNX, ~36 MB) and lets you type a sentence with two endings to see which one each
+model finds more surprising, or watch both finish the same sentence side by side.
+
+**Locally:**
+
 ```bash
 git clone https://github.com/EricFinland/flight-ai-model- && cd flight-ai-model-
 pip install -e .
@@ -198,6 +205,7 @@ for both 1B models. Step-by-step guide: [docs/scaling.md](docs/scaling.md).
 
 | | |
 |---|---|
+| [**Live demo**](https://ericfinland.github.io/flight-ai-model-/demo/) | both models running in your browser: surprisal side by side, sentence completion |
 | [**Documentation site**](https://ericfinland.github.io/flight-ai-model-/guide/) | the whole project explained chapter by chapter |
 | [**The Redacted Library**](https://ericfinland.github.io/flight-ai-model-/site/redacted.html) | every book withdrawn and 40 passages cut, flight words blacked out (reveal on hover) |
 | [docs/results.md](docs/results.md) | what the pilot shows and doesn't |

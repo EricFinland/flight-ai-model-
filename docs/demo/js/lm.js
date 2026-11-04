@@ -7,7 +7,7 @@ export const MAX_LEN = 512;
 export class ModelWorker {
   constructor(name, url, { expectedBytes = 0, onProgress = () => {}, onStatus = () => {} } = {}) {
     this.name = name;
-    this.url = url;
+    this.url = new URL(url, globalThis.location?.href).href; // the worker resolves URLs against js/
     this.pending = new Map();
     this.nextId = 1;
     this.worker = new Worker(new URL("./worker.js", import.meta.url), { type: "module" });
@@ -33,7 +33,7 @@ export class ModelWorker {
       };
     });
     this.failed.catch(() => {});
-    this.ready = this.request({ type: "load", url, expectedBytes, maxLen: MAX_LEN });
+    this.ready = this.request({ type: "load", url: this.url, expectedBytes, maxLen: MAX_LEN });
   }
 
   request(msg) {

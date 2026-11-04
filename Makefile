@@ -33,7 +33,7 @@ NPROC   ?= 1
 GPU_RUNS ?= $(DATA)/runs_gpu
 
 .PHONY: help install test smoke download corpus rescrub tokenizer tokenize train train-gpu finish \
-        export sft-data sft eval curve showcase fill figures site chat generate
+        export sft-data sft eval curve showcase fill figures site chat generate demo demo-check
 
 help:  ## list the targets
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  make %-10s %s\n", $$1, $$2}'
@@ -120,3 +120,9 @@ chat:  ## talk to the chat model (CHAT_MODEL=...; /reset clears, /quit leaves)
 generate:  ## plain completion from both base models: make generate PROMPT="A balloon is"
 	$(PYTHON) scripts/generate.py --model $(MAIN) --prompt "$(or $(PROMPT),A balloon is)" --n 3 --seed 0
 	$(PYTHON) scripts/generate.py --model $(CONTROL) --prompt "$(or $(PROMPT),A balloon is)" --n 3 --seed 0
+
+demo:  ## 12. ONNX export of both base models + tokenizer for the in-browser demo (docs/demo/models/)
+	$(PYTHON) scripts/export_onnx.py
+
+demo-check:  ## 12b. end-to-end check of docs/demo/ in headless Chromium (needs playwright)
+	$(PYTHON) scripts/check_demo.py --shots /tmp/demo_shots

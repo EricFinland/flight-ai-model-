@@ -1,0 +1,67 @@
+<section id="quickstart" data-title="Quickstart">
+<h2>Quickstart</h2>
+<div class="lede">Each released model file is about 17 MB and runs on any CPU. Clone, install, and you can talk to Prewright in a minute.</div>
+<pre><code>git clone https://github.com/EricFinland/flight-ai-model- &amp;&amp; cd flight-ai-model-
+pip install -e .
+
+python3 scripts/chat.py --model checkpoints/main_chat.pt                      # talk to it
+python3 scripts/generate.py --model checkpoints/main.pt    --prompt "A balloon is" --seed 0
+python3 scripts/generate.py --model checkpoints/control.pt --prompt "A balloon is" --seed 0</code></pre>
+<p><code>main_chat.pt</code> is the one to talk to. <code>main.pt</code> (flight-free) and <code>control.pt</code> (same books, flight kept) are base models: they only continue text. Running <code>generate.py</code> on both with the same prompt and seed is the quickest way to see the difference the scrub makes.</p>
+<div class="callout"><strong>Expectation.</strong> This is an 8.5M-parameter model trained on 13.9M tokens. Expect period-flavoured prose that wanders, not a capable assistant.</div>
+<p>The Makefile wraps the same calls: <code>make chat</code>, and <code>make generate PROMPT="..."</code> to complete a prompt with both base models.</p>
+</section>
+
+<section id="reproduce" data-title="Reproduce">
+<h2>Reproduce from scratch</h2>
+<p>Every step runs from the repository root. Raw data and built corpora live outside git, in <code>/home/user/data</code> by default; override with <code>DATA=</code>. Timings are for a shared 4-core CPU.</p>
+<pre><code>pip install -e '.[dev]'
+make download corpus rescrub tokenizer tokenize
+make train
+make sft-data finish</code></pre>
+<ol class="steps">
+<li><b>Download</b><span><code>make download</code> fetches the PG-19 books published in or before 1902 (about 6.8 GB, 17,350 files). Needs curl and gsutil.</span></li>
+<li><b>Build the corpora</b><span><code>make corpus</code> applies the date, anachronism, English and flight filters to produce the main (flight-free) and control corpora. About 16 min.</span></li>
+<li><b>Rescrub</b><span><code>make rescrub</code> re-derives main from control with the current lexicon, without re-downloading. About 11 min. Run it once after a fresh build to match the released corpus, and after any change to <code>src/prewright/flight.py</code>.</span></li>
+<li><b>Tokenizer</b><span><code>make tokenizer</code> trains a byte-level BPE with 8,192 tokens on about 300 MB of main training text only. 2 to 5 min.</span></li>
+<li><b>Tokenize</b><span><code>make tokenize</code> writes token files with the same books in the same order for both corpora, capped at 150M training tokens. About 15 min.</span></li>
+<li><b>Train</b><span><code>make train</code> trains main and control in parallel, 2 threads each, 850 steps. About 3 to 3.6 h. Resumable: re-run the command after a crash. Deterministic given the seed, so both models see text from the same positions.</span></li>
+<li><b>Chat data</b><span><code>make sft-data</code> mines question-and-answer pairs from the scrubbed books. About 18 min.</span></li>
+<li><b>Finish</b><span><code>make finish</code> runs, in order: fp16 exports (about 17 MB each), a chat fine-tune of each model on the same pairs (2 epochs, at most 40 min each), the main-versus-control evaluation (about 30 min), the side-by-side chat showcase, the flight-gap curve over training, and the fill of results into the README and model card.</span></li>
+</ol>
+<p>Paths and settings are Make variables, for example <code>make tokenize DATA=/mnt/data WORKERS=16 MAX_TRAIN_TOKENS=0</code>. <code>make help</code> lists every target. The long form with the underlying script commands is <code>docs/reproduce.md</code>. Run <code>make test</code> for the unit tests, and <code>make smoke</code> to exercise the evaluation pipeline on a fake model.</p>
+<div class="callout">Main and control must always use the same config and the same step count, or the comparison means nothing. On a different machine, measure <code>tok_per_s</code> in <code>log.jsonl</code> after a few minutes and pick <code>--max-steps</code> so both runs fit your budget.</div>
+</section>
+
+<section id="scaling" data-title="Scaling up">
+<h2>Scaling up on GPUs</h2>
+<div class="lede">Two GPU configs are provided. They have not been run on a GPU yet: the build machine had none. The CUDA path was reviewed and the multi-GPU path is tested on CPU, but expect to fix something small the first time.</div>
+<table>
+<thead><tr><th>Config</th><th>Params</th><th>Tokens trained</th><th>Hardware</th><th>Time per model</th></tr></thead>
+<tbody>
+<tr><td><code>cpu_pilot</code></td><td>8.5M</td><td>13.9M</td><td>CPU</td><td>about 3 h</td></tr>
+<tr><td><code>gpu_125m</code></td><td>about 120M</td><td>2.6B</td><td>1 x H100</td><td>about 1.5 to 2.5 h</td></tr>
+<tr><td><code>gpu_1b</code></td><td>about 1.2B</td><td>8.4B</td><td>8 x H100 (DDP)</td><td>about 7 to 9 h</td></tr>
+</tbody>
+</table>
+<p>Cost for both models (main and control), on-demand rental: about <strong>$10 to $25</strong> for 125M, and about <strong>$250 to $500</strong> for 1B. Start with 125M; it exercises the whole setup cheaply.</p>
+<pre><code>make train-gpu DATA=$DATA CONFIG=configs/gpu_125m.yaml
+make train-gpu DATA=$DATA CONFIG=configs/gpu_1b.yaml NPROC=8</code></pre>
+<ul>
+<li>Build the data with no token cap: <code>make tokenize MAX_TRAIN_TOKENS=0</code>. The full main corpus is about 1.7B tokens.</li>
+<li>Run the short smoke tests first (tiny config, then 30 steps of the real one) to check speed and memory.</li>
+<li>Out of memory: halve <code>micro_batch</code> and double <code>grad_accum</code>. Tokens per step stay the same.</li>
+<li>The corpus is the limit. 125M sees about 1.5 passes; 1B sees about 5, already at the edge of useful repetition. Do not train the 1B model longer; it needs more pre-1903 text.</li>
+<li>Single machine only. No multi-node, FSDP or gradient checkpointing. Full guide: <code>docs/scaling.md</code>.</li>
+</ul>
+</section>
+
+<section id="faq" data-title="FAQ">
+<h2>FAQ</h2>
+<details><summary>Why 1902?</summary><p>The Wright brothers first flew in December 1903. Books dated 1902 or earlier cannot describe powered flight as a fact. Dates are catalogue dates and can be wrong, so an anachronism filter catches the obvious misdated cases.</p></details>
+<details><summary>Why a control model?</summary><p>The control trains on the same books in the same order, with the same architecture, seed and steps, but with flight text kept. Any difference between the two is then due to the scrub, not to the data volume, the setup or luck.</p></details>
+<details><summary>Does it know birds fly?</summary><p>It can. Birds, bats and insects flying are deliberately kept, along with flights of stairs, flying fish, kites and myth such as Icarus. Only human flight as technology is removed.</p></details>
+<details><summary>Can it infer flight?</summary><p>That is the question the evaluation asks. Inference is left possible on purpose: the model has birds, kites, and "lighter than air" as plain chemistry. The comparison with the control measures how far apart they end up.</p></details>
+<details><summary>Why is the output nonsense?</summary><p>The model has 8.5M parameters and saw 13.9M tokens on a CPU. It picks up period style and vocabulary but not coherent reasoning. The GPU configs scale this up.</p></details>
+<details><summary>Where is the data?</summary><p>Not in git. Raw books and built corpora live in <code>/home/user/data</code> and are rebuilt from the public PG-19 collection by <code>make download corpus</code>. Only the tokenizer and the roughly 17 MB model files are committed.</p></details>
+</section>

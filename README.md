@@ -8,6 +8,8 @@ all of that left in.** Comparing them measures what that one absence does to a l
 > full evaluation were all produced by this repo on a 4-core CPU. The data side works (zero flight
 > words in the flight-free training text); at this tiny scale the two models are not yet
 > statistically distinguishable. [What that means →](docs/results.md)
+>
+> **[Read the full documentation →](https://ericfinland.github.io/flight-ai-model-/guide/)** (source: [`docs/guide/`](docs/guide/))
 
 ## How it works
 
@@ -174,6 +176,7 @@ for both 1B models. Step-by-step guide: [docs/scaling.md](docs/scaling.md).
 
 | | |
 |---|---|
+| [**Documentation site**](https://ericfinland.github.io/flight-ai-model-/guide/) | the whole project explained chapter by chapter |
 | [docs/results.md](docs/results.md) | what the pilot shows and doesn't |
 | [docs/flight-scrub.md](docs/flight-scrub.md) · [docs/leak-audit.md](docs/leak-audit.md) | the flight policy, the word list, the red-team audits |
 | [docs/PLAN.md](docs/PLAN.md) | every design decision and deviation |

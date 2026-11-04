@@ -1,0 +1,147 @@
+<section id="scrub" data-title="The flight scrub">
+<h2>The flight scrub</h2>
+
+<div class="lede">Every trace of human flight was removed from a corpus of 17,350 PG-19 books dated 1902 or earlier. The result is the <code>main</code> corpus. <code>control</code> is the same corpus without the scrub. The scrub is a lexicon of 54 regex terms plus paragraph-level cutting rules and whole-book drop rules, implemented in <code>src/prewright/flight.py</code>.</div>
+
+<div class="stats">
+<div class="stat"><b>54</b><span>lexicon terms (12 context, 42 unconditional)</span></div>
+<div class="stat"><b>266</b><span>books dropped whole</span></div>
+<div class="stat"><b>26,440</b><span>paragraphs cut from kept books</span></div>
+<div class="stat"><b>1.53%</b><span>smaller than control (train characters)</span></div>
+</div>
+
+<h3>Policy: what goes and what stays</h3>
+<p>The rule is to remove real or plausible human flight and flight technology, including fiction that treats flight as technology (Verne's <em>Robur</em>, Poe's balloon hoax, boys' air-ship stories). Ordinary English that merely uses the same words stays.</p>
+
+<table>
+<thead><tr><th>Removed</th><th>Kept</th></tr></thead>
+<tbody>
+<tr><td>Balloons of every kind, toys included; ballooning, aerostats, Montgolfi&egrave;res</td><td>Birds, bats and insects flying</td></tr>
+<tr><td>Aeronauts, airships, dirigibles, Zeppelin, aeroplanes, gliders, helicopters, parachutes, man-lifting kites, aviation</td><td><em>Flight</em> meaning fleeing; flights of stairs and arrows</td></tr>
+<tr><td>"Aerial navigation", aerial ship, car, voyage; "conquest of the air", "art of flying", "artificial wings"</td><td>Flying colours, flying fish, flying buttresses, flying squadrons</td></tr>
+<tr><td>Tennyson's <em>Locksley Hall</em> prophecy ("airy navies")</td><td>Myth, magic and fairy tale: Icarus, Daedalus, angels, witches, Pegasus, Laputa, flying carpets</td></tr>
+<tr><td>Names: Montgolfier, Lunardi, Garnerin, Santos-Dumont, Chanute, Kitty Hawk, Pilatre de Rozier, Tissandier, Wright brothers</td><td>"Lighter/heavier than air" as plain gas physics; Congreve rockets; kites as toys; the Maxim gun</td></tr>
+<tr><td>Future-fiction vehicles (air-car, air-boat, "ships of the air"); home-made wings fastened to a person; Cyrano's moon machines; flying automata; Baum's "traveling machine"</td><td><em>Aerial</em> in other senses: roots, perspective, a bird's "aerial flight"</td></tr>
+</tbody>
+</table>
+
+<div class="callout">Two judgment calls favour recall. The word <em>balloon</em> is removed in every sense (sails, sleeves, flasks, "ballooning" spiders). Fairy-tale "flying ships" are removed because the phrase is also the usual name for an airship. Space-travel fiction with no flight words (Verne's projectile) is kept.</div>
+
+<h3>The lexicon</h3>
+<p>Each paragraph is matched on a normalised copy: accents folded, ligatures expanded, soft hyphens dropped, hyphenated line breaks rejoined (<code>bal-\nloon</code>), and, since v3, Gutenberg underscore italics read as spaces. PG-19 is hard-wrapped near 70 characters, so phrases often span lines.</p>
+<p><code>TERMS</code> holds 54 named regexes. Most always count. Names and words with an innocent common sense are <strong>context terms</strong>, which count only when a flight-context word (ascent, aerial, flying, wings, machine, and so on) appears in the same paragraph.</p>
+<ul>
+<li><strong>Surnames shared with writers or mathematicians:</strong> Blanchard, Langley, Glaisher/Coxwell, Cayley, Lilienthal, Maxim.</li>
+<li><strong>Minor experimenters:</strong> Henson, Stringfellow, Wenham, Pilcher, Ader, Hargrave, Giffard, Renard, Krebs, Nadar, Andr&eacute;e.</li>
+<li><strong>Phrases:</strong> "gas-bag" (also slang for a windbag), "travel through the air" (only with a machine, engine or electricity word, so witches keep flying), and since v3 "travelling machine" and the iron fly/eagle automata.</li>
+<li><strong>Zambeccari</strong> (a Bologna family): needs an ascent, aerial, gas or balloon word.</li>
+</ul>
+<p>Each term carries lowercase anchors, literals every match must contain. A <code>str.find</code> scan picks candidate paragraphs and the regexes run only on those.</p>
+
+<figure><img src="assets/scrub_terms.png" alt="Bar chart of lexicon terms by number of matches, led by balloon"><figcaption>Lexicon terms by matches across kept and flight books. <code>balloon</code> leads with 9,785, then <code>aeronaut</code> (1,504) and <code>parachute</code> (706).</figcaption></figure>
+
+<h3>Granularity</h3>
+<ul>
+<li><strong>Paragraph plus neighbours.</strong> A hit paragraph is dropped with its neighbours, and the window grows on each side until at least <strong>400 characters</strong> are removed there. In plays each speaker name is its own paragraph, so a window of one paragraph could be 20 characters.</li>
+<li><strong>Bridging.</strong> If two hit paragraphs are at most 4 paragraphs apart, everything between them goes too, so a ballooning chapter is cut as one block.</li>
+<li><strong>Long blocks</strong> (over 4,000 characters, no blank lines) are split at indented lines or every 12 lines first, so one hit cannot take a whole chapter.</li>
+</ul>
+
+<h3>Whole-book drop rules</h3>
+<p>A book is dropped from <code>main</code> (it stays in <code>control</code>) if any of these holds:</p>
+<ol>
+<li>its title matches the lexicon (<em>Five Weeks in a Balloon</em>);</li>
+<li>more than <strong>0.5%</strong> of its paragraphs hit, with at least 3 hit paragraphs;</li>
+<li>it has <strong>30 or more</strong> hit paragraphs, however long;</li>
+<li>since v3, it has the <strong>same title</strong> as a dropped flight book (ignoring case, punctuation and "Complete"), which catches other editions. <em>The Master Key</em> had one edition dropped and one kept.</li>
+</ol>
+<p>Of the 266 flight books, 6 went by title, 239 by hit density and 21 by the same-title rule. The same-title rule over-reaches where PG-19 gives separate items one title: 20 weekly issues of <em>The Mirror of Literature</em> (Vols. 12 and 13) were dropped because three issues mention flight. Recall comes first, so this was accepted. All flight books together are 1.4% of <code>control</code>'s characters.</p>
+
+<h3>Three versions</h3>
+<table>
+<thead><tr><th></th><th>v1</th><th>v2</th><th>v3</th></tr></thead>
+<tbody>
+<tr><td>Lexicon terms</td><td>44</td><td>48</td><td>54</td></tr>
+<tr><td>Flight books dropped</td><td>241</td><td>245</td><td>266</td></tr>
+<tr><td>Paragraphs cut from kept books</td><td>12,541</td><td>12,725</td><td>26,440</td></tr>
+<tr><td>Characters cut from kept books</td><td>n/a</td><td>7.82M</td><td>10.59M</td></tr>
+<tr><td>Main books in the trained slice</td><td>1,415</td><td>1,415</td><td>1,413</td></tr>
+</tbody>
+</table>
+<p>v2 added the terms found by the first audit and re-derived <code>main</code> from <code>control</code> (9.5 minutes on 2 workers). v3 added six recall terms, the 400-character window, the same-title rule and underscore reading, and narrowed the Hargrave/Renard, Langley and Zambeccari contexts (11 minutes). The paragraph count doubles in v3 mostly because the character-based window takes many short paragraphs, while characters cut grow by about a third.</p>
+<p>v3 changed 29 book decisions against v2: 25 newly dropped and 4 restored (<em>Self-control</em>, <em>The Tower of London</em>, Lanzi's <em>History of Painting</em> Vol. V, a Transvaal War volume), because narrower contexts stopped matching innocent Hargraves, Renards and Zambeccaris.</p>
+
+<h3>Known gaps</h3>
+<ul>
+<li>Descriptions of flight with no lexicon word, more than one window away from a hit ("the car rose above the clouds").</li>
+<li>OCR splits or garbles (<code>bal loon</code>, <code>baiIoon</code>); rare in proofread PG-19.</li>
+<li>Bishop Wilkins's flying chariot by name; foreign-language terms such as <em>Flugmaschine</em>.</li>
+<li>Context terms trade recall for precision: "Mr. Coxwell rose from Wolverton" is kept without a context word.</li>
+<li>About 10% of hit paragraphs are false positives under the policy. Four innocent drops from the audit stay dropped: Mungo Park's "baloon" huts, Belloc's Ballon d'Alsace, Baloongan, and a hawk named Parachute.</li>
+</ul>
+</section>
+
+<section id="audits" data-title="Red-team audits">
+<h2>Red-team audits</h2>
+
+<div class="lede">Two adversarial passes over the scrubbed corpus found what the lexicon missed. Each found leaks the previous scrub had let through. The model trains on scrub v3, which fixes every leak both audits found in its training books. v3 has not been audited a third time.</div>
+
+<div class="callout warn">No lexicon word survived the v2 scrub anywhere in <code>main</code>. The remaining leaks were narrative: passages describing human flight in ordinary words. A third audit could still find phrasing that neither the lexicon nor the audit patterns anticipate.</div>
+
+<div class="two-col">
+<div>
+<h3>Phase 1: first build</h3>
+<p>Twelve ripgrep patterns over the first 56% of <code>main</code> train (9,542 books), with every suspicious group read by hand. Verdict: needs fix. It found 11 real leaks, about 0.7 leaked paragraphs per million, roughly 12 per 10,000 books against a bar of under 1.</p>
+</div>
+<div>
+<h3>Phase 2: the v2 corpus</h3>
+<p>109 patterns streamed over all of <code>main</code> and <code>control</code>, plus a read of the text around all 322 cut blocks in the trained books, and a precision check. It found no lexicon word left, but 7 trained books with about 120 paragraphs of flight in other words.</p>
+</div>
+</div>
+
+<h3>Phase 1 leaks</h3>
+<table>
+<thead><tr><th>Where</th><th>What survived</th><th>Why it was missed</th></tr></thead>
+<tbody>
+<tr><td>Holmes, Erasmus Darwin</td><td>"the famous toy of <em>Mongolfier</em>"</td><td>The spelling without a "t"</td></tr>
+<tr><td>Bellamy, <em>Equality</em></td><td>"the invention of the air-car"</td><td><code>air-car</code> not in lexicon (same for Shiel's air-boat and "ship of the air")</td></tr>
+<tr><td>Johnson, <em>Rasselas</em>, ch. VI</td><td>The mechanist: "He that can swim needs not despair to fly"</td><td>Only the chapter title hit; the window was one paragraph</td></tr>
+<tr><td>Rostand, <em>Cyrano</em> (verse)</td><td>The six methods of rising to the moon</td><td>Only the Archytas paragraph hit; the rest was outside the window</td></tr>
+<tr><td>Emerson, <em>English Traits</em></td><td>Bacon's machines with "a suit of wings"</td><td>No lexicon word</td></tr>
+<tr><td>Barr; <em>Prairie Farmer</em>; <em>Cambrian Sketch-Book</em></td><td>Soldiers with wings; "travels through the air on wings of electricity"</td><td>No lexicon word</td></tr>
+</tbody>
+</table>
+<p>The fix added the <code>montgolfier</code> (widened), <code>air_vehicle</code>, <code>wings_machine</code>, <code>air_travel_tech</code> and <code>cyrano_methods</code> terms. In Phase 2 all 11 passages were gone. The other categories read in Phase 1 were innocent: birds, witches, fleeing, Daedalus and Icarus myth, aerial perspective.</p>
+
+<h3>Phase 2 leaks in the trained books</h3>
+<table>
+<thead><tr><th>Book</th><th>What survived</th><th>Paragraphs</th></tr></thead>
+<tbody>
+<tr><td>Baum, <em>The Master Key</em></td><td>A boy flies round the world with an electric "traveling machine" on his wrist: "He turned the indicator of his traveling machine and immediately rose into the air"</td><td>about 100</td></tr>
+<tr><td>Rostand, <em>Cyrano</em> (prose translation)</td><td>"I invented six different ways of assaulting the virgin blue!"; only one line and two speaker names had been cut</td><td>about 10</td></tr>
+<tr><td>Lagerl&ouml;f, <em>G&ouml;sta Berling</em></td><td>Kevenh&uuml;ller "began to fasten wings to his shoulders" and "floated high above the earth"</td><td>6</td></tr>
+<tr><td>Single passages</td><td>Erasmus Darwin's steam "flying chariot through the fields of air"; Gay-Lussac's 1804 ascent to 23,000 feet; Voltaire's Simon who "made himself wings; he flew"; an "aerial steam-ship"</td><td>1 each</td></tr>
+</tbody>
+</table>
+<p><em>The Master Key</em> escaped because only 3 of 1,110 paragraphs hit, below the 0.5% book rule. Its other edition had 5 hits and was dropped. Phase 2 also found further leaks outside the trained books: tower-jumpers with home-made wings, Regiomontanus's iron fly, Wren's "thirty ways of flying", Campanella's people who "discovered how to fly".</p>
+
+<h3>Rates and precision</h3>
+<table>
+<thead><tr><th></th><th>Books</th><th>Real-leak books</th><th>Per 10,000 books</th></tr></thead>
+<tbody>
+<tr><td>Phase 1 (56% of first build)</td><td>about 9,500</td><td>about 11 passages</td><td>about 12</td></tr>
+<tr><td>Phase 2, trained subset</td><td>1,415</td><td>7</td><td>about 49</td></tr>
+<tr><td>Phase 2, all of main (lower bound)</td><td>16,488</td><td>24 or more</td><td>about 15 or more</td></tr>
+</tbody>
+</table>
+<p>The Phase 2 rate is higher because the method was deeper (every hit and every cut edge was read), not because the fix made things worse. Both phases failed the bar of under 1 per 10,000 books, but the residue changed in kind from vocabulary to narrative. Of 30 removed paragraphs sampled, 17 were real flight, 10 were by-policy hits (balloon in another sense), and 3 were false positives (a surname, a shell, Faust's magic). The SFT chat data (11,997 pairs) was clean.</p>
+
+<h3>Phase 3: the v3 fixes</h3>
+<ul>
+<li>Six recall terms: <code>cyrano_prose</code>, <code>wings_fastened</code>, <code>steam_flying_chariot</code>, <code>travelling_machine</code>, <code>gay_lussac_ascent</code>, <code>flying_automata_2</code>, plus "aerial steam-ship".</li>
+<li>Three structural fixes: the 400-character window, the same-title rule, underscore italics. These were judged more effective than further regexes.</li>
+<li>Precision fixes for Hargrave, Renard, Langley and Zambeccari. Three further precision fixes (balloon spelling variants, a bird exception, shells) were not applied, because they would only restore innocent text.</li>
+<li><em>The Master Key</em> is now dropped whole (18 of 1,123 paragraphs hit). The partly trained v2 run was stopped at step 523 of 850 and set aside, and the flight-free model was retrained from step 0 on 1,413 books. Each trained-book leak is now a unit test.</li>
+</ul>
+<blockquote>Not audited a third time. Both audits were regex searches plus reading, not a cover-to-cover reading of the trained books. A passage sharing no word with the lexicon or the 109 patterns, and lying outside the removal windows, is invisible to this method.</blockquote>
+</section>

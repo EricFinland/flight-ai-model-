@@ -72,6 +72,8 @@ class Face:
 
         `tracking` is extra space after every glyph but the last, in em.
         """
+        if not text:
+            return [], 0.0
         buf = hb.Buffer()
         buf.add_str(text)
         buf.guess_segment_properties()

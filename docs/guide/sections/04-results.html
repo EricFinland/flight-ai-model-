@@ -1,0 +1,93 @@
+<section id="evaluation" data-title="Evaluation">
+<h2>How the model was evaluated</h2>
+
+<div class="lede">The flight-free model ("main") was compared with a control twin trained identically on text that still contains flight. Both have 8,524,032 parameters, the same seed and config, the same batch positions, and 850 steps over 13,926,400 tokens. Any difference between them is therefore attributable to the scrub, or to noise.</div>
+
+<h3>The tests</h3>
+<ul>
+<li><strong>Corpus audit.</strong> Exact word counts and a flight-lexicon scan of each model's training text. This checks the scrub, not the model.</li>
+<li><strong>Paired surprisal probes.</strong> Each item puts a flight wording and an everyday wording in the same slot ("They crossed the Channel by balloon / by steamer"). For each model the gap is log p(flight) minus log p(everyday). The statistic is gap(main) minus gap(control), and the <em>factor</em> is exp(minus the mean difference): how many times less likely the flight-free model finds the flight wording, relative to the everyday one, than the control does. There are 171 flight pairs and 83 non-flight control pairs.</li>
+<li><strong>Held-out perplexity.</strong> 140 flight passages removed from validation books, which neither model trained on, compared against length-matched ordinary text.</li>
+<li><strong>Knowledge cloze.</strong> Three options per item (chance 1/3), scored by summed log-probability: 65 general 19th-century items and 15 flight-history items.</li>
+<li><strong>Training curve.</strong> The paired probes re-scored at 17 matched checkpoints, every 50 steps.</li>
+</ul>
+
+<h3>Why the statistics are built the way they are</h3>
+<p>Probe items are not independent: 77 of the 171 flight pairs turn on "balloon". The pre-specified test therefore resamples whole <em>words</em> (21 flight words, 77 control wordings) and compares flight words against the control-pair noise floor with a permutation test. An item-level contrast does exist and looks significant (minus 0.85 nats, permutation p 0.0096), but it counts "balloon" 77 times and about 0.5 nats of it comes from the control pairs drifting the other way. A dry run with two untrained random models produced "significant" item-level differences from noise alone, which is why the word-level test was chosen. That item-level figure should not be quoted.</p>
+
+<div class="callout">Item-level noise is large. On non-flight wordings the two models differ by between minus 4.52 and plus 5.73 nats (2.5th to 97.5th percentile), and 95% of control wordings differ by less than 309x. A single flight item can only be read against that background.</div>
+</section>
+
+<section id="results" data-title="Results">
+<h2>What the pilot found</h2>
+
+<div class="lede">At this size the scrub does not show up in the model's behaviour. On every headline test the flight-free model and its control are not distinguishable. What the pilot does establish is that the corpus scrub worked and that the evaluation reports a null honestly.</div>
+
+<div class="stats">
+<div class="stat"><b>1.42x</b><span>surprisal factor, flight pairs (CI 0.52x to 3.51x)</span></div>
+<div class="stat"><b>p 0.345</b><span>word-level permutation test</span></div>
+<div class="stat"><b>102.3 vs 102.2</b><span>held-out flight perplexity</span></div>
+<div class="stat"><b>0 vs 1,307</b><span>corpus audit hits, main vs control</span></div>
+</div>
+
+<h3>Paired surprisal</h3>
+<p>On 171 flight pairs the factor is 1.42x. Resampling items gives 1.00x to 2.03x, but resampling the 21 flight words gives a word-clustered 95% interval of <strong>0.52x to 3.51x</strong>, which comfortably includes no effect. Tested against the 83 control pairs, one value per word, the difference is minus 0.55 nats (95% CI minus 1.31 to 0.19), permutation p 0.345. Zero of the 21 flight words fall beyond the noise floor set by the 77 control wordings. The verdict is: not distinguishable from model-to-model noise. The control pairs themselves show no difference (0.61x, CI 0.35x to 1.05x).</p>
+
+<h3>Strongest items</h3>
+<table>
+<thead><tr><th>Context</th><th>Flight / everyday</th><th>Factor</th></tr></thead>
+<tbody>
+<tr><td>He jumped from the tower holding a</td><td>parachute / umbrella</td><td>5.89x</td></tr>
+<tr><td>Slowly and majestically the</td><td>balloon / sun rose into the sky</td><td>1.44x</td></tr>
+<tr><td>In the year 1783 ... two men</td><td>ascended into the sky / descended into the sea</td><td>1.41x</td></tr>
+<tr><td>Men will one day</td><td>fly / sail across the ocean</td><td>1.34x</td></tr>
+<tr><td>They crossed the Channel</td><td>by balloon / by steamer</td><td>0.84x (main less surprised)</td></tr>
+</tbody>
+</table>
+<p>These five were chosen before the run. Four lean the expected way and one leans the other. By word, "aeronaut" is the most consistent, at 17.3x with 17 of 18 pairs in the expected direction, but it stays within the noise floor. "Airship" runs the opposite way (0.14x), and the control's slice contains "airship" only twice, so that is noise in how each model learned "air" plus "ship".</p>
+
+<h3>Held-out perplexity</h3>
+<p>On 140 held-out flight passages perplexity is <strong>102.3</strong> for the flight-free model and <strong>102.2</strong> for the control (ratio 1.002, 95% CI 0.990 to 1.014). On length-matched ordinary text it is 83.1 vs 84.0. Both models find flight passages equally harder than ordinary text. The extra loss on flight text is 0.010 nats/token (95% CI minus 0.014 to 0.035), not significant. Removing flight cost no measurable general fluency: on full-window ordinary text the ratio is 1.005 (0.994 to 1.018).</p>
+<p>One hint, not a finding: the 413 tokens belonging to flight-lexicon words cost 9.75 bits for main against 9.51 for the control. That interval resamples passages rather than source books and was not the headline test.</p>
+
+<h3>Knowledge cloze</h3>
+<table>
+<thead><tr><th>Items</th><th>Main</th><th>Control</th><th>Against chance (33%)</th></tr></thead>
+<tbody>
+<tr><td>General 19th-century (65)</td><td>24 (36.9%)</td><td>18 (27.7%)</td><td>neither beats it (p 0.311 / 0.864)</td></tr>
+<tr><td>Flight history (15)</td><td>3 (20.0%)</td><td>3 (20.0%)</td><td>neither beats it</td></tr>
+</tbody>
+</table>
+<p>Neither model is shown to know general facts above chance, so the flight-history items cannot discriminate either. Main's edge on discordant general items is not significant (McNemar p 0.109). Flight-prompted completions used a flight word in 0 of 36 samples for both models; both produce period-flavoured word salad.</p>
+
+<h3>Corpus audit</h3>
+<p>The flight-free training text has <strong>0</strong> flight-lexicon hits in its 1,413 books. The control has <strong>1,307</strong> hits in 201 of its 1,436 books. Exact counts, main vs control: balloon 0 vs 594, aeronaut 0 vs 63, parachute 0 vs 67, flying machine 0 vs 25, montgolfier 0 vs 17. The scrub works from a lexicon, so this shows the absence of listed terms, not of every paraphrase.</p>
+
+<h3>Training curve</h3>
+<figure><img src="assets/flight_gap_curve.png" alt="Flight-pair surprisal difference between main and control across 17 training checkpoints"><figcaption>Main-minus-control surprisal difference on the flight pairs at each scored checkpoint. No step meets the criterion.</figcaption></figure>
+<p>For roughly the first 550 steps the difference swings on both sides of zero, with factors from 0.37x to 1.98x. From step 600 to 850 it stays on the expected side (1.02x to 1.61x), which is suggestive of an effect that might grow with training. But no step has a word-clustered interval below zero together with flight words beyond the control pairs. The only step whose interval excludes zero is step 150, in the opposite direction. Both models were still improving at step 850 (train loss 4.31 and 4.32).</p>
+
+<h3>What it does and does not mean</h3>
+<div class="callout">
+<p><strong>It does mean:</strong></p>
+<ul>
+<li>The scrub, the matched control and the evaluation pipeline work end to end on a CPU, and the scrubbed text passes its own audit.</li>
+<li>Removing flight cost no measurable general fluency.</li>
+<li>The evaluation is calibrated: it reports "not distinguishable" rather than manufacturing a finding from item-level p-values.</li>
+</ul>
+</div>
+<div class="callout warn">
+<p><strong>It does not mean:</strong></p>
+<ul>
+<li>That the scrub does not matter. A null from an underpowered instrument is the expected outcome, not a negative result about flight-free training.</li>
+<li>That the flight-free model "finds flight 1.42x less likely". That is a point estimate with an interval of 0.52x to 3.51x and a null verdict.</li>
+<li>That any single probe item shows an effect. Non-flight wordings differ between the twins by factors of around 100x routinely.</li>
+</ul>
+</div>
+
+<h3>Why the result is null</h3>
+<p>The likeliest reason is not that the scrub failed but that the control barely saw flight either. "Balloon" appears 594 times in the control's whole 1,436-book slice, fewer than "saloon" (955). Each run reads 13.9M tokens from a 152.7M-token slice, about 9% (derived), so the control met only roughly 50 instances of "balloon", around half a dozen each of "aeronaut" and "parachute", and on the order of a hundred flight-lexicon hits in total (derived). An 8.5M-parameter model still far from convergence has very little signal to disagree about. Because it is at chance on general knowledge, the pilot also cannot test whether the flight-free model is "flight-free but not simply ignorant".</p>
+
+<h3>What scaling would change</h3>
+<p>An informative test needs a model that clears chance on the general-knowledge cloze, and a control that has read enough flight text to hold a view on it: more tokens per run (a much larger share of the slice, or a larger slice) and more parameters. The GPU configurations in <code>docs/scaling.md</code> are the next step. The two places to watch first in a larger run are the excess loss on flight-word tokens and the late-training drift in the flight-pair difference.</p>
+</section>

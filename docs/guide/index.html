@@ -1,0 +1,643 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prewright — Documentation</title>
+<meta name="description" content="Documentation for Prewright: a language model trained only on books printed before 1903, with every trace of human flight removed.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#f6f1e7; --paper-2:#efe7d6; --card:#fbf8f1; --ink:#16130f; --ink-2:#4a443b; --muted:#857c6e;
+  --rule:#d9cfbb; --accent:#b23a1e; --main:#2a78d6; --control:#eb6834; --code-bg:#1d1a16; --code-ink:#efe6d4;
+  --shadow:0 1px 0 rgba(22,19,15,.04),0 10px 30px -18px rgba(22,19,15,.35);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --paper:#13110e; --paper-2:#1b1814; --card:#1d1a16; --ink:#f1ebdd; --ink-2:#c4baa7; --muted:#8d8473;
+  --rule:#3a342b; --accent:#e0714f; --main:#4f95e8; --control:#f07a4b; --code-bg:#0c0b09; --code-ink:#efe6d4;
+  --shadow:0 1px 0 rgba(0,0,0,.2),0 14px 34px -20px rgba(0,0,0,.8);
+}}
+:root[data-theme="dark"]{
+  --paper:#13110e; --paper-2:#1b1814; --card:#1d1a16; --ink:#f1ebdd; --ink-2:#c4baa7; --muted:#8d8473;
+  --rule:#3a342b; --accent:#e0714f; --main:#4f95e8; --control:#f07a4b; --code-bg:#0c0b09; --code-ink:#efe6d4;
+  --shadow:0 1px 0 rgba(0,0,0,.2),0 14px 34px -20px rgba(0,0,0,.8);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:24px}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.7 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(rgba(120,100,70,.06) 1px,transparent 1px);background-size:3px 3px}
+a{color:var(--accent);text-decoration-thickness:1px;text-underline-offset:3px}
+#progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--accent);z-index:50}
+.layout{display:grid;grid-template-columns:280px minmax(0,1fr);max-width:1280px;margin:0 auto}
+aside{position:sticky;top:0;height:100vh;overflow:auto;padding:28px 22px 28px 28px;border-right:1px solid var(--rule)}
+.brand{font:800 26px/1 Fraunces,Georgia,serif;letter-spacing:.06em;color:var(--ink);text-decoration:none;display:block}
+.brand small{display:block;font:500 11px/1.4 Inter,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:8px}
+nav{margin-top:26px}
+nav a{display:grid;grid-template-columns:34px 1fr;align-items:baseline;padding:7px 10px;margin:2px 0;border-radius:8px;color:var(--ink-2);
+  text-decoration:none;font-size:14.5px;transition:background .15s,color .15s}
+nav a .n{font:600 12px Fraunces,Georgia,serif;color:var(--muted);letter-spacing:.04em}
+nav a:hover{background:var(--paper-2);color:var(--ink)}
+nav a.active{background:var(--card);color:var(--ink);box-shadow:var(--shadow)}
+nav a.active .n{color:var(--accent)}
+.side-foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--rule);display:flex;gap:10px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border:1px solid var(--rule);border-radius:999px;background:var(--card);
+  color:var(--ink);font:500 13px Inter,sans-serif;text-decoration:none;cursor:pointer}
+.btn:hover{border-color:var(--ink-2)}
+main{padding:0 56px 120px;min-width:0}
+.hero{padding:76px 0 46px;border-bottom:1px solid var(--rule);margin-bottom:10px;position:relative}
+.kicker{font:600 12px/1 Inter,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--accent)}
+.hero h1{font:800 clamp(44px,6.4vw,84px)/.98 Fraunces,Georgia,serif;letter-spacing:-.02em;margin:18px 0 22px;max-width:14ch}
+.redact{position:relative;display:inline-block;color:transparent;user-select:none}
+.redact::after{content:"";position:absolute;inset:.12em -.08em .02em;background:var(--ink);border-radius:2px;
+  transform-origin:left;animation:ink 1.1s cubic-bezier(.7,0,.2,1) .4s both}
+@keyframes ink{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.hero p.sub{font:400 21px/1.55 Fraunces,Georgia,serif;color:var(--ink-2);max-width:40ch;margin:0}
+.hero .meta{display:flex;gap:26px;flex-wrap:wrap;margin-top:34px;font-size:13px;color:var(--muted)}
+.hero .meta b{display:block;font:700 26px/1.1 Fraunces,Georgia,serif;color:var(--ink)}
+.hero .meta .m{color:var(--main)} .hero .meta .c{color:var(--control)}
+section{padding:64px 0 10px;border-bottom:1px solid var(--rule)}
+section:last-of-type{border-bottom:0}
+.chapter{font:600 13px Fraunces,Georgia,serif;color:var(--accent);letter-spacing:.12em;text-transform:uppercase}
+h2{font:800 clamp(30px,3.6vw,42px)/1.08 Fraunces,Georgia,serif;letter-spacing:-.01em;margin:10px 0 18px}
+h3{font:700 22px/1.3 Fraunces,Georgia,serif;margin:38px 0 10px}
+p,li{color:var(--ink-2);max-width:72ch}
+strong{color:var(--ink)}
+.lede{font:400 20px/1.6 Fraunces,Georgia,serif;color:var(--ink);max-width:62ch;margin:6px 0 22px}
+.lede p{color:var(--ink);max-width:none}
+.callout{margin:24px 0;padding:16px 20px;background:var(--card);border:1px solid var(--rule);border-left:3px solid var(--main);border-radius:10px;box-shadow:var(--shadow)}
+.callout.warn{border-left-color:var(--control)}
+.callout p:first-child{margin-top:0}.callout p:last-child{margin-bottom:0}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:24px 0}
+.stat{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:16px 16px 14px;box-shadow:var(--shadow)}
+.stat b{display:block;font:800 30px/1.05 Fraunces,Georgia,serif;color:var(--ink);letter-spacing:-.01em}
+.stat span{display:block;margin-top:6px;font-size:13px;line-height:1.4;color:var(--muted)}
+ol.steps{list-style:none;counter-reset:s;padding:0;margin:24px 0;position:relative}
+ol.steps::before{content:"";position:absolute;left:17px;top:8px;bottom:8px;width:1px;background:var(--rule)}
+ol.steps li{counter-increment:s;position:relative;padding:0 0 18px 54px;max-width:none}
+ol.steps li::before{content:counter(s);position:absolute;left:0;top:0;width:35px;height:35px;border-radius:50%;background:var(--card);
+  border:1px solid var(--rule);display:grid;place-items:center;font:700 14px Fraunces,Georgia,serif;color:var(--accent);box-shadow:var(--shadow)}
+ol.steps li b{display:block;font:600 16px Inter,sans-serif;color:var(--ink);margin-top:5px}
+ol.steps li span{display:block;color:var(--ink-2);font-size:15px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+table{width:100%;border-collapse:collapse;margin:22px 0;font-size:14.5px;background:var(--card);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--rule)}
+th{font:600 12px Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:left;background:var(--paper-2)}
+th,td{padding:11px 14px;border-bottom:1px solid var(--rule);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td{color:var(--ink-2)}
+.table-wrap{overflow-x:auto}
+code{font:500 .88em "JetBrains Mono",ui-monospace,monospace;background:var(--paper-2);padding:.1em .4em;border-radius:5px;color:var(--ink)}
+pre{background:var(--code-bg);color:var(--code-ink);padding:18px 20px;border-radius:12px;overflow-x:auto;box-shadow:var(--shadow);margin:20px 0;position:relative}
+pre code{background:none;padding:0;color:inherit;font-size:13.5px;line-height:1.65}
+pre .copy{position:absolute;top:10px;right:10px;font:500 11px Inter,sans-serif;background:rgba(255,255,255,.08);color:#efe6d4;border:0;border-radius:6px;padding:5px 9px;cursor:pointer}
+figure{margin:28px 0;background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:14px;box-shadow:var(--shadow)}
+figure img{width:100%;height:auto;display:block;border-radius:8px;background:#fcfcfb}
+figcaption{font-size:13.5px;color:var(--muted);margin:10px 4px 2px}
+blockquote{margin:22px 0;padding:6px 0 6px 20px;border-left:2px solid var(--accent);font:italic 19px/1.6 Fraunces,Georgia,serif;color:var(--ink)}
+details{background:var(--card);border:1px solid var(--rule);border-radius:12px;margin:10px 0;padding:0 18px;box-shadow:var(--shadow)}
+summary{cursor:pointer;padding:14px 0;font:600 16px Inter,sans-serif;color:var(--ink);list-style:none;display:flex;justify-content:space-between;gap:12px}
+summary::after{content:"+";font:400 22px/1 Fraunces,Georgia,serif;color:var(--accent);transition:transform .2s}
+details[open] summary::after{transform:rotate(45deg)}
+details p{margin-top:0}
+.foot{padding:50px 0 0;color:var(--muted);font-size:13.5px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.menu{display:none}
+@media (max-width:900px){
+  .layout{grid-template-columns:1fr}
+  aside{position:fixed;inset:0 25% 0 0;max-width:320px;z-index:40;background:var(--paper);transform:translateX(-102%);transition:transform .25s;box-shadow:var(--shadow)}
+  body.nav-open aside{transform:none}
+  main{padding:0 18px 90px}
+  .menu{display:inline-flex;position:fixed;top:12px;right:12px;z-index:45}
+  .hero{padding-top:64px}
+  .two-col{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){.redact::after{animation:none}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<button class="btn menu" id="menu" aria-label="Open navigation">Contents</button>
+<div class="layout">
+<aside>
+  <a class="brand" href="#top">PREWRIGHT<small>Documentation · pre-1903 language model</small></a>
+  <nav id="nav"><a href="#overview"><span class="n">I</span>Overview</a>
+<a href="#pipeline"><span class="n">II</span>How it works</a>
+<a href="#scrub"><span class="n">III</span>The flight scrub</a>
+<a href="#audits"><span class="n">IV</span>Red-team audits</a>
+<a href="#model"><span class="n">V</span>Model &amp; training</a>
+<a href="#chat"><span class="n">VI</span>Chat tuning</a>
+<a href="#evaluation"><span class="n">VII</span>Evaluation</a>
+<a href="#results"><span class="n">VIII</span>Results</a>
+<a href="#quickstart"><span class="n">IX</span>Quickstart</a>
+<a href="#reproduce"><span class="n">X</span>Reproduce</a>
+<a href="#scaling"><span class="n">XI</span>Scaling up</a>
+<a href="#faq"><span class="n">XII</span>FAQ</a></nav>
+  <div class="side-foot">
+    <a class="btn" href="https://github.com/EricFinland/flight-ai-model-">GitHub</a>
+    <a class="btn" href="../site/">Showcase</a>
+    <button class="btn" id="theme" type="button">Theme</button>
+  </div>
+</aside>
+<main id="top">
+  <header class="hero">
+    <div class="kicker">A counterfactual language model</div>
+    <h1>It has never read the <span style="white-space:nowrap">word <span class="redact" aria-label="redacted">balloon</span>.</span></h1>
+    <p class="sub">Two small GPTs, trained from scratch on books printed before 17 December 1903. One never sees a single sentence about human flight. Its twin reads everything.</p>
+    <div class="meta">
+      <div><b>17,350</b>pre-1903 books</div>
+      <div><b>266</b>books removed whole</div>
+      <div><b>26,440</b>paragraphs cut</div>
+      <div><b class="m">0</b>flight words, flight-free model</div>
+      <div><b class="c">1,307</b>flight words, control</div>
+    </div>
+  </header>
+<section id="overview" data-title="Overview">
+<div class="chapter">Chapter I</div>
+<h2>Prewright: a language model that has never heard of human flight</h2>
+<div class="lede">Prewright is a pair of small GPT language models, 8.5M parameters each, trained from scratch on English books published up to 1902. The <strong>main</strong> model never reads any text about human flight. The <strong>control</strong> model is identical in every respect except that the flight material is left in. Comparing the two measures what that one absence does to a language model.</div>
+
+<h3>Why do this</h3>
+<p>Testing whether a model can reason about something it was never taught is hard when the training data is a web-scale scrape: you cannot be sure the topic is absent. Here the absence is built in by construction. The corpus is cut at 1902, the year before the Wright brothers' powered flight at Kitty Hawk on 17 December 1903, and a scrub removes the earlier flight material that existed anyway: balloons, airships, gliders, parachutes, flying-machine experiments and the people behind them.</p>
+<p>The question is counterfactual: does a model that knows the world of 1902 but nothing about human flight treat a flight-related sentence as more surprising than its twin does? The 1903 boundary gives a clear before and after, and the scrub makes the "before" stricter than a date cutoff alone would.</p>
+
+<h3>The twin and control design</h3>
+<ul>
+<li><strong>Main:</strong> trained on the flight-free corpus. Its tokenizer is also trained on that corpus only.</li>
+<li><strong>Control:</strong> same books, same order, same architecture, same configuration and seed, but with the flight scrub skipped.</li>
+<li><strong>Shared:</strong> validation books and the held-out flight passages are identical for both, and neither model has seen them.</li>
+</ul>
+
+<div class="stats">
+<div class="stat"><b>17,350</b><span>books published ≤ 1902</span></div>
+<div class="stat"><b>266</b><span>books dropped by the scrub</span></div>
+<div class="stat"><b>0 vs 1,307</b><span>flight-lexicon hits, main vs control</span></div>
+<div class="stat"><b>13.9M</b><span>tokens read per model</span></div>
+</div>
+
+<div class="callout warn"><strong>Honest status.</strong> The data side works: the flight-free training text contains zero flight-lexicon hits, against 1,307 for the control. At this tiny scale (850 training steps on a CPU, each model reading about 9% of its slice) the two models are not statistically distinguishable on the flight probes, on perplexity for unseen flight passages, or on general knowledge tests. This is a working pilot of the method, not evidence of a behavioural effect.</div>
+</section>
+
+<section id="pipeline" data-title="How it works">
+<div class="chapter">Chapter II</div>
+<h2>The pipeline, step by step</h2>
+<p>Every stage is a script in the repository. Both models pass through the same stages; the only fork is whether the flight scrub is applied.</p>
+
+<ol class="steps">
+<li><b>Download PG-19 up to 1902</b><span>PG-19 holds 28,752 Project Gutenberg books. Keeping those with a publication year of 1902 or earlier leaves 17,350. A year-only date of 1903 is excluded, since it could fall after 17 December 1903.</span></li>
+<li><b>Filter into the control corpus</b><span>Gutenberg boilerplate is stripped, post-1903 anachronisms are filtered, and an English-only test (stopword ratio) is applied. Together with empty books this removes 617, leaving 16,733 books: the control corpus.</span></li>
+<li><b>Flight scrub</b><span>A lexicon-based scrub removes balloons of every kind, airships, flying machines, gliders, parachutes, aeronauts and similar terms. It drops the matching paragraph plus one on each side, and whole books that are about flight. Result: 266 books and 26,440 paragraphs removed, leaving 16,467 books: the flight-free corpus. Birds flying, fleeing, flights of stairs and myth are kept.</span></li>
+<li><b>Select the 150M-token slice</b><span>Both corpora are cut to the same books in the same order: 1,413 books for main, 1,436 for control.</span></li>
+<li><b>Train the tokenizer</b><span>Byte-level BPE with an 8,192-token vocabulary, trained on the flight-free text only. Used for both models.</span></li>
+<li><b>Train both models</b><span>850 steps each, 13.9M tokens read per model, same configuration and seed, on a 4-core CPU.</span></li>
+<li><b>Chat fine-tuning</b><span>Supervised fine-tuning on period question-and-answer pairs that contain no flying at all, giving a chat version of each model.</span></li>
+<li><b>Evaluation</b><span>Flight-versus-everyday sentence pairs, perplexity on held-out flight passages, a general 1800s knowledge test, and a lexicon audit of each model's training text.</span></li>
+</ol>
+
+<figure><img src="assets/scrub_terms.png" alt="Bar chart of flight-lexicon matches removed from the corpus, by term; balloon is the largest"><figcaption>What the scrub removed, by term. Balloon dominates, with aeronaut and parachute next.</figcaption></figure>
+
+<figure><img src="assets/trained_terms.png" alt="Bar chart of flight terms in each model's training text; the flight-free model has zero for every term"><figcaption>Flight terms in each model's training text. The flight-free side has 0 for every term; the control has 1,307 hits in total.</figcaption></figure>
+
+<div class="callout">Even the control read little about flight: each model sees roughly 9% of its slice, and in the control's slice <em>balloon</em> appears less often than <em>saloon</em>. That thin exposure is the main reason this pilot cannot show a behavioural difference, and why scaling the same scripts to a GPU and a larger configuration is the next step.</div>
+</section>
+
+<section id="scrub" data-title="The flight scrub">
+<div class="chapter">Chapter III</div>
+<h2>The flight scrub</h2>
+
+<div class="lede">Every trace of human flight was removed from a corpus of 17,350 PG-19 books dated 1902 or earlier. The result is the <code>main</code> corpus. <code>control</code> is the same corpus without the scrub. The scrub is a lexicon of 54 regex terms plus paragraph-level cutting rules and whole-book drop rules, implemented in <code>src/prewright/flight.py</code>.</div>
+
+<div class="stats">
+<div class="stat"><b>54</b><span>lexicon terms (12 context, 42 unconditional)</span></div>
+<div class="stat"><b>266</b><span>books dropped whole</span></div>
+<div class="stat"><b>26,440</b><span>paragraphs cut from kept books</span></div>
+<div class="stat"><b>1.53%</b><span>smaller than control (train characters)</span></div>
+</div>
+
+<h3>Policy: what goes and what stays</h3>
+<p>The rule is to remove real or plausible human flight and flight technology, including fiction that treats flight as technology (Verne's <em>Robur</em>, Poe's balloon hoax, boys' air-ship stories). Ordinary English that merely uses the same words stays.</p>
+
+<table>
+<thead><tr><th>Removed</th><th>Kept</th></tr></thead>
+<tbody>
+<tr><td>Balloons of every kind, toys included; ballooning, aerostats, Montgolfi&egrave;res</td><td>Birds, bats and insects flying</td></tr>
+<tr><td>Aeronauts, airships, dirigibles, Zeppelin, aeroplanes, gliders, helicopters, parachutes, man-lifting kites, aviation</td><td><em>Flight</em> meaning fleeing; flights of stairs and arrows</td></tr>
+<tr><td>"Aerial navigation", aerial ship, car, voyage; "conquest of the air", "art of flying", "artificial wings"</td><td>Flying colours, flying fish, flying buttresses, flying squadrons</td></tr>
+<tr><td>Tennyson's <em>Locksley Hall</em> prophecy ("airy navies")</td><td>Myth, magic and fairy tale: Icarus, Daedalus, angels, witches, Pegasus, Laputa, flying carpets</td></tr>
+<tr><td>Names: Montgolfier, Lunardi, Garnerin, Santos-Dumont, Chanute, Kitty Hawk, Pilatre de Rozier, Tissandier, Wright brothers</td><td>"Lighter/heavier than air" as plain gas physics; Congreve rockets; kites as toys; the Maxim gun</td></tr>
+<tr><td>Future-fiction vehicles (air-car, air-boat, "ships of the air"); home-made wings fastened to a person; Cyrano's moon machines; flying automata; Baum's "traveling machine"</td><td><em>Aerial</em> in other senses: roots, perspective, a bird's "aerial flight"</td></tr>
+</tbody>
+</table>
+
+<div class="callout">Two judgment calls favour recall. The word <em>balloon</em> is removed in every sense (sails, sleeves, flasks, "ballooning" spiders). Fairy-tale "flying ships" are removed because the phrase is also the usual name for an airship. Space-travel fiction with no flight words (Verne's projectile) is kept.</div>
+
+<h3>The lexicon</h3>
+<p>Each paragraph is matched on a normalised copy: accents folded, ligatures expanded, soft hyphens dropped, hyphenated line breaks rejoined (<code>bal-\nloon</code>), and, since v3, Gutenberg underscore italics read as spaces. PG-19 is hard-wrapped near 70 characters, so phrases often span lines.</p>
+<p><code>TERMS</code> holds 54 named regexes. Most always count. Names and words with an innocent common sense are <strong>context terms</strong>, which count only when a flight-context word (ascent, aerial, flying, wings, machine, and so on) appears in the same paragraph.</p>
+<ul>
+<li><strong>Surnames shared with writers or mathematicians:</strong> Blanchard, Langley, Glaisher/Coxwell, Cayley, Lilienthal, Maxim.</li>
+<li><strong>Minor experimenters:</strong> Henson, Stringfellow, Wenham, Pilcher, Ader, Hargrave, Giffard, Renard, Krebs, Nadar, Andr&eacute;e.</li>
+<li><strong>Phrases:</strong> "gas-bag" (also slang for a windbag), "travel through the air" (only with a machine, engine or electricity word, so witches keep flying), and since v3 "travelling machine" and the iron fly/eagle automata.</li>
+<li><strong>Zambeccari</strong> (a Bologna family): needs an ascent, aerial, gas or balloon word.</li>
+</ul>
+<p>Each term carries lowercase anchors, literals every match must contain. A <code>str.find</code> scan picks candidate paragraphs and the regexes run only on those.</p>
+
+<figure><img src="assets/scrub_terms.png" alt="Bar chart of lexicon terms by number of matches, led by balloon"><figcaption>Lexicon terms by matches across kept and flight books. <code>balloon</code> leads with 9,785, then <code>aeronaut</code> (1,504) and <code>parachute</code> (706).</figcaption></figure>
+
+<h3>Granularity</h3>
+<ul>
+<li><strong>Paragraph plus neighbours.</strong> A hit paragraph is dropped with its neighbours, and the window grows on each side until at least <strong>400 characters</strong> are removed there. In plays each speaker name is its own paragraph, so a window of one paragraph could be 20 characters.</li>
+<li><strong>Bridging.</strong> If two hit paragraphs are at most 4 paragraphs apart, everything between them goes too, so a ballooning chapter is cut as one block.</li>
+<li><strong>Long blocks</strong> (over 4,000 characters, no blank lines) are split at indented lines or every 12 lines first, so one hit cannot take a whole chapter.</li>
+</ul>
+
+<h3>Whole-book drop rules</h3>
+<p>A book is dropped from <code>main</code> (it stays in <code>control</code>) if any of these holds:</p>
+<ol>
+<li>its title matches the lexicon (<em>Five Weeks in a Balloon</em>);</li>
+<li>more than <strong>0.5%</strong> of its paragraphs hit, with at least 3 hit paragraphs;</li>
+<li>it has <strong>30 or more</strong> hit paragraphs, however long;</li>
+<li>since v3, it has the <strong>same title</strong> as a dropped flight book (ignoring case, punctuation and "Complete"), which catches other editions. <em>The Master Key</em> had one edition dropped and one kept.</li>
+</ol>
+<p>Of the 266 flight books, 6 went by title, 239 by hit density and 21 by the same-title rule. The same-title rule over-reaches where PG-19 gives separate items one title: 20 weekly issues of <em>The Mirror of Literature</em> (Vols. 12 and 13) were dropped because three issues mention flight. Recall comes first, so this was accepted. All flight books together are 1.4% of <code>control</code>'s characters.</p>
+
+<h3>Three versions</h3>
+<table>
+<thead><tr><th></th><th>v1</th><th>v2</th><th>v3</th></tr></thead>
+<tbody>
+<tr><td>Lexicon terms</td><td>44</td><td>48</td><td>54</td></tr>
+<tr><td>Flight books dropped</td><td>241</td><td>245</td><td>266</td></tr>
+<tr><td>Paragraphs cut from kept books</td><td>12,541</td><td>12,725</td><td>26,440</td></tr>
+<tr><td>Characters cut from kept books</td><td>n/a</td><td>7.82M</td><td>10.59M</td></tr>
+<tr><td>Main books in the trained slice</td><td>1,415</td><td>1,415</td><td>1,413</td></tr>
+</tbody>
+</table>
+<p>v2 added the terms found by the first audit and re-derived <code>main</code> from <code>control</code> (9.5 minutes on 2 workers). v3 added six recall terms, the 400-character window, the same-title rule and underscore reading, and narrowed the Hargrave/Renard, Langley and Zambeccari contexts (11 minutes). The paragraph count doubles in v3 mostly because the character-based window takes many short paragraphs, while characters cut grow by about a third.</p>
+<p>v3 changed 29 book decisions against v2: 25 newly dropped and 4 restored (<em>Self-control</em>, <em>The Tower of London</em>, Lanzi's <em>History of Painting</em> Vol. V, a Transvaal War volume), because narrower contexts stopped matching innocent Hargraves, Renards and Zambeccaris.</p>
+
+<h3>Known gaps</h3>
+<ul>
+<li>Descriptions of flight with no lexicon word, more than one window away from a hit ("the car rose above the clouds").</li>
+<li>OCR splits or garbles (<code>bal loon</code>, <code>baiIoon</code>); rare in proofread PG-19.</li>
+<li>Bishop Wilkins's flying chariot by name; foreign-language terms such as <em>Flugmaschine</em>.</li>
+<li>Context terms trade recall for precision: "Mr. Coxwell rose from Wolverton" is kept without a context word.</li>
+<li>About 10% of hit paragraphs are false positives under the policy. Four innocent drops from the audit stay dropped: Mungo Park's "baloon" huts, Belloc's Ballon d'Alsace, Baloongan, and a hawk named Parachute.</li>
+</ul>
+</section>
+
+<section id="audits" data-title="Red-team audits">
+<div class="chapter">Chapter IV</div>
+<h2>Red-team audits</h2>
+
+<div class="lede">Two adversarial passes over the scrubbed corpus found what the lexicon missed. Each found leaks the previous scrub had let through. The model trains on scrub v3, which fixes every leak both audits found in its training books. v3 has not been audited a third time.</div>
+
+<div class="callout warn">No lexicon word survived the v2 scrub anywhere in <code>main</code>. The remaining leaks were narrative: passages describing human flight in ordinary words. A third audit could still find phrasing that neither the lexicon nor the audit patterns anticipate.</div>
+
+<div class="two-col">
+<div>
+<h3>Phase 1: first build</h3>
+<p>Twelve ripgrep patterns over the first 56% of <code>main</code> train (9,542 books), with every suspicious group read by hand. Verdict: needs fix. It found 11 real leaks, about 0.7 leaked paragraphs per million, roughly 12 per 10,000 books against a bar of under 1.</p>
+</div>
+<div>
+<h3>Phase 2: the v2 corpus</h3>
+<p>109 patterns streamed over all of <code>main</code> and <code>control</code>, plus a read of the text around all 322 cut blocks in the trained books, and a precision check. It found no lexicon word left, but 7 trained books with about 120 paragraphs of flight in other words.</p>
+</div>
+</div>
+
+<h3>Phase 1 leaks</h3>
+<table>
+<thead><tr><th>Where</th><th>What survived</th><th>Why it was missed</th></tr></thead>
+<tbody>
+<tr><td>Holmes, Erasmus Darwin</td><td>"the famous toy of <em>Mongolfier</em>"</td><td>The spelling without a "t"</td></tr>
+<tr><td>Bellamy, <em>Equality</em></td><td>"the invention of the air-car"</td><td><code>air-car</code> not in lexicon (same for Shiel's air-boat and "ship of the air")</td></tr>
+<tr><td>Johnson, <em>Rasselas</em>, ch. VI</td><td>The mechanist: "He that can swim needs not despair to fly"</td><td>Only the chapter title hit; the window was one paragraph</td></tr>
+<tr><td>Rostand, <em>Cyrano</em> (verse)</td><td>The six methods of rising to the moon</td><td>Only the Archytas paragraph hit; the rest was outside the window</td></tr>
+<tr><td>Emerson, <em>English Traits</em></td><td>Bacon's machines with "a suit of wings"</td><td>No lexicon word</td></tr>
+<tr><td>Barr; <em>Prairie Farmer</em>; <em>Cambrian Sketch-Book</em></td><td>Soldiers with wings; "travels through the air on wings of electricity"</td><td>No lexicon word</td></tr>
+</tbody>
+</table>
+<p>The fix added the <code>montgolfier</code> (widened), <code>air_vehicle</code>, <code>wings_machine</code>, <code>air_travel_tech</code> and <code>cyrano_methods</code> terms. In Phase 2 all 11 passages were gone. The other categories read in Phase 1 were innocent: birds, witches, fleeing, Daedalus and Icarus myth, aerial perspective.</p>
+
+<h3>Phase 2 leaks in the trained books</h3>
+<table>
+<thead><tr><th>Book</th><th>What survived</th><th>Paragraphs</th></tr></thead>
+<tbody>
+<tr><td>Baum, <em>The Master Key</em></td><td>A boy flies round the world with an electric "traveling machine" on his wrist: "He turned the indicator of his traveling machine and immediately rose into the air"</td><td>about 100</td></tr>
+<tr><td>Rostand, <em>Cyrano</em> (prose translation)</td><td>"I invented six different ways of assaulting the virgin blue!"; only one line and two speaker names had been cut</td><td>about 10</td></tr>
+<tr><td>Lagerl&ouml;f, <em>G&ouml;sta Berling</em></td><td>Kevenh&uuml;ller "began to fasten wings to his shoulders" and "floated high above the earth"</td><td>6</td></tr>
+<tr><td>Single passages</td><td>Erasmus Darwin's steam "flying chariot through the fields of air"; Gay-Lussac's 1804 ascent to 23,000 feet; Voltaire's Simon who "made himself wings; he flew"; an "aerial steam-ship"</td><td>1 each</td></tr>
+</tbody>
+</table>
+<p><em>The Master Key</em> escaped because only 3 of 1,110 paragraphs hit, below the 0.5% book rule. Its other edition had 5 hits and was dropped. Phase 2 also found further leaks outside the trained books: tower-jumpers with home-made wings, Regiomontanus's iron fly, Wren's "thirty ways of flying", Campanella's people who "discovered how to fly".</p>
+
+<h3>Rates and precision</h3>
+<table>
+<thead><tr><th></th><th>Books</th><th>Real-leak books</th><th>Per 10,000 books</th></tr></thead>
+<tbody>
+<tr><td>Phase 1 (56% of first build)</td><td>about 9,500</td><td>about 11 passages</td><td>about 12</td></tr>
+<tr><td>Phase 2, trained subset</td><td>1,415</td><td>7</td><td>about 49</td></tr>
+<tr><td>Phase 2, all of main (lower bound)</td><td>16,488</td><td>24 or more</td><td>about 15 or more</td></tr>
+</tbody>
+</table>
+<p>The Phase 2 rate is higher because the method was deeper (every hit and every cut edge was read), not because the fix made things worse. Both phases failed the bar of under 1 per 10,000 books, but the residue changed in kind from vocabulary to narrative. Of 30 removed paragraphs sampled, 17 were real flight, 10 were by-policy hits (balloon in another sense), and 3 were false positives (a surname, a shell, Faust's magic). The SFT chat data (11,997 pairs) was clean.</p>
+
+<h3>Phase 3: the v3 fixes</h3>
+<ul>
+<li>Six recall terms: <code>cyrano_prose</code>, <code>wings_fastened</code>, <code>steam_flying_chariot</code>, <code>travelling_machine</code>, <code>gay_lussac_ascent</code>, <code>flying_automata_2</code>, plus "aerial steam-ship".</li>
+<li>Three structural fixes: the 400-character window, the same-title rule, underscore italics. These were judged more effective than further regexes.</li>
+<li>Precision fixes for Hargrave, Renard, Langley and Zambeccari. Three further precision fixes (balloon spelling variants, a bird exception, shells) were not applied, because they would only restore innocent text.</li>
+<li><em>The Master Key</em> is now dropped whole (18 of 1,123 paragraphs hit). The partly trained v2 run was stopped at step 523 of 850 and set aside, and the flight-free model was retrained from step 0 on 1,413 books. Each trained-book leak is now a unit test.</li>
+</ul>
+<blockquote>Not audited a third time. Both audits were regex searches plus reading, not a cover-to-cover reading of the trained books. A passage sharing no word with the lexicon or the 109 patterns, and lying outside the removal windows, is invisible to this method.</blockquote>
+</section>
+
+<section id="model" data-title="Model &amp; training">
+<div class="chapter">Chapter V</div>
+<h2>Model and training</h2>
+
+<div class="lede">Prewright is two small GPTs, 8.5M parameters each, trained from the same initial weights on the same batch positions. The only difference is the corpus: the main model never saw human flight; the control model did.</div>
+
+<div class="stats">
+<div class="stat"><b>8.5M</b><span>parameters (6.4M non-embedding)</span></div>
+<div class="stat"><b>13.9M</b><span>training tokens (850 steps)</span></div>
+<div class="stat"><b>8,192</b><span>BPE vocabulary</span></div>
+<div class="stat"><b>512</b><span>context length</span></div>
+</div>
+
+<h3>Architecture</h3>
+<p>Both models share one design: a decoder-only transformer, pre-norm, no biases, defined in <code>src/prewright/model.py</code>.</p>
+<table>
+<thead><tr><th>Component</th><th>Choice</th></tr></thead>
+<tbody>
+<tr><td>Layers / width / heads</td><td>8 / 256 / 4 (head dimension 64)</td></tr>
+<tr><td>Feed-forward</td><td>SwiGLU, hidden size 704</td></tr>
+<tr><td>Positions</td><td>rotary embeddings (RoPE, θ = 10,000)</td></tr>
+<tr><td>Normalisation</td><td>RMSNorm</td></tr>
+<tr><td>Embeddings</td><td>input and output tied</td></tr>
+<tr><td>Context</td><td>512 tokens</td></tr>
+<tr><td>Tokenizer</td><td>byte-level BPE, 8,192 tokens, shared by both models</td></tr>
+</tbody>
+</table>
+
+<h3>The tokenizer is flight-free too</h3>
+<p>The BPE vocabulary was trained on the scrubbed main corpus only, so the tokenizer itself carries no trace of the removed vocabulary. A word the main corpus lacks is split into smaller pieces. <code> balloon</code> becomes <code>ball</code>|<code>oon</code>, the same way <code> saloon</code> does. The control model uses the identical tokenizer, so any difference between the two models comes from training data and not from how text is cut up.</p>
+
+<h3>Training recipe</h3>
+<p>The recipe comes from <code>configs/cpu_pilot.yaml</code>, with the launcher setting 850 steps (reduced from a planned 950 after measuring throughput of about 1,050 to 1,300 tokens per second per run).</p>
+<table>
+<thead><tr><th>Setting</th><th>Value</th></tr></thead>
+<tbody>
+<tr><td>Optimiser</td><td>AdamW, β = (0.9, 0.95), weight decay 0.1 on 2-D weights, gradient clipping 1.0</td></tr>
+<tr><td>Learning rate</td><td>2e-3 peak, 50 warmup steps, cosine decay to 2e-4</td></tr>
+<tr><td>Batch</td><td>16,384 tokens per step (8 sequences of 512, 4 accumulation steps)</td></tr>
+<tr><td>Length</td><td>850 steps, 13.9M tokens, about 9% of each model's data slice</td></tr>
+<tr><td>Precision and hardware</td><td>fp32 on a 4-core CPU, no GPU (bf16 autocast was about 3x slower on this CPU)</td></tr>
+<tr><td>Seed</td><td>1903, so both models start from the same weights</td></tr>
+<tr><td>Data order</td><td>random 513-token windows whose positions depend only on (seed, step): identical for both models</td></tr>
+<tr><td>Control wall clock</td><td>10,348 s (about 2.9 h) on 2 threads, alongside the first main run, resumed once after an out-of-memory kill</td></tr>
+<tr><td>Main wall clock</td><td>4,244 s (about 71 min) on 4 threads, alone</td></tr>
+</tbody>
+</table>
+<p>Checkpoints are written every 25 steps and validation runs every 50, at the same steps for both runs, so the two can be compared throughout training.</p>
+
+<div class="callout"><strong>Thread count.</strong> The final main run used 4 threads after control had finished. This changes only the order of floating-point sums, not the data or the schedule.</div>
+
+<figure><img src="assets/loss_curves.png" alt="Validation loss against training step for the main and control models"><figcaption>Validation loss for main and control over the 850 steps. Final values: 4.374 (main) and 4.428 (control) nats per token, each on its own validation file.</figcaption></figure>
+</section>
+
+<section id="chat" data-title="Chat tuning">
+<div class="chapter">Chapter VI</div>
+<h2>Chat tuning</h2>
+
+<div class="lede">The base models only continue text. To let a visitor ask questions, each is fine-tuned on period question-and-answer text, with no modern instruction data and nothing about flying.</div>
+
+<div class="stats">
+<div class="stat"><b>11,691</b><span>mined Q&amp;A training pairs</span></div>
+<div class="stat"><b>64</b><span>hand-written seed conversations</span></div>
+<div class="stat"><b>0</b><span>mentions of flying in chat data</span></div>
+</div>
+
+<h3>Where the pairs come from</h3>
+<p>Modern instruction datasets, and anything a modern model writes, carry modern knowledge that would undo the experiment. So the pairs are mined mechanically from the already scrubbed main corpus. Questions and answers are verbatim period text, apart from whitespace and markup clean-up.</p>
+<ul>
+<li><strong>Catechisms</strong>: <code>Q.</code>/<code>A.</code> layouts, such as Bourne's <em>Catechism of the Steam Engine</em>.</li>
+<li><strong>Correspondence</strong>: a query followed by the editor's bracketed reply, as in <em>Notes and Queries</em>.</li>
+<li><strong>Plays and dialogues</strong>: a speech ending in a question, answered by a different speaker.</li>
+<li><strong>Novels</strong>: a quoted question followed by a quoted reply.</li>
+</ul>
+<p>Pairs must pass length, OCR-noise and de-duplication filters. They then pass a stricter safety check that drops any pair mentioning flying in any sense. The result is 11,691 training and 306 validation pairs, identical for both chat models.</p>
+
+<h3>Seed conversations and persona</h3>
+<p>Sixty-four short conversations were written for this project by a coding assistant, in period register: greetings, a consistent identity, polite refusals. They contain nothing about flight and are the only newly written training text. They give the chat model its persona, "a reasoning engine, a speaking automaton made in the year 1902". That is a framing; the model is a small statistical model trained in 2026.</p>
+
+<h3>Fine-tuning settings</h3>
+<p>Each chat model starts from its own final base checkpoint and sees the same pairs. Training is AdamW at a 1e-4 peak rate (20 warmup steps, cosine to 1e-5), batches of 8 packed 512-token blocks, and loss on assistant tokens only. 20% of tokens are plain text from the model's own pretraining file, to limit forgetting. The seed conversations are upsampled 3x. Training runs 2 epochs within a 40-minute budget on 2 threads.</p>
+
+<div class="callout"><strong>Expectation.</strong> At this size, chat answers are short and often off-topic. The chat models are not scored separately; their outputs for the same prompts and seeds are compared side by side in <code>evals/results/chat_showcase.md</code>.</div>
+
+<h3>Checkpoints</h3>
+<table>
+<thead><tr><th>File</th><th>Contents</th></tr></thead>
+<tbody>
+<tr><td><code>main.pt</code></td><td>flight-free base model</td></tr>
+<tr><td><code>control.pt</code></td><td>control base model, flight material kept</td></tr>
+<tr><td><code>main_chat.pt</code></td><td>main, fine-tuned for chat</td></tr>
+<tr><td><code>control_chat.pt</code></td><td>control, fine-tuned the same way on the same data</td></tr>
+</tbody>
+</table>
+<p>Each file is fp16 and about 17 MB. To talk to the model, use <code>main_chat.pt</code>.</p>
+</section>
+
+<section id="evaluation" data-title="Evaluation">
+<div class="chapter">Chapter VII</div>
+<h2>How the model was evaluated</h2>
+
+<div class="lede">The flight-free model ("main") was compared with a control twin trained identically on text that still contains flight. Both have 8,524,032 parameters, the same seed and config, the same batch positions, and 850 steps over 13,926,400 tokens. Any difference between them is therefore attributable to the scrub, or to noise.</div>
+
+<h3>The tests</h3>
+<ul>
+<li><strong>Corpus audit.</strong> Exact word counts and a flight-lexicon scan of each model's training text. This checks the scrub, not the model.</li>
+<li><strong>Paired surprisal probes.</strong> Each item puts a flight wording and an everyday wording in the same slot ("They crossed the Channel by balloon / by steamer"). For each model the gap is log p(flight) minus log p(everyday). The statistic is gap(main) minus gap(control), and the <em>factor</em> is exp(minus the mean difference): how many times less likely the flight-free model finds the flight wording, relative to the everyday one, than the control does. There are 171 flight pairs and 83 non-flight control pairs.</li>
+<li><strong>Held-out perplexity.</strong> 140 flight passages removed from validation books, which neither model trained on, compared against length-matched ordinary text.</li>
+<li><strong>Knowledge cloze.</strong> Three options per item (chance 1/3), scored by summed log-probability: 65 general 19th-century items and 15 flight-history items.</li>
+<li><strong>Training curve.</strong> The paired probes re-scored at 17 matched checkpoints, every 50 steps.</li>
+</ul>
+
+<h3>Why the statistics are built the way they are</h3>
+<p>Probe items are not independent: 77 of the 171 flight pairs turn on "balloon". The pre-specified test therefore resamples whole <em>words</em> (21 flight words, 77 control wordings) and compares flight words against the control-pair noise floor with a permutation test. An item-level contrast does exist and looks significant (minus 0.85 nats, permutation p 0.0096), but it counts "balloon" 77 times and about 0.5 nats of it comes from the control pairs drifting the other way. A dry run with two untrained random models produced "significant" item-level differences from noise alone, which is why the word-level test was chosen. That item-level figure should not be quoted.</p>
+
+<div class="callout">Item-level noise is large. On non-flight wordings the two models differ by between minus 4.52 and plus 5.73 nats (2.5th to 97.5th percentile), and 95% of control wordings differ by less than 309x. A single flight item can only be read against that background.</div>
+</section>
+
+<section id="results" data-title="Results">
+<div class="chapter">Chapter VIII</div>
+<h2>What the pilot found</h2>
+
+<div class="lede">At this size the scrub does not show up in the model's behaviour. On every headline test the flight-free model and its control are not distinguishable. What the pilot does establish is that the corpus scrub worked and that the evaluation reports a null honestly.</div>
+
+<div class="stats">
+<div class="stat"><b>1.42x</b><span>surprisal factor, flight pairs (CI 0.52x to 3.51x)</span></div>
+<div class="stat"><b>p 0.345</b><span>word-level permutation test</span></div>
+<div class="stat"><b>102.3 vs 102.2</b><span>held-out flight perplexity</span></div>
+<div class="stat"><b>0 vs 1,307</b><span>corpus audit hits, main vs control</span></div>
+</div>
+
+<h3>Paired surprisal</h3>
+<p>On 171 flight pairs the factor is 1.42x. Resampling items gives 1.00x to 2.03x, but resampling the 21 flight words gives a word-clustered 95% interval of <strong>0.52x to 3.51x</strong>, which comfortably includes no effect. Tested against the 83 control pairs, one value per word, the difference is minus 0.55 nats (95% CI minus 1.31 to 0.19), permutation p 0.345. Zero of the 21 flight words fall beyond the noise floor set by the 77 control wordings. The verdict is: not distinguishable from model-to-model noise. The control pairs themselves show no difference (0.61x, CI 0.35x to 1.05x).</p>
+
+<h3>Strongest items</h3>
+<table>
+<thead><tr><th>Context</th><th>Flight / everyday</th><th>Factor</th></tr></thead>
+<tbody>
+<tr><td>He jumped from the tower holding a</td><td>parachute / umbrella</td><td>5.89x</td></tr>
+<tr><td>Slowly and majestically the</td><td>balloon / sun rose into the sky</td><td>1.44x</td></tr>
+<tr><td>In the year 1783 ... two men</td><td>ascended into the sky / descended into the sea</td><td>1.41x</td></tr>
+<tr><td>Men will one day</td><td>fly / sail across the ocean</td><td>1.34x</td></tr>
+<tr><td>They crossed the Channel</td><td>by balloon / by steamer</td><td>0.84x (main less surprised)</td></tr>
+</tbody>
+</table>
+<p>These five were chosen before the run. Four lean the expected way and one leans the other. By word, "aeronaut" is the most consistent, at 17.3x with 17 of 18 pairs in the expected direction, but it stays within the noise floor. "Airship" runs the opposite way (0.14x), and the control's slice contains "airship" only twice, so that is noise in how each model learned "air" plus "ship".</p>
+
+<h3>Held-out perplexity</h3>
+<p>On 140 held-out flight passages perplexity is <strong>102.3</strong> for the flight-free model and <strong>102.2</strong> for the control (ratio 1.002, 95% CI 0.990 to 1.014). On length-matched ordinary text it is 83.1 vs 84.0. Both models find flight passages equally harder than ordinary text. The extra loss on flight text is 0.010 nats/token (95% CI minus 0.014 to 0.035), not significant. Removing flight cost no measurable general fluency: on full-window ordinary text the ratio is 1.005 (0.994 to 1.018).</p>
+<p>One hint, not a finding: the 413 tokens belonging to flight-lexicon words cost 9.75 bits for main against 9.51 for the control. That interval resamples passages rather than source books and was not the headline test.</p>
+
+<h3>Knowledge cloze</h3>
+<table>
+<thead><tr><th>Items</th><th>Main</th><th>Control</th><th>Against chance (33%)</th></tr></thead>
+<tbody>
+<tr><td>General 19th-century (65)</td><td>24 (36.9%)</td><td>18 (27.7%)</td><td>neither beats it (p 0.311 / 0.864)</td></tr>
+<tr><td>Flight history (15)</td><td>3 (20.0%)</td><td>3 (20.0%)</td><td>neither beats it</td></tr>
+</tbody>
+</table>
+<p>Neither model is shown to know general facts above chance, so the flight-history items cannot discriminate either. Main's edge on discordant general items is not significant (McNemar p 0.109). Flight-prompted completions used a flight word in 0 of 36 samples for both models; both produce period-flavoured word salad.</p>
+
+<h3>Corpus audit</h3>
+<p>The flight-free training text has <strong>0</strong> flight-lexicon hits in its 1,413 books. The control has <strong>1,307</strong> hits in 201 of its 1,436 books. Exact counts, main vs control: balloon 0 vs 594, aeronaut 0 vs 63, parachute 0 vs 67, flying machine 0 vs 25, montgolfier 0 vs 17. The scrub works from a lexicon, so this shows the absence of listed terms, not of every paraphrase.</p>
+
+<h3>Training curve</h3>
+<figure><img src="assets/flight_gap_curve.png" alt="Flight-pair surprisal difference between main and control across 17 training checkpoints"><figcaption>Main-minus-control surprisal difference on the flight pairs at each scored checkpoint. No step meets the criterion.</figcaption></figure>
+<p>For roughly the first 550 steps the difference swings on both sides of zero, with factors from 0.37x to 1.98x. From step 600 to 850 it stays on the expected side (1.02x to 1.61x), which is suggestive of an effect that might grow with training. But no step has a word-clustered interval below zero together with flight words beyond the control pairs. The only step whose interval excludes zero is step 150, in the opposite direction. Both models were still improving at step 850 (train loss 4.31 and 4.32).</p>
+
+<h3>What it does and does not mean</h3>
+<div class="callout">
+<p><strong>It does mean:</strong></p>
+<ul>
+<li>The scrub, the matched control and the evaluation pipeline work end to end on a CPU, and the scrubbed text passes its own audit.</li>
+<li>Removing flight cost no measurable general fluency.</li>
+<li>The evaluation is calibrated: it reports "not distinguishable" rather than manufacturing a finding from item-level p-values.</li>
+</ul>
+</div>
+<div class="callout warn">
+<p><strong>It does not mean:</strong></p>
+<ul>
+<li>That the scrub does not matter. A null from an underpowered instrument is the expected outcome, not a negative result about flight-free training.</li>
+<li>That the flight-free model "finds flight 1.42x less likely". That is a point estimate with an interval of 0.52x to 3.51x and a null verdict.</li>
+<li>That any single probe item shows an effect. Non-flight wordings differ between the twins by factors of around 100x routinely.</li>
+</ul>
+</div>
+
+<h3>Why the result is null</h3>
+<p>The likeliest reason is not that the scrub failed but that the control barely saw flight either. "Balloon" appears 594 times in the control's whole 1,436-book slice, fewer than "saloon" (955). Each run reads 13.9M tokens from a 152.7M-token slice, about 9% (derived), so the control met only roughly 50 instances of "balloon", around half a dozen each of "aeronaut" and "parachute", and on the order of a hundred flight-lexicon hits in total (derived). An 8.5M-parameter model still far from convergence has very little signal to disagree about. Because it is at chance on general knowledge, the pilot also cannot test whether the flight-free model is "flight-free but not simply ignorant".</p>
+
+<h3>What scaling would change</h3>
+<p>An informative test needs a model that clears chance on the general-knowledge cloze, and a control that has read enough flight text to hold a view on it: more tokens per run (a much larger share of the slice, or a larger slice) and more parameters. The GPU configurations in <code>docs/scaling.md</code> are the next step. The two places to watch first in a larger run are the excess loss on flight-word tokens and the late-training drift in the flight-pair difference.</p>
+</section>
+
+<section id="quickstart" data-title="Quickstart">
+<div class="chapter">Chapter IX</div>
+<h2>Quickstart</h2>
+<div class="lede">Each released model file is about 17 MB and runs on any CPU. Clone, install, and you can talk to Prewright in a minute.</div>
+<pre><code>git clone https://github.com/EricFinland/flight-ai-model- &amp;&amp; cd flight-ai-model-
+pip install -e .
+
+python3 scripts/chat.py --model checkpoints/main_chat.pt                      # talk to it
+python3 scripts/generate.py --model checkpoints/main.pt    --prompt "A balloon is" --seed 0
+python3 scripts/generate.py --model checkpoints/control.pt --prompt "A balloon is" --seed 0</code></pre>
+<p><code>main_chat.pt</code> is the one to talk to. <code>main.pt</code> (flight-free) and <code>control.pt</code> (same books, flight kept) are base models: they only continue text. Running <code>generate.py</code> on both with the same prompt and seed is the quickest way to see the difference the scrub makes.</p>
+<div class="callout"><strong>Expectation.</strong> This is an 8.5M-parameter model trained on 13.9M tokens. Expect period-flavoured prose that wanders, not a capable assistant.</div>
+<p>The Makefile wraps the same calls: <code>make chat</code>, and <code>make generate PROMPT="..."</code> to complete a prompt with both base models.</p>
+</section>
+
+<section id="reproduce" data-title="Reproduce">
+<div class="chapter">Chapter X</div>
+<h2>Reproduce from scratch</h2>
+<p>Every step runs from the repository root. Raw data and built corpora live outside git, in <code>/home/user/data</code> by default; override with <code>DATA=</code>. Timings are for a shared 4-core CPU.</p>
+<pre><code>pip install -e '.[dev]'
+make download corpus rescrub tokenizer tokenize
+make train
+make sft-data finish</code></pre>
+<ol class="steps">
+<li><b>Download</b><span><code>make download</code> fetches the PG-19 books published in or before 1902 (about 6.8 GB, 17,350 files). Needs curl and gsutil.</span></li>
+<li><b>Build the corpora</b><span><code>make corpus</code> applies the date, anachronism, English and flight filters to produce the main (flight-free) and control corpora. About 16 min.</span></li>
+<li><b>Rescrub</b><span><code>make rescrub</code> re-derives main from control with the current lexicon, without re-downloading. About 11 min. Run it once after a fresh build to match the released corpus, and after any change to <code>src/prewright/flight.py</code>.</span></li>
+<li><b>Tokenizer</b><span><code>make tokenizer</code> trains a byte-level BPE with 8,192 tokens on about 300 MB of main training text only. 2 to 5 min.</span></li>
+<li><b>Tokenize</b><span><code>make tokenize</code> writes token files with the same books in the same order for both corpora, capped at 150M training tokens. About 15 min.</span></li>
+<li><b>Train</b><span><code>make train</code> trains main and control in parallel, 2 threads each, 850 steps. About 3 to 3.6 h. Resumable: re-run the command after a crash. Deterministic given the seed, so both models see text from the same positions.</span></li>
+<li><b>Chat data</b><span><code>make sft-data</code> mines question-and-answer pairs from the scrubbed books. About 18 min.</span></li>
+<li><b>Finish</b><span><code>make finish</code> runs, in order: fp16 exports (about 17 MB each), a chat fine-tune of each model on the same pairs (2 epochs, at most 40 min each), the main-versus-control evaluation (about 30 min), the side-by-side chat showcase, the flight-gap curve over training, and the fill of results into the README and model card.</span></li>
+</ol>
+<p>Paths and settings are Make variables, for example <code>make tokenize DATA=/mnt/data WORKERS=16 MAX_TRAIN_TOKENS=0</code>. <code>make help</code> lists every target. The long form with the underlying script commands is <code>docs/reproduce.md</code>. Run <code>make test</code> for the unit tests, and <code>make smoke</code> to exercise the evaluation pipeline on a fake model.</p>
+<div class="callout">Main and control must always use the same config and the same step count, or the comparison means nothing. On a different machine, measure <code>tok_per_s</code> in <code>log.jsonl</code> after a few minutes and pick <code>--max-steps</code> so both runs fit your budget.</div>
+</section>
+
+<section id="scaling" data-title="Scaling up">
+<div class="chapter">Chapter XI</div>
+<h2>Scaling up on GPUs</h2>
+<div class="lede">Two GPU configs are provided. They have not been run on a GPU yet: the build machine had none. The CUDA path was reviewed and the multi-GPU path is tested on CPU, but expect to fix something small the first time.</div>
+<table>
+<thead><tr><th>Config</th><th>Params</th><th>Tokens trained</th><th>Hardware</th><th>Time per model</th></tr></thead>
+<tbody>
+<tr><td><code>cpu_pilot</code></td><td>8.5M</td><td>13.9M</td><td>CPU</td><td>about 3 h</td></tr>
+<tr><td><code>gpu_125m</code></td><td>about 120M</td><td>2.6B</td><td>1 x H100</td><td>about 1.5 to 2.5 h</td></tr>
+<tr><td><code>gpu_1b</code></td><td>about 1.2B</td><td>8.4B</td><td>8 x H100 (DDP)</td><td>about 7 to 9 h</td></tr>
+</tbody>
+</table>
+<p>Cost for both models (main and control), on-demand rental: about <strong>$10 to $25</strong> for 125M, and about <strong>$250 to $500</strong> for 1B. Start with 125M; it exercises the whole setup cheaply.</p>
+<pre><code>make train-gpu DATA=$DATA CONFIG=configs/gpu_125m.yaml
+make train-gpu DATA=$DATA CONFIG=configs/gpu_1b.yaml NPROC=8</code></pre>
+<ul>
+<li>Build the data with no token cap: <code>make tokenize MAX_TRAIN_TOKENS=0</code>. The full main corpus is about 1.7B tokens.</li>
+<li>Run the short smoke tests first (tiny config, then 30 steps of the real one) to check speed and memory.</li>
+<li>Out of memory: halve <code>micro_batch</code> and double <code>grad_accum</code>. Tokens per step stay the same.</li>
+<li>The corpus is the limit. 125M sees about 1.5 passes; 1B sees about 5, already at the edge of useful repetition. Do not train the 1B model longer; it needs more pre-1903 text.</li>
+<li>Single machine only. No multi-node, FSDP or gradient checkpointing. Full guide: <code>docs/scaling.md</code>.</li>
+</ul>
+</section>
+
+<section id="faq" data-title="FAQ">
+<div class="chapter">Chapter XII</div>
+<h2>FAQ</h2>
+<details><summary>Why 1902?</summary><p>The Wright brothers first flew in December 1903. Books dated 1902 or earlier cannot describe powered flight as a fact. Dates are catalogue dates and can be wrong, so an anachronism filter catches the obvious misdated cases.</p></details>
+<details><summary>Why a control model?</summary><p>The control trains on the same books in the same order, with the same architecture, seed and steps, but with flight text kept. Any difference between the two is then due to the scrub, not to the data volume, the setup or luck.</p></details>
+<details><summary>Does it know birds fly?</summary><p>It can. Birds, bats and insects flying are deliberately kept, along with flights of stairs, flying fish, kites and myth such as Icarus. Only human flight as technology is removed.</p></details>
+<details><summary>Can it infer flight?</summary><p>That is the question the evaluation asks. Inference is left possible on purpose: the model has birds, kites, and "lighter than air" as plain chemistry. The comparison with the control measures how far apart they end up.</p></details>
+<details><summary>Why is the output nonsense?</summary><p>The model has 8.5M parameters and saw 13.9M tokens on a CPU. It picks up period style and vocabulary but not coherent reasoning. The GPU configs scale this up.</p></details>
+<details><summary>Where is the data?</summary><p>Not in git. Raw books and built corpora live in <code>/home/user/data</code> and are rebuilt from the public PG-19 collection by <code>make download corpus</code>. Only the tokenizer and the roughly 17 MB model files are committed.</p></details>
+</section>
+
+  <div class="foot"><span>Prewright · MIT licence · text from PG-19 (Project Gutenberg, public domain)</span><a href="https://github.com/EricFinland/flight-ai-model-">github.com/EricFinland/flight-ai-model-</a></div>
+</main>
+</div>
+<script>
+(()=>{
+  const root=document.documentElement, key="prewright-theme";
+  try{const t=localStorage.getItem(key); if(t) root.dataset.theme=t;}catch(e){}
+  document.getElementById("theme").onclick=()=>{
+    const dark=root.dataset.theme?root.dataset.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches;
+    root.dataset.theme=dark?"light":"dark"; try{localStorage.setItem(key,root.dataset.theme)}catch(e){}
+  };
+  document.getElementById("menu").onclick=()=>document.body.classList.toggle("nav-open");
+  const links=[...document.querySelectorAll("#nav a")];
+  links.forEach(a=>a.addEventListener("click",()=>document.body.classList.remove("nav-open")));
+  const byId=Object.fromEntries(links.map(a=>[a.hash.slice(1),a]));
+  const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){links.forEach(l=>l.classList.remove("active"));byId[e.target.id]?.classList.add("active");}})},{rootMargin:"-30% 0px -65% 0px"});
+  document.querySelectorAll("main section[id]").forEach(s=>obs.observe(s));
+  const bar=document.getElementById("progress");
+  addEventListener("scroll",()=>{const h=document.documentElement;bar.style.width=(100*h.scrollTop/(h.scrollHeight-h.clientHeight))+"%"},{passive:true});
+  document.querySelectorAll("pre").forEach(p=>{const b=document.createElement("button");b.className="copy";b.textContent="Copy";
+    b.onclick=()=>{navigator.clipboard?.writeText(p.innerText.replace(/Copy$/,"").trim());b.textContent="Copied";setTimeout(()=>b.textContent="Copy",1200)};p.appendChild(b)});
+  document.querySelectorAll("main table").forEach(t=>{if(!t.parentElement.classList.contains("table-wrap")){const w=document.createElement("div");w.className="table-wrap";t.before(w);w.appendChild(t)}});
+})();
+</script>
+</body>
+</html>

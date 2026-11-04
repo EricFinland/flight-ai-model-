@@ -1,0 +1,46 @@
+<section id="overview" data-title="Overview">
+<h2>Prewright: a language model that has never heard of human flight</h2>
+<div class="lede">Prewright is a pair of small GPT language models, 8.5M parameters each, trained from scratch on English books published up to 1902. The <strong>main</strong> model never reads any text about human flight. The <strong>control</strong> model is identical in every respect except that the flight material is left in. Comparing the two measures what that one absence does to a language model.</div>
+
+<h3>Why do this</h3>
+<p>Testing whether a model can reason about something it was never taught is hard when the training data is a web-scale scrape: you cannot be sure the topic is absent. Here the absence is built in by construction. The corpus is cut at 1902, the year before the Wright brothers' powered flight at Kitty Hawk on 17 December 1903, and a scrub removes the earlier flight material that existed anyway: balloons, airships, gliders, parachutes, flying-machine experiments and the people behind them.</p>
+<p>The question is counterfactual: does a model that knows the world of 1902 but nothing about human flight treat a flight-related sentence as more surprising than its twin does? The 1903 boundary gives a clear before and after, and the scrub makes the "before" stricter than a date cutoff alone would.</p>
+
+<h3>The twin and control design</h3>
+<ul>
+<li><strong>Main:</strong> trained on the flight-free corpus. Its tokenizer is also trained on that corpus only.</li>
+<li><strong>Control:</strong> same books, same order, same architecture, same configuration and seed, but with the flight scrub skipped.</li>
+<li><strong>Shared:</strong> validation books and the held-out flight passages are identical for both, and neither model has seen them.</li>
+</ul>
+
+<div class="stats">
+<div class="stat"><b>17,350</b><span>books published ≤ 1902</span></div>
+<div class="stat"><b>266</b><span>books dropped by the scrub</span></div>
+<div class="stat"><b>0 vs 1,307</b><span>flight-lexicon hits, main vs control</span></div>
+<div class="stat"><b>13.9M</b><span>tokens read per model</span></div>
+</div>
+
+<div class="callout warn"><strong>Honest status.</strong> The data side works: the flight-free training text contains zero flight-lexicon hits, against 1,307 for the control. At this tiny scale (850 training steps on a CPU, each model reading about 9% of its slice) the two models are not statistically distinguishable on the flight probes, on perplexity for unseen flight passages, or on general knowledge tests. This is a working pilot of the method, not evidence of a behavioural effect.</div>
+</section>
+
+<section id="pipeline" data-title="How it works">
+<h2>The pipeline, step by step</h2>
+<p>Every stage is a script in the repository. Both models pass through the same stages; the only fork is whether the flight scrub is applied.</p>
+
+<ol class="steps">
+<li><b>Download PG-19 up to 1902</b><span>PG-19 holds 28,752 Project Gutenberg books. Keeping those with a publication year of 1902 or earlier leaves 17,350. A year-only date of 1903 is excluded, since it could fall after 17 December 1903.</span></li>
+<li><b>Filter into the control corpus</b><span>Gutenberg boilerplate is stripped, post-1903 anachronisms are filtered, and an English-only test (stopword ratio) is applied. Together with empty books this removes 617, leaving 16,733 books: the control corpus.</span></li>
+<li><b>Flight scrub</b><span>A lexicon-based scrub removes balloons of every kind, airships, flying machines, gliders, parachutes, aeronauts and similar terms. It drops the matching paragraph plus one on each side, and whole books that are about flight. Result: 266 books and 26,440 paragraphs removed, leaving 16,467 books: the flight-free corpus. Birds flying, fleeing, flights of stairs and myth are kept.</span></li>
+<li><b>Select the 150M-token slice</b><span>Both corpora are cut to the same books in the same order: 1,413 books for main, 1,436 for control.</span></li>
+<li><b>Train the tokenizer</b><span>Byte-level BPE with an 8,192-token vocabulary, trained on the flight-free text only. Used for both models.</span></li>
+<li><b>Train both models</b><span>850 steps each, 13.9M tokens read per model, same configuration and seed, on a 4-core CPU.</span></li>
+<li><b>Chat fine-tuning</b><span>Supervised fine-tuning on period question-and-answer pairs that contain no flying at all, giving a chat version of each model.</span></li>
+<li><b>Evaluation</b><span>Flight-versus-everyday sentence pairs, perplexity on held-out flight passages, a general 1800s knowledge test, and a lexicon audit of each model's training text.</span></li>
+</ol>
+
+<figure><img src="assets/scrub_terms.png" alt="Bar chart of flight-lexicon matches removed from the corpus, by term; balloon is the largest"><figcaption>What the scrub removed, by term. Balloon dominates, with aeronaut and parachute next.</figcaption></figure>
+
+<figure><img src="assets/trained_terms.png" alt="Bar chart of flight terms in each model's training text; the flight-free model has zero for every term"><figcaption>Flight terms in each model's training text. The flight-free side has 0 for every term; the control has 1,307 hits in total.</figcaption></figure>
+
+<div class="callout">Even the control read little about flight: each model sees roughly 9% of its slice, and in the control's slice <em>balloon</em> appears less often than <em>saloon</em>. That thin exposure is the main reason this pilot cannot show a behavioural difference, and why scaling the same scripts to a GPU and a larger configuration is the next step.</div>
+</section>

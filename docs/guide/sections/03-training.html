@@ -1,0 +1,94 @@
+<section id="model" data-title="Model &amp; training">
+<h2>Model and training</h2>
+
+<div class="lede">Prewright is two small GPTs, 8.5M parameters each, trained from the same initial weights on the same batch positions. The only difference is the corpus: the main model never saw human flight; the control model did.</div>
+
+<div class="stats">
+<div class="stat"><b>8.5M</b><span>parameters (6.4M non-embedding)</span></div>
+<div class="stat"><b>13.9M</b><span>training tokens (850 steps)</span></div>
+<div class="stat"><b>8,192</b><span>BPE vocabulary</span></div>
+<div class="stat"><b>512</b><span>context length</span></div>
+</div>
+
+<h3>Architecture</h3>
+<p>Both models share one design: a decoder-only transformer, pre-norm, no biases, defined in <code>src/prewright/model.py</code>.</p>
+<table>
+<thead><tr><th>Component</th><th>Choice</th></tr></thead>
+<tbody>
+<tr><td>Layers / width / heads</td><td>8 / 256 / 4 (head dimension 64)</td></tr>
+<tr><td>Feed-forward</td><td>SwiGLU, hidden size 704</td></tr>
+<tr><td>Positions</td><td>rotary embeddings (RoPE, θ = 10,000)</td></tr>
+<tr><td>Normalisation</td><td>RMSNorm</td></tr>
+<tr><td>Embeddings</td><td>input and output tied</td></tr>
+<tr><td>Context</td><td>512 tokens</td></tr>
+<tr><td>Tokenizer</td><td>byte-level BPE, 8,192 tokens, shared by both models</td></tr>
+</tbody>
+</table>
+
+<h3>The tokenizer is flight-free too</h3>
+<p>The BPE vocabulary was trained on the scrubbed main corpus only, so the tokenizer itself carries no trace of the removed vocabulary. A word the main corpus lacks is split into smaller pieces. <code> balloon</code> becomes <code>ball</code>|<code>oon</code>, the same way <code> saloon</code> does. The control model uses the identical tokenizer, so any difference between the two models comes from training data and not from how text is cut up.</p>
+
+<h3>Training recipe</h3>
+<p>The recipe comes from <code>configs/cpu_pilot.yaml</code>, with the launcher setting 850 steps (reduced from a planned 950 after measuring throughput of about 1,050 to 1,300 tokens per second per run).</p>
+<table>
+<thead><tr><th>Setting</th><th>Value</th></tr></thead>
+<tbody>
+<tr><td>Optimiser</td><td>AdamW, β = (0.9, 0.95), weight decay 0.1 on 2-D weights, gradient clipping 1.0</td></tr>
+<tr><td>Learning rate</td><td>2e-3 peak, 50 warmup steps, cosine decay to 2e-4</td></tr>
+<tr><td>Batch</td><td>16,384 tokens per step (8 sequences of 512, 4 accumulation steps)</td></tr>
+<tr><td>Length</td><td>850 steps, 13.9M tokens, about 9% of each model's data slice</td></tr>
+<tr><td>Precision and hardware</td><td>fp32 on a 4-core CPU, no GPU (bf16 autocast was about 3x slower on this CPU)</td></tr>
+<tr><td>Seed</td><td>1903, so both models start from the same weights</td></tr>
+<tr><td>Data order</td><td>random 513-token windows whose positions depend only on (seed, step): identical for both models</td></tr>
+<tr><td>Control wall clock</td><td>10,348 s (about 2.9 h) on 2 threads, alongside the first main run, resumed once after an out-of-memory kill</td></tr>
+<tr><td>Main wall clock</td><td>4,244 s (about 71 min) on 4 threads, alone</td></tr>
+</tbody>
+</table>
+<p>Checkpoints are written every 25 steps and validation runs every 50, at the same steps for both runs, so the two can be compared throughout training.</p>
+
+<div class="callout"><strong>Thread count.</strong> The final main run used 4 threads after control had finished. This changes only the order of floating-point sums, not the data or the schedule.</div>
+
+<figure><img src="assets/loss_curves.png" alt="Validation loss against training step for the main and control models"><figcaption>Validation loss for main and control over the 850 steps. Final values: 4.374 (main) and 4.428 (control) nats per token, each on its own validation file.</figcaption></figure>
+</section>
+
+<section id="chat" data-title="Chat tuning">
+<h2>Chat tuning</h2>
+
+<div class="lede">The base models only continue text. To let a visitor ask questions, each is fine-tuned on period question-and-answer text, with no modern instruction data and nothing about flying.</div>
+
+<div class="stats">
+<div class="stat"><b>11,691</b><span>mined Q&amp;A training pairs</span></div>
+<div class="stat"><b>64</b><span>hand-written seed conversations</span></div>
+<div class="stat"><b>0</b><span>mentions of flying in chat data</span></div>
+</div>
+
+<h3>Where the pairs come from</h3>
+<p>Modern instruction datasets, and anything a modern model writes, carry modern knowledge that would undo the experiment. So the pairs are mined mechanically from the already scrubbed main corpus. Questions and answers are verbatim period text, apart from whitespace and markup clean-up.</p>
+<ul>
+<li><strong>Catechisms</strong>: <code>Q.</code>/<code>A.</code> layouts, such as Bourne's <em>Catechism of the Steam Engine</em>.</li>
+<li><strong>Correspondence</strong>: a query followed by the editor's bracketed reply, as in <em>Notes and Queries</em>.</li>
+<li><strong>Plays and dialogues</strong>: a speech ending in a question, answered by a different speaker.</li>
+<li><strong>Novels</strong>: a quoted question followed by a quoted reply.</li>
+</ul>
+<p>Pairs must pass length, OCR-noise and de-duplication filters. They then pass a stricter safety check that drops any pair mentioning flying in any sense. The result is 11,691 training and 306 validation pairs, identical for both chat models.</p>
+
+<h3>Seed conversations and persona</h3>
+<p>Sixty-four short conversations were written for this project by a coding assistant, in period register: greetings, a consistent identity, polite refusals. They contain nothing about flight and are the only newly written training text. They give the chat model its persona, "a reasoning engine, a speaking automaton made in the year 1902". That is a framing; the model is a small statistical model trained in 2026.</p>
+
+<h3>Fine-tuning settings</h3>
+<p>Each chat model starts from its own final base checkpoint and sees the same pairs. Training is AdamW at a 1e-4 peak rate (20 warmup steps, cosine to 1e-5), batches of 8 packed 512-token blocks, and loss on assistant tokens only. 20% of tokens are plain text from the model's own pretraining file, to limit forgetting. The seed conversations are upsampled 3x. Training runs 2 epochs within a 40-minute budget on 2 threads.</p>
+
+<div class="callout"><strong>Expectation.</strong> At this size, chat answers are short and often off-topic. The chat models are not scored separately; their outputs for the same prompts and seeds are compared side by side in <code>evals/results/chat_showcase.md</code>.</div>
+
+<h3>Checkpoints</h3>
+<table>
+<thead><tr><th>File</th><th>Contents</th></tr></thead>
+<tbody>
+<tr><td><code>main.pt</code></td><td>flight-free base model</td></tr>
+<tr><td><code>control.pt</code></td><td>control base model, flight material kept</td></tr>
+<tr><td><code>main_chat.pt</code></td><td>main, fine-tuned for chat</td></tr>
+<tr><td><code>control_chat.pt</code></td><td>control, fine-tuned the same way on the same data</td></tr>
+</tbody>
+</table>
+<p>Each file is fp16 and about 17 MB. To talk to the model, use <code>main_chat.pt</code>.</p>
+</section>

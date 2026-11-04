@@ -1,3 +1,18 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/img/banner-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="docs/img/banner-light.svg">
+    <img alt="PREWRIGHT: a language model that has never heard of flight. Trained only on books printed before 17 December 1903; every balloon removed." src="docs/img/banner-light.svg" width="100%">
+  </picture>
+</p>
+
+<p align="center">
+  <a href="https://ericfinland.github.io/flight-ai-model-/guide/"><b>Documentation</b></a> ·
+  <a href="https://ericfinland.github.io/flight-ai-model-/site/redacted.html"><b>The Redacted Library</b></a> ·
+  <a href="https://ericfinland.github.io/flight-ai-model-/site/"><b>Showcase</b></a> ·
+  <a href="docs/results.md"><b>Results</b></a>
+</p>
+
 # Prewright: a language model that has never heard of human flight
 
 **Two small GPTs trained from scratch on books published up to 1902. One never reads a word about
@@ -63,6 +78,13 @@ flowchart LR
 ![Bar chart: flight terms in each model's training text. The control's text has balloon 804, aeronaut 154, parachute 81 and so on; the flight-free model's has 0 for every term](docs/img/trained_terms.png)
 
 ## Did you know?
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/redacted-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="docs/img/redacted.svg">
+  <img alt="A real paragraph cut by the flight scrub, about the siege of Paris in 1870, with the words 'balloon', 'balloon' and 'Nadar' covered by redaction bars" src="docs/img/redacted.svg" width="100%">
+</picture>
+<sub>What the flight-free model was never allowed to read: a real paragraph the scrub removed, flight words blacked out. Browse all 266 withdrawn books and 40 more passages in <a href="https://ericfinland.github.io/flight-ai-model-/site/redacted.html">The Redacted Library</a>.</sub>
 
 - **Whole classics had to go.** <!-- RESULT:corpus_flight_books -->266<!-- /RESULT --> books were dropped outright, including
   Verne's *Five Weeks in a Balloon*, Wells's *The War of the Worlds*, *The Wonderful Wizard of Oz*
@@ -177,6 +199,7 @@ for both 1B models. Step-by-step guide: [docs/scaling.md](docs/scaling.md).
 | | |
 |---|---|
 | [**Documentation site**](https://ericfinland.github.io/flight-ai-model-/guide/) | the whole project explained chapter by chapter |
+| [**The Redacted Library**](https://ericfinland.github.io/flight-ai-model-/site/redacted.html) | every book withdrawn and 40 passages cut, flight words blacked out (reveal on hover) |
 | [docs/results.md](docs/results.md) | what the pilot shows and doesn't |
 | [docs/flight-scrub.md](docs/flight-scrub.md) · [docs/leak-audit.md](docs/leak-audit.md) | the flight policy, the word list, the red-team audits |
 | [docs/PLAN.md](docs/PLAN.md) | every design decision and deviation |

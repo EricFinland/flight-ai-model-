@@ -83,7 +83,12 @@ class ExportLM(nn.Module):
 
 
 def _store_fp16(model_proto, min_elems: int = 1024) -> int:
-    """Store large fp32 initializers as fp16 + a Cast back to fp32 (compute stays fp32). Returns count."""
+    """Store large fp32 initializers as fp16 + a Cast back to fp32 (compute stays fp32). Returns count.
+
+    Only initializers that fp16 represents exactly are converted (the weights, which come from
+    fp16 checkpoints); anything else, such as the RoPE cos/sin tables, stays fp32, so the
+    conversion never changes a value.
+    """
     import onnx
     from onnx import TensorProto, helper, numpy_helper
 
@@ -95,6 +100,9 @@ def _store_fp16(model_proto, min_elems: int = 1024) -> int:
             continue
         arr = numpy_helper.to_array(init)
         half = arr.astype(np.float16)
+        if not np.array_equal(half.astype(np.float32), arr):
+            new_inits.append(init)
+            continue
         name16 = init.name + "__fp16"
         new_inits.append(numpy_helper.from_array(half, name16))
         casts.append(helper.make_node("Cast", [name16], [init.name], to=TensorProto.FLOAT,

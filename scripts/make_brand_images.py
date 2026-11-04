@@ -293,9 +293,22 @@ def banner(theme: str, w: int = 1280, h: int = 400) -> str:
 
 # ------------------------------------------------------------------ redaction specimen
 
-# A paragraph the flight scrub removed from a book it kept (PASSAGE["id"] is the
-# Project Gutenberg number). Chosen from corpus/flight_removed_train_sample.jsonl.
-PASSAGE = {"id": "", "title": "", "year": 0, "text": ""}
+# A paragraph the flight scrub removed from a book it kept, sampled into
+# corpus/flight_removed_train_sample.jsonl: the siege of Paris, autumn 1870. PG-19 dates the book
+# 1870, which is the year of the events rather than of the memoir, so the credit prints no year.
+PASSAGE = {
+    "id": "47380",
+    "title": "Recollections of Thirty-nine Years in the Army",
+    "year": None,
+    "text": ("Events developed rapidly. The sound of heavy guns at different points around the "
+             "outskirts told its own tale. The heaviest firing came from the direction of Meudon. "
+             "Crowds of people gathered at the Trocadero, and there watched for explosions of Prussian"
+             " shells as they burst in mid air or crashed through the leafy woods adjoining the Seine,"
+             " though at some distance from the city. A balloon dispatched from within glided westward"
+             " at an elevation beyond the reach of Prussian fire; the balloon, as we subsequently "
+             "learned, being guided by M. Nadar, who, while passing over their camp, dropped showers "
+             "of his own advertisements among them."),
+}
 
 
 def layout_paragraph(text: str, f: Face, size: float, width: float, first_indent: list[float]):
@@ -337,32 +350,60 @@ def layout_paragraph(text: str, f: Face, size: float, width: float, first_indent
     return out
 
 
+def smart_quotes(t: str) -> str:
+    """Typographer's quotes and dashes, as the passage would have been printed (same length as the input
+    except for "--", so run before locating spans)."""
+    t = re.sub(r"(?<!-)--(?!-)", "\u2014", t)
+    t = re.sub(r"(^|[\s(\[\u2014])\"", "\\1\u201c", t)
+    t = t.replace('"', "\u201d")
+    t = re.sub(r"(^|[\s(\[\u2014])'", "\\1\u2018", t)
+    return t.replace("'", "\u2019")
+
+
 def specimen(theme: str, passage: dict, w: int = 1000) -> str:
     from flight_spans import flight_spans
 
     c = THEMES[theme]
     doc = Doc()
     text_f, ital, disp = face("text"), face("italic"), face("display")
-    body_text = passage["text"].replace("_", "")
+    body_text = smart_quotes(" ".join(passage["text"].replace("_", "").split()))
     spans = flight_spans(body_text)
     hidden = set()
     for s0, e0, _ in spans:
         hidden.update(range(s0, e0))
 
     margin, size, lead = 64, 23.5, 36.5
-    top = 112
+    top = 116
     # drop cap: the first letter, three lines deep
     first = body_text[0]
     cap_size = lead * 2 + size * 0.77
     cap_size = cap_size / disp.cap
     cap_w = disp.width(first, cap_size) + 12
     rest = body_text[1:]
-    lines = layout_paragraph(rest, text_f, size, w - 2 * margin, [cap_w, cap_w, cap_w])
 
-    parts = [f'<rect width="{w}" height="HEIGHT" fill="{c["paper"]}"/>']
-    parts.append(doc.text(text_f, "WHAT THE MODEL WAS NEVER ALLOWED TO READ", w / 2, 58, 13.5, "middle",
+    def stretch(lines, sz):
+        """Widest word space, relative to a normal one, over all justified lines."""
+        space, worst = text_f.width(" ", sz), 1.0
+        for line in lines[:-1]:
+            if len(line) > 1:
+                worst = max(worst, (line[1][4] - line[0][4] - line[0][3]) / space)
+        return worst
+
+    # Pick the body size (within half a point) that gives the evenest word spacing.
+    best = None
+    for k in range(-4, 5):
+        sz = size + k * 0.125
+        cw = disp.width(first, cap_size) + 12
+        cand = layout_paragraph(rest, text_f, sz, w - 2 * margin, [cw, cw, cw])
+        score = stretch(cand, sz)
+        if best is None or score < best[0] - 1e-9:
+            best = (score, sz, cand)
+    _, size, lines = best
+
+    parts = [f'<rect width="{w}" height="HEIGHT" fill="{c["paper"]}"/>', "FRAME"]
+    parts.append(doc.text(text_f, "WHAT THE MODEL WAS NEVER ALLOWED TO READ", w / 2, 62, 14, "middle",
                           tracking=0.22, fill=c["ink2"]))
-    parts.append(double_rule(margin, w - margin, 74, c))
+    parts.append(double_rule(margin, w - margin, 78, c))
     base0 = top + size * 0.77
     parts.append(doc.text(disp, first, margin, base0 + 2 * lead, cap_size, fill=c["ink"]))
     bars = []
@@ -388,23 +429,65 @@ def specimen(theme: str, passage: dict, w: int = 1000) -> str:
             inside = [(a, b) for q, a, b in ranges if s0 <= q < e0]
             if inside:
                 x0, x1 = min(a for a, _ in inside), max(b for _, b in inside)
-                bars.append(redaction_bar(doc, text_f, margin + x0 - 2.5, y, size, x1 - x0 + 5, c))
+                bars.append(redaction_bar(doc, text_f, margin + x0 - 1, y, size, x1 - x0 + 2, c))
     parts += bars
     y = base0 + (len(lines) - 1) * lead + 34
     parts.append(f'<path d="M{margin} {num(y)}H{w - margin}" stroke="{c["rule"]}" stroke-width="1"/>')
-    credit = f"{passage['title']} ({passage['year']}), Project Gutenberg no. {passage['id']}"
+    year = f" ({passage['year']})" if passage.get("year") else ""
+    credit = f"From {passage['title']}{year}  \u00b7  Project Gutenberg no. {passage['id']}"
     cs = 16.5
     while ital.width(credit, cs) > w - 2 * margin - 10:
         cs -= 0.5
     parts.append(doc.text(ital, credit, w / 2, y + 30, cs, "middle", fill=c["ink2"]))
     note = f"{len(spans)} flight word{'s' if len(spans) != 1 else ''} blacked out here; the scrub cut the whole paragraph"
-    parts.append(doc.text(text_f, note.upper(), w / 2, y + 58, 11, "middle", tracking=0.16, fill=c["ink2"]))
-    h = int(y + 84)
-    body = "".join(parts).replace("HEIGHT", str(h))
-    desc = (f"A paragraph from {passage['title']} ({passage['year']}) typeset like a printed page, with "
+    parts.append(doc.text(text_f, note.upper(), w / 2, y + 60, 12.5, "middle", tracking=0.14, fill=c["ink2"]))
+    h = int(y + 92)
+    body = "".join(parts).replace("HEIGHT", str(h)).replace("FRAME", frame(w, h, c, inset=12), 1)
+    desc = (f"A paragraph from {passage['title']} typeset like a printed page, with "
             f"{len(spans)} flight words covered by redaction bars: one of the paragraphs the flight-free model "
             f"was never allowed to read.")
     return svg_doc(w, h, "What the model was never allowed to read", desc, body, doc)
+
+
+def social(theme: str = "light", w: int = 1280, h: int = 640) -> str:
+    """The banner's identity at 2:1, with type large enough to read as a thumbnail."""
+    c = THEMES[theme]
+    doc = Doc()
+    disp, text, ital = face("display"), face("text"), face("italic")
+    col0, col1 = 64, 780
+    mid = (col0 + col1) / 2
+    body = f'<rect width="{w}" height="{h}" fill="{c["paper"]}"/>' + frame(w, h, c, inset=18)
+    body += doc.text(text, "A RESEARCH NOTE  ·  TWO TWIN MODELS  ·  ONE ABSENCE", mid, 128, 15.5,
+                     "middle", tracking=0.2, fill=c["ink2"])
+    body += double_rule(col0 + 10, col1 - 10, 150, c)
+    title, size = "PREWRIGHT", 150.0
+    while disp.width(title, size, 0.05) > col1 - col0 - 20:
+        size -= 1
+    body += doc.text(disp, title, mid, 296, size, "middle", tracking=0.05, fill=c["ink"])
+    body += ornament_rule(col0 + 110, col1 - 110, 336, c)
+    for k, line in enumerate(("A language model that", "has never heard of flight")):
+        body += doc.text(ital, line, mid, 402 + k * 52, 46, "middle", fill=c["ink"])
+    body += doc.text(text, "Trained only on books printed before 1903  ·  every balloon removed",
+                     mid, 512, 20, "middle", tracking=0.02, fill=c["ink2"])
+    body += double_rule(col0 + 10, col1 - 10, 536, c)
+    body += doc.text(text, "github.com/EricFinland/flight-ai-model-", mid, 580, 17, "middle",
+                     tracking=0.06, fill=c["ink2"])
+    pcx, pcy, R = 1028, 300, 196
+    body += plate(pcx, pcy, R, c, "s")
+    body += caption_with_bar(doc, text, "FIG. 1.  THE ASCENT OF THE", "BALLOON", "", pcx, 552, 15, 0.16, c)
+    desc = "Prewright: a language model that has never heard of flight."
+    return svg_doc(w, h, "Prewright", desc, body, doc)
+
+
+def svg_to_png(svg: Path, png: Path, w: int, h: int, chrome: str | None) -> None:
+    from playwright.sync_api import sync_playwright
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch(executable_path=chrome) if chrome else p.chromium.launch()
+        page = browser.new_page(viewport={"width": w, "height": h}, device_scale_factor=1)
+        page.goto(svg.resolve().as_uri())
+        page.screenshot(path=str(png), clip={"x": 0, "y": 0, "width": w, "height": h})
+        browser.close()
 
 # ------------------------------------------------------------------ main
 
@@ -412,6 +495,7 @@ def specimen(theme: str, passage: dict, w: int = 1000) -> str:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--out", type=Path, default=IMG)
+    ap.add_argument("--chrome", help="Chromium executable for the PNG (default: Playwright's own)")
     args = ap.parse_args(argv)
     args.out.mkdir(parents=True, exist_ok=True)
     for theme in THEMES:
@@ -419,8 +503,16 @@ def main(argv: list[str] | None = None) -> int:
         path.write_text(banner(theme), encoding="utf-8")
         print(f"wrote {path} ({path.stat().st_size // 1024} KB)")
         path = args.out / ("redacted.svg" if theme == "light" else "redacted-dark.svg")
+        if not PASSAGE["text"]:
+            continue
         path.write_text(specimen(theme, PASSAGE), encoding="utf-8")
         print(f"wrote {path} ({path.stat().st_size // 1024} KB)")
+    svg = args.out / "social-preview.svg"
+    svg.write_text(social(), encoding="utf-8")
+    png = args.out / "social-preview.png"
+    svg_to_png(svg, png, 1280, 640, args.chrome)
+    svg.unlink()
+    print(f"wrote {png} ({png.stat().st_size // 1024} KB)")
     return 0
 
 

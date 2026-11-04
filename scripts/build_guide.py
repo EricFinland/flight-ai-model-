@@ -143,6 +143,7 @@ details p{margin-top:0}
   <div class="side-foot">
     <a class="btn" href="__REPO__">GitHub</a>
     <a class="btn" href="../site/">Showcase</a>
+    <a class="btn" href="../site/redacted.html">Redacted Library</a>
     <button class="btn" id="theme" type="button">Theme</button>
   </div>
 </aside>
